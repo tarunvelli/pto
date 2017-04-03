@@ -1,0 +1,55 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-3 col-md-offset-1">
+    	<div class= "leaves-block leaves-block-grey">
+    		<h2 class="heading-md"> Total Leaves</h2>
+    		<p><%= current_user.total_leaves %></p>
+    	</div>
+    </div>
+    <div class="col-md-3 col-md-offset-1">
+    	<div class= "leaves-block leaves-block-green">
+    		<h2 class="heading-md"> Remaining Leaves</h2>
+    		<p><%= current_user.remaining_leaves %></p>
+    	</div>
+    </div>
+    <div class="col-md-3 col-md-offset-1">
+    	<div class= "leaves-block leaves-block-red">
+    		<h2 class="heading-md"> Leaves used</h2>
+    		<p><%= current_user.total_leaves-current_user.remaining_leaves %></p>
+    	</div>
+    </div>
+  </div>
+
+  
+  <div class="row">
+  <div class="col-md-6 col-md-offset-1">
+   
+      <h1>Leave Form</h1>
+    
+    <%= form_for(@leave) do |f| %>
+      <%= render 'shared/error_messages', object: f.object %>
+
+      <%= f.label :leave_start_from %>
+      <%= f.date_field :leave_start_from, class: 'form-control' %>
+
+      <%= f.label :leave_end_at %>
+      <%= f.date_field :leave_end_at, class: 'form-control' %>
+
+      <%= f.label :number_of_half_days %>
+      <%= f.number_field :number_of_half_days, class: 'form-control' %>
+
+      <%= f.label :reason %>
+      <%= f.text_field :reason, class: 'form-control' %>
+
+      <%= f.submit "Submit", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-10 col-md-offset-1">
+    <h1>Leave History</h1>
+  </div>
+</div>
+
+</div>
