@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170330124009) do
+ActiveRecord::Schema.define(version: 20170403090235) do
 
-  create_table "holiday_lists", force: :cascade do |t|
+  create_table "holidays", force: :cascade do |t|
     t.date     "date"
     t.string   "occasion"
     t.datetime "created_at", null: false

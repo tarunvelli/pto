@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+
   get 'auth/:provider/callback', to: 'sessions#create'
   get 'auth/failure', to: redirect('/')
   delete 'signout', to: 'sessions#destroy', as: 'signout'
@@ -6,9 +7,9 @@ Rails.application.routes.draw do
   resources :sessions, only: [:create, :destroy]
   resource :home, only: [:show]
   resources :users, only: [:show, :edit, :update]
-  resources :leaves, only: [:new, :index, :create, :destroy]
+  resources :leaves, only: [:new, :index, :create, :destroy, :edit, :update]
+  resources :holidays
 
   root to: "home#show"
 
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 end

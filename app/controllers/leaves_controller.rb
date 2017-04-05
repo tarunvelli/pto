@@ -1,7 +1,8 @@
 class LeavesController < ApplicationController
-	before_action :logged_in_user
+  before_action :logged_in_user
 
 	def new
+	  @leave = Leave.new
     end
 
     def index
@@ -14,20 +15,40 @@ class LeavesController < ApplicationController
 	    @leave.number_of_days = days_count
 	    if @leave.save
 	      flash[:success] = "Leave form Submitted!"
-	      @user = User.find(current_user.id)
-	      @user.remaining_leaves =  @user.remaining_leaves.to_i - @leave.number_of_days.to_i
-	      @user.save
+	      current_user.remaining_leaves =  current_user.remaining_leaves.to_i - @leave.number_of_days.to_i
+	      current_user.save
+        Slacked.post " #{current_user.name} will be on leave from #{params[:leave][:leave_start_from]} to #{params[:leave][:leave_end_at]} "
 	      redirect_to leaves_url
 	    else
-	      render 'home/show'
+	      render 'new'
 	    end
     end
 
+    def edit
+     @leave = Leave.find(params[:id])
+    end
+
+    def update
+      @leave = Leave.find(params[:id])
+      no_of_days = @leave.number_of_days
+      @leave.number_of_days = days_count
+      if @leave.update_attributes(leave_params)
+        flash[:success] = "Leave updated Successfully"
+        current_user.remaining_leaves =  current_user.remaining_leaves.to_i - no_of_days + @leave.number_of_days.to_i 
+        current_user.save
+        redirect_to leaves_url
+      else
+        render 'edit'
+     end
+    end
+
     def destroy
+      @leave = Leave.find(params[:id])
     	current_user.remaining_leaves =  current_user.remaining_leaves.to_i + @leave.number_of_days.to_i
     	if @leave.destroy
     		flash[:success] = "Leave Cancelled"
     		current_user.save
+        redirect_to leaves_url
     	end	
     end
 

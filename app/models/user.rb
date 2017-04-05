@@ -1,7 +1,6 @@
 class User < ApplicationRecord
   has_many :leaves, dependent: :destroy
-  validates :name,  presence: true
-  validates :email,  presence: true
+  validates_presence_of :name, :email
 
 
   def self.from_omniauth(auth)

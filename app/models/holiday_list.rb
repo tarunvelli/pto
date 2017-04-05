@@ -1,2 +1,0 @@
-class HolidayList < ApplicationRecord
-end
