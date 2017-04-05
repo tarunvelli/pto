@@ -1,16 +1,15 @@
 class HolidaysController < ApplicationController
   before_action :admin_user, except: [:index] 
+  before_action :set_holiday, except: [:create,:index]
 
 
   def new
-    @holiday = Holiday.new
   end
 
   def create
     @holiday = Holiday.new(holiday_params)
     if @holiday.save
       flash[:info] = "Holiday added successfully."
-      redirect_to holidays_path
     else
       render 'new'
     end
@@ -22,26 +21,26 @@ class HolidaysController < ApplicationController
   end
 
   def edit
-    @holiday = Holiday.find(params[:id])
   end
 
   def update
-    @holiday = Holiday.find(params[:id])
     if @holiday.update_attributes(holiday_params)
       flash[:success] = "Holiday updated"
-      redirect_to holidays_path
     else
       render 'edit'
     end
   end
 
   def destroy
-    Holiday.find(params[:id]).destroy
+    @holiday.destroy
     flash[:success] = "Holiday deleted"
-    redirect_to holidays_path
   end
 
   private
+
+    def set_holiday
+      @holiday = params[:id].present? ? Holiday.find(params[:id]) : Holiday.new
+    end
 
     def holiday_params
       params.require(:holiday).permit(:date, :occasion)
