@@ -18,6 +18,10 @@ gem 'slacked'
 gem 'fullcalendar-rails'
 gem 'momentjs-rails'
 
+gem 'html2haml'
+
+gem 'haml'
+
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
 # Use Puma as the app server

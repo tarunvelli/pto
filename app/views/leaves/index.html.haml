@@ -1,0 +1,60 @@
+.container
+  .row
+    .col-md-3
+      .leaves-block.leaves-block-grey
+        %h2.heading-md Total Leaves
+        %p= current_user.total_leaves
+    .col-md-3.col-md-offset-1
+      .leaves-block.leaves-block-green
+        %h2.heading-md Remaining Leaves
+        %p= current_user.remaining_leaves
+    .col-md-3.col-md-offset-1
+      .leaves-block.leaves-block-red
+        %h2.heading-md Leaves used
+        %p= current_user.total_leaves-current_user.remaining_leaves
+  .row
+    .col-md-6
+      %h1 Leave Form
+      = form_for(@leave) do |f|
+        = render 'shared/error_messages', object: f.object
+        = f.label :leave_start_from
+        = f.date_field :leave_start_from, class: 'form-control'
+        = f.label :leave_end_at
+        = f.date_field :leave_end_at, class: 'form-control'
+        = f.label :number_of_half_days
+        = f.number_field :number_of_half_days, class: 'form-control'
+        = f.label :reason
+        = f.text_field :reason, class: 'form-control'
+        = f.submit "Submit", class: "btn btn-primary"
+    .col-md-4.col-md-offset-1
+      %h1 Calendar
+      #calendar
+  .row
+    .col-md-10.col-md-offset-1
+      %h1 Leave History
+  .row
+    .col-md-6{:align => "left"}
+      %h3 List of Users
+  %table#leave_history.table.table-striped.table-bordered
+    %thead
+      %tr
+        %td Start Date
+        %td End Date
+        %td Number of Days
+        %td Edit
+        %td Delete
+    %tbody
+      - @leaves.each do |leave|
+        %tr
+          %td= leave.leave_start_from
+          %td= leave.leave_end_at
+          %td= leave.number_of_days
+          %td= link_to 'Edit', edit_leave_path(leave)
+          %td
+            = link_to 'Delete', leave, method: :delete, data: { confirm: 'Are you sure?' }
+:javascript
+  $(document).ready(function() {
+      $('#calendar').fullCalendar({
+         events: '/leaves.json'
+      });
+  } );
