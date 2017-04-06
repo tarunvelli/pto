@@ -9,5 +9,13 @@ RSpec.describe Leave, type: :model do
     it "should have valid user_id" do
 
     end 
+
+    it "should have valid dates" do
+
+    end
+
+    it "start date should be before end date" do
+    	
+    end
   end
 end
