@@ -25,7 +25,7 @@ class UsersController < ApplicationController
     end
 
     def user_params
-      params.require(:user).permit(:name, :email, :start_date,:total_leaves)
+      params.require(:user).permit(:name, :email, :start_date,:total_leaves, :remaining_leaves)
     end
 
     def number_of_leaves
