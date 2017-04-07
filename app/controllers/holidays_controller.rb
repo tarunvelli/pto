@@ -10,6 +10,7 @@ class HolidaysController < ApplicationController
     @holiday = Holiday.new(holiday_params)
     if @holiday.save
       flash[:info] = "Holiday added successfully."
+      redirect_to holidays_url
     else
       render 'new'
     end
@@ -26,6 +27,7 @@ class HolidaysController < ApplicationController
   def update
     if @holiday.update_attributes(holiday_params)
       flash[:success] = "Holiday updated"
+      redirect_to holidays_url
     else
       render 'edit'
     end
