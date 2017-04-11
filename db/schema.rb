@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170403090235) do
+ActiveRecord::Schema.define(version: 20170411050255) do
 
   create_table "holidays", force: :cascade do |t|
     t.date     "date"
@@ -29,6 +29,12 @@ ActiveRecord::Schema.define(version: 20170403090235) do
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
     t.index ["user_id"], name: "index_leaves_on_user_id"
+  end
+
+  create_table "ptos", force: :cascade do |t|
+    t.integer  "no_of_pto"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|

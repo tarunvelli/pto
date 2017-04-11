@@ -1,7 +1,7 @@
 %h1 Set Pto's
 .row
   .col-md-6.col-md-offset-3
-    %label number_of_pto
-    %number_field.form-control
-      = @no_of_pto
-    %submit.btn.btn-primary Submit
+    = form_tag('/ptos', :method=>'put') do
+      = label_tag :number_of_pto
+      = number_field_tag :no_of_pto,@pto.no_of_pto, class: 'form-control'
+      = submit_tag "Submit", class: "btn btn-primary"
