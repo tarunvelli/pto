@@ -32,10 +32,10 @@ class UsersController < ApplicationController
     leaves_count = 0
     current_year = Date.current.year
     if (current_year == params[:user][:start_date].to_date.year)
-    	leaves_count = ((Date.new(current_year,12,31) - 
-      params[:user][:start_date].to_date) * APP_CONFIG[:number_of_pto] / 365 ).ceil
+    	leaves_count = ((Date.new(current_year,12,31) -
+                      params[:user][:start_date].to_date) * Pto.first.no_of_pto / 365 ).ceil
     else
-      leaves_count = APP_CONFIG[:number_of_pto]
+      leaves_count = Pto.first.no_of_pto
     end
     leaves_count
   end

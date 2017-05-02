@@ -11,10 +11,9 @@ class LeavesController < ApplicationController
 
   def create
     @leave = current_user.leaves.build(leave_params)
-    @leave.number_of_days = days_count
     if @leave.save
       flash[:success] = "Leave form Submitted!"
-        redirect_to leaves_url
+      redirect_to leaves_url
     else
       render 'new'
     end
@@ -24,7 +23,6 @@ class LeavesController < ApplicationController
   end
 
   def update
-    @leave.number_of_days = days_count
     if @leave.update_attributes(leave_params)
       flash[:success] = "Leave updated Successfully"
       redirect_to leaves_url
@@ -34,16 +32,14 @@ class LeavesController < ApplicationController
   end
 
   def destroy
-    current_user.remaining_leaves =  current_user.remaining_leaves.to_i + @leave.number_of_days.to_i
     if @leave.destroy
       flash[:success] = "Leave Cancelled"
-      current_user.save
       redirect_to leaves_url
     end
   end
 
   def number_of_days
-    @days = business_days_between(params[:start_date].to_date,params[:end_date].to_date)
+    @days = Leave.business_days_between(params[:start_date].to_date,params[:end_date].to_date)
     render json:@days
   end
 
@@ -57,28 +53,4 @@ class LeavesController < ApplicationController
     params.require(:leave).permit(:leave_start_from, :leave_end_at, :reason)
   end
 
-  def days_count
-    business_days_between(params[:leave][:leave_start_from].to_date,
-        params[:leave][:leave_end_at].to_date)
-  end
-
-  def business_days_between(date1, date2)
-    business_days = 0
-    date = date2
-    while date >= date1
-      business_days = business_days + 1 unless date.saturday? or date.sunday? or holiday(date)
-      date = date - 1.day
-    end
-    business_days
-  end
-
-  def holiday(date)
-    holidays = Holiday.all
-    holidays.each do |holiday|
-      if holiday.date == date
-        return true
-      end
-    end
-    return false
-  end
 end
