@@ -1,5 +1,5 @@
 class HolidaysController < ApplicationController
-  before_action :admin_user, except: [:index] 
+  before_action :admin_user, except: [:index]
   before_action :set_holiday, except: [:create,:index]
 
 
@@ -34,8 +34,10 @@ class HolidaysController < ApplicationController
   end
 
   def destroy
-    @holiday.destroy
-    flash[:success] = "Holiday deleted"
+    if @holiday.destroy
+      flash[:success] = "Holiday deleted"
+      redirect_to holidays_url
+    end
   end
 
   private
