@@ -42,7 +42,7 @@ class Leave < ApplicationRecord
     current_user = self.user
     if (self.changes[:number_of_days])
       self.changes[:number_of_days][0] ?
-          current_user.remaining_leaves.to_i - self.changes[:number_of_days][0] + self.changes[:number_of_days][1].to_i :
+          current_user.remaining_leaves.to_i + self.changes[:number_of_days][0] - self.changes[:number_of_days][1].to_i :
           current_user.remaining_leaves.to_i - self.changes[:number_of_days][1].to_i
     end
   end

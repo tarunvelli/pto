@@ -26,7 +26,7 @@ class LeavesController < ApplicationController
   def update
     @leave.number_of_days = days_count
     if @leave.update_attributes(leave_params)
-      flash[:success] = "Leave updated Successfully" 
+      flash[:success] = "Leave updated Successfully"
       redirect_to leaves_url
     else
       render 'edit'
@@ -39,7 +39,7 @@ class LeavesController < ApplicationController
       flash[:success] = "Leave Cancelled"
       current_user.save
       redirect_to leaves_url
-    end 
+    end
   end
 
   def number_of_days
