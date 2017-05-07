@@ -1,13 +1,12 @@
 class HolidaysController < ApplicationController
   before_action :admin_user, except: [:index]
-  before_action :set_holiday, except: [:create,:index]
-
+  before_action :set_holiday, except: [:new, :index]
 
   def new
+    @holiday = Holiday.new
   end
 
   def create
-    @holiday = Holiday.new(holiday_params)
     if @holiday.save
       flash[:info] = "Holiday added successfully."
       redirect_to holidays_url
@@ -19,9 +18,6 @@ class HolidaysController < ApplicationController
   def index
     @holidays = Holiday.all
     @users = User.all
-  end
-
-  def edit
   end
 
   def update
@@ -43,7 +39,7 @@ class HolidaysController < ApplicationController
   private
 
     def set_holiday
-      @holiday = params[:id].present? ? Holiday.find(params[:id]) : Holiday.new
+      @holiday = params[:id].present? ? Holiday.find(params[:id]) : Holiday.new(holiday_params)
     end
 
     def holiday_params

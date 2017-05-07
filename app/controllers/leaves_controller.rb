@@ -2,9 +2,6 @@ class LeavesController < ApplicationController
   before_action :logged_in_user
   before_action :set_leave, except: [:create]
 
-  def new
-  end
-
   def index
     @leaves = current_user.leaves.order('created_at DESC')
   end
@@ -39,7 +36,11 @@ class LeavesController < ApplicationController
   end
 
   def number_of_days
-    @days = Leave.business_days_between(params[:start_date].to_date,params[:end_date].to_date)
+    @days = Leave.business_days_between(
+      params[:start_date].to_date,
+      params[:end_date].to_date
+    )
+
     render json:@days
   end
 
@@ -50,7 +51,9 @@ class LeavesController < ApplicationController
   end
 
   def leave_params
-    params.require(:leave).permit(:leave_start_from, :leave_end_at, :reason)
+    params.require(:leave).permit(
+      :leave_start_from, :leave_end_at, :reason
+    )
   end
 
 end

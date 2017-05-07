@@ -2,7 +2,7 @@ class Leave < ApplicationRecord
   belongs_to :user
   validates_presence_of :user_id, :leave_start_from, :leave_end_at
   validate :dates
-  before_validation :check_date_conflicts
+  before_save :check_date_conflicts
   before_save :days_count
   after_save :post_to_slack
   before_destroy :user_leaves
@@ -34,21 +34,29 @@ class Leave < ApplicationRecord
   private
 
   def dates
-  	errors.add(:leave_start_from, "must be before end date") unless
-                              leave_start_from <= leave_end_at
+    if leave_start_from && leave_end_at
+      unless leave_start_from <= leave_end_at
+  	  errors.add(:leave_start_from, "must be before end date")
+      end
+    end
   end
 
   def days_count
-    self.number_of_days = Leave.business_days_between(self.leave_start_from.to_date,
-                                                      self.leave_end_at.to_date)
+    self.number_of_days = Leave.business_days_between(
+      self.leave_start_from.to_date,
+      self.leave_end_at.to_date
+    )
   end
 
   def post_to_slack
     current_user = self.user
     current_user.remaining_leaves = remaining_leaves_count
-    current_user.save
-    Slacked.post " #{current_user.name} will be on leave from" +
-                          " #{self.leave_start_from} to #{self.leave_end_at} "
+    current_user.save!
+
+    Slacked.post(
+      " #{current_user.name} will be on leave from" \
+      " #{self.leave_start_from} to #{self.leave_end_at} "
+    )
   end
 
   def user_leaves
@@ -57,7 +65,7 @@ class Leave < ApplicationRecord
   end
 
   def save_user
-    self.user.save
+    self.user.save!
   end
 
   def check_date_conflicts
