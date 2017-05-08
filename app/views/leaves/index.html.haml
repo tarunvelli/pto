@@ -59,6 +59,8 @@
             = link_to 'Delete', leave, method: :delete, data: { confirm: 'Are you sure?' }
 :javascript
   $(document).ready(function() {
+      $('#calendar').html('');
+
       $('#calendar').fullCalendar({
          events: '/leaves.json'
       });
