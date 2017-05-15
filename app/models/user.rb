@@ -30,7 +30,7 @@ class User < ApplicationRecord
     financial_year = Date.current < Date.new(current_year,3,31) ? current_year-1 : current_year
     if (Date.new(financial_year,4,1) < self.start_date.to_date && self.start_date.to_date < Date.new(financial_year+1,3,31))
     	leaves_count = ((Date.new(financial_year+1,3,31) -
-                      self.start_date.to_date) * Pto.first.no_of_pto / 365 ).to_i.ceil
+                      self.start_date.to_date).to_i * Pto.first.no_of_pto / 365 ).ceil
     else
       leaves_count = Pto.first.no_of_pto
     end
