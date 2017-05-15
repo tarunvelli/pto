@@ -20,6 +20,7 @@ gem 'slacked'
 gem 'turbolinks', '~> 5'
 gem 'uglifier', '>= 1.3.0'
 gem 'whenever'
+gem 'google-api-client', '~> 0.11', require: 'google/apis/calendar_v3'
 
 group :development, :test do
   gem 'byebug', platform: :mri
