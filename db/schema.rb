@@ -10,39 +10,38 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170411050255) do
+ActiveRecord::Schema.define(version: 20170522130732) do
 
-  create_table "holidays", force: :cascade do |t|
+  create_table "holidays", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.date     "date"
     t.string   "occasion"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "leaves", force: :cascade do |t|
+  create_table "leaves", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.date     "leave_start_from"
     t.date     "leave_end_at"
-    t.float    "number_of_days"
+    t.float    "number_of_days",      limit: 24
     t.integer  "number_of_half_days"
     t.string   "reason"
     t.integer  "user_id"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
-    t.index ["user_id"], name: "index_leaves_on_user_id"
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+    t.index ["user_id"], name: "index_leaves_on_user_id", using: :btree
   end
 
-  create_table "ptos", force: :cascade do |t|
+  create_table "ptos", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "no_of_pto"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "users", force: :cascade do |t|
+  create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "provider"
     t.string   "uid"
     t.string   "name"
     t.string   "oauth_token"
-    t.datetime "oauth_expires_at"
     t.datetime "created_at",       null: false
     t.datetime "updated_at",       null: false
     t.string   "email"
@@ -50,6 +49,8 @@ ActiveRecord::Schema.define(version: 20170411050255) do
     t.integer  "total_leaves"
     t.boolean  "admin"
     t.date     "start_date"
+    t.integer  "token_expires_at"
   end
 
+  add_foreign_key "leaves", "users"
 end

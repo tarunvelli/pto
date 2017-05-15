@@ -1,0 +1,12 @@
+fail_on_voilations: true
+
+coffeescript:
+  enabled: false
+go:
+  enabled: false
+swift:
+  enabled: false
+python:
+  enabled: false
+ruby:
+  config_file: .rubocop.yml

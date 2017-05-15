@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Leave < ApplicationRecord
   belongs_to :user
   validates_presence_of :user_id, :leave_start_from, :leave_end_at
@@ -36,59 +38,59 @@ class Leave < ApplicationRecord
   def dates
     if leave_start_from && leave_end_at
       unless leave_start_from <= leave_end_at
-  	  errors.add(:leave_start_from, "must be before end date")
+  	  errors.add(:leave_start_from, 'must be before end date')
       end
     end
   end
 
   def days_count
     self.number_of_days = Leave.business_days_between(
-      self.leave_start_from.to_date,
-      self.leave_end_at.to_date
+      leave_start_from.to_date,
+      leave_end_at.to_date
     )
   end
 
   def post_to_slack
-    current_user = self.user
+    current_user = user
     current_user.remaining_leaves = remaining_leaves_count
     current_user.save!
 
     Slacked.post(
       " #{current_user.name} will be on leave from" \
-      " #{self.leave_start_from} to #{self.leave_end_at} "
+      " #{leave_start_from} to #{leave_end_at} "
     )
   end
 
   def user_leaves
-    current_user = self.user
-    current_user.remaining_leaves =  current_user.remaining_leaves.to_i + self.number_of_days.to_i
+    current_user = user
+    current_user.remaining_leaves =  current_user.remaining_leaves.to_i + number_of_days.to_i
   end
 
   def save_user
-    self.user.save!
+    user.save!
   end
 
   def check_date_conflicts
-    leaves = self.user.leaves
-    start_date = self.changes[:leave_start_from] ? self.changes[:leave_start_from][1] :
+    leaves = user.leaves
+    start_date = changes[:leave_start_from] ? changes[:leave_start_from][1] :
                                                    self[:leave_start_from]
-    end_date = self.changes[:leave_end_at] ? self.changes[:leave_end_at][1] : self[:leave_end_at]
+    end_date = changes[:leave_end_at] ? changes[:leave_end_at][1] : self[:leave_end_at]
     leaves.each do |leave|
       if(leave == self)
 
       elsif((leave.leave_start_from <= end_date) && (start_date <= leave.leave_end_at))
-        errors.add(:leave_start_from, " :There are date conflicts .please check Leave History")
+        errors.add(:leave_start_from, ' :There are date conflicts .please check Leave History')
         break
       end
      end
   end
 
   def remaining_leaves_count
-    current_user = self.user
-    if (self.changes[:number_of_days])
-      self.changes[:number_of_days][0] ?
-          current_user.remaining_leaves.to_i + self.changes[:number_of_days][0] - self.changes[:number_of_days][1].to_i :
-          current_user.remaining_leaves.to_i - self.changes[:number_of_days][1].to_i
+    current_user = user
+    if (changes[:number_of_days])
+      changes[:number_of_days][0] ?
+          current_user.remaining_leaves.to_i + changes[:number_of_days][0] - changes[:number_of_days][1].to_i :
+          current_user.remaining_leaves.to_i - changes[:number_of_days][1].to_i
     else
       current_user.remaining_leaves.to_i
     end
