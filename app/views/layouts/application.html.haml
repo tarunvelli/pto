@@ -1,14 +1,29 @@
 !!!
 %html
   %head
-    %meta{:content => "text/html; charset=UTF-8", "http-equiv" => "Content-Type"}/
-    %title MyLeaveApp
+    %meta{ content: 'text/html; charset=UTF-8', 'http-equiv' => 'Content-Type' }
+    %meta{ charset: 'utf-8' }
+    %meta{ 'http-equiv' => 'X-UA-Compatible', content: 'IE=edge' }
+    %meta{ name: 'viewport', content: 'width=device-width, initial-scale=1' }
+    %link{ rel: 'icon', href: image_path('favicon.png') }
+    %title PTO Manager | BeautifulCode
     = csrf_meta_tags
     = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload'
     = javascript_include_tag 'application', 'data-turbolinks-track': 'reload'
   %body
     = render 'layouts/header'
+
     .container
       - flash.each do |message_type, message|
-        %div{:class => "alert alert-#{message_type}"}= message
-      = yield
+        .alert{ class: "alert-#{message_type}" }
+          = message
+
+      - if signed_in?
+        = yield
+      - else
+        .home-page
+          = link_to 'Sign in with BeautifulCode Account', '/auth/google_oauth2', class: 'btn btn-warning'
+
+    %footer.footer
+      %a{ href: 'http://www.beautifulcode.in' }
+        %p.text-muted &copy; BeautifulCode 2017

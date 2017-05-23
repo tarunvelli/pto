@@ -1,0 +1,128 @@
+# This references the default Ruby container from # the Docker Hub.
+# # https://registry.hub.docker.com/_/ruby/
+# # If you want to use a specific version you would use a tag:
+box: phusion/passenger-ruby23
+# You can also use services such as databases. Read more on our dev center:
+# http://devcenter.wercker.com/docs/services/index.html
+services:
+  - id: mysql
+    tag: latest
+    env:
+      MYSQL_DATABASE: pto_test
+      MYSQL_USER: pto
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+
+# This is the build pipeline. Pipelines are the core of wercker
+# Read more about pipelines on our dev center
+# http://devcenter.wercker.com/docs/pipelines/index.html
+build:
+  # Steps make up the actions in your pipeline
+  # Read more about steps on our dev center:
+  # http://devcenter.wercker.com/docs/steps/index.html
+  steps:
+    - script:
+      name: set rails environment
+      code: export RAILS_ENV=test
+
+    - rails-database-yml
+
+    - script:
+      name: install gems
+      code: |
+        echo "gem: --no-rdoc --no-ri" > ~/.gemrc
+        rm .ruby-version
+        gem install bundler
+        bundle install --without deployment test --retry=3 --no-cache --quiet
+
+    - script:
+      name: setup database
+      code: bundle exec rake db:create db:migrate
+
+    - script:
+      name: rubocop
+      code: bundle exec rubocop
+
+    - script:
+      name: run unit tests and code coverage
+      code: |
+        bundle exec rspec > rspec_output.log
+        cat rspec_output.log
+        COVERAGE=$(cat rspec_output.log| grep 'Coverage report' | awk '{ print $12 }')
+
+        if [ $COVERAGE == "(100.0%)"]; then
+          echo "Good job with the unit tests!"
+        else
+          echo "Not enough unit tests to let you get away with it. ($COVERAGE)"
+          exit 1
+        fi
+
+    - script:
+      name: precompile assets
+      code: bundle exec rake assets:precompile
+
+    # Create pto-deployment.json for initialization
+    - script:
+      name: create pto-deployment.json
+      code: bash ./scripts/create_pto-deployment.yaml.sh
+
+    # Create pto-service.json for initialization
+    - script:
+      name: create pto-service.json
+      code: bash ./scripts/create_pto-service.json.sh
+
+    - script:
+      name: prepare nginx conf
+      code: |
+        cd /pipeline/source
+        export RAILS_ENV=staging
+        bash ./scripts/app_env_vars.sh
+        sed -i 's/test/staging/g' config/database.yml
+        SECRET=$(ruby -e "require 'securerandom'; puts SecureRandom.hex(64)")
+        sed -i -e "s@STAGING_SECRET@$SECRET@" config/secrets.yml
+        bash ./scripts/nginx_conf.sh
+
+    - internal/docker-push:
+        username: $DOCKER_HUB_USERNAME
+        password: $DOCKER_HUB_PASSWORD
+        tag: $WERCKER_GIT_COMMIT
+        ports: "8080"
+        repository: itsprdp/pto
+        registry: https://registry.hub.docker.com
+
+deploy_staging:
+  steps:
+    # create secrets
+    #- kubectl:
+    #server: $KUBERNETES_MASTER_IP
+    #username: $KUBERNETES_USERNAME
+    #password: $KUBERNETES_PASSWORD
+    #insecure-skip-tls-verify: true
+    #command: create secret $MS_NAME-registry-creds --docker-server=$DOCKER_REGISTRY_SERVER \
+              #--docker-username=$DOCKER_USER \
+              #--docker-password=$DOCKER_PASSWORD \
+              #--docker-email=$DOCKER_EMAIL
+
+    # create deployment
+    #- kubectl:
+        #server: $KUBERNETES_MASTER_IP
+        #username: $KUBERNETES_USERNAME
+        #password: $KUBERNETES_PASSWORD
+        #insecure-skip-tls-verify: true
+        #command: create -f $MS_NAME-deployment.yaml --record
+
+    ## create service
+    #- kubectl:
+        #server: $KUBERNETES_MASTER_IP
+        #username: $KUBERNETES_USERNAME
+        #password: $KUBERNETES_PASSWORD
+        #insecure-skip-tls-verify: true
+        #command: create -f $MS_NAME-service.json --record
+
+    ## rolling update
+    - kubectl:
+        server: $KUBERNETES_MASTER_IP
+        username: $KUBERNETES_USERNAME
+        password: $KUBERNETES_PASSWORD
+        insecure-skip-tls-verify: true
+        command: set image deployment $MS_NAME $MS_NAME-webapp=itsprdp/$MS_NAME:${WERCKER_GIT_COMMIT} --record

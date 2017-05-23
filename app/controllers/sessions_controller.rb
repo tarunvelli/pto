@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 class SessionsController < ApplicationController
   def create
-    user = User.from_omniauth(env["omniauth.auth"])
+    user = User.from_omniauth(env['omniauth.auth'])
     session[:user_id] = user.id
     if current_user.remaining_leaves
       redirect_to leaves_path 

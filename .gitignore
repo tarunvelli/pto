@@ -19,3 +19,11 @@
 
 # Ignore Byebug command history file.
 .byebug_history
+
+# wercker dir
+.wercker
+wercker.env
+
+.env
+*.DS_Store
+coverage

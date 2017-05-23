@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
 
   get 'auth/:provider/callback', to: 'sessions#create'
@@ -10,8 +12,8 @@ Rails.application.routes.draw do
   resources :leaves, only: [:new, :index, :create, :destroy, :edit, :update]
   resources :holidays
   resource :ptos, only: [:edit, :update]
-  post "/number_of_days" => "leaves#number_of_days" , as: "number_of_days"
+  post '/number_of_days' => 'leaves#number_of_days' , as: 'number_of_days'
 
-  root to: "home#show"
+  root to: 'home#show'
 
 end

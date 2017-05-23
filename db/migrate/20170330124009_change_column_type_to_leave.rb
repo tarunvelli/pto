@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ChangeColumnTypeToLeave < ActiveRecord::Migration[5.0]
   def up
     change_column :leaves, :number_of_days, :float

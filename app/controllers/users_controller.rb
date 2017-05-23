@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 class UsersController < ApplicationController
-  before_action :logged_in_user
+  before_action :ensure_signed_in
   before_action :set_user
 
   def update
 	  if @user.update_attributes(user_params)
-	    flash[:success] = "Profile updated"
+	    flash[:success] = 'Profile updated'
 	    redirect_to @user
 	  else
 	    render 'edit'
@@ -18,6 +20,9 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:name, :email, :start_date,:total_leaves, :remaining_leaves)
+    params.require(:user).permit(
+      :name, :email, :start_date,
+      :total_leaves, :remaining_leaves
+    )
   end
 end

@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 class LeavesController < ApplicationController
-  before_action :logged_in_user
+  before_action :ensure_signed_in
   before_action :set_leave, except: [:create]
 
   def index
@@ -9,7 +11,7 @@ class LeavesController < ApplicationController
   def create
     @leave = current_user.leaves.build(leave_params)
     if @leave.save
-      flash[:success] = "Leave form Submitted!"
+      flash[:success] = 'Leave form Submitted!'
       redirect_to leaves_url
     else
       render 'new'
@@ -21,7 +23,7 @@ class LeavesController < ApplicationController
 
   def update
     if @leave.update_attributes(leave_params)
-      flash[:success] = "Leave updated Successfully"
+      flash[:success] = 'Leave updated Successfully'
       redirect_to leaves_url
     else
       render 'edit'
@@ -30,7 +32,7 @@ class LeavesController < ApplicationController
 
   def destroy
     if @leave.destroy
-      flash[:success] = "Leave Cancelled"
+      flash[:success] = 'Leave Cancelled'
       redirect_to leaves_url
     end
   end
