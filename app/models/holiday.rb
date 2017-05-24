@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
 class Holiday < ApplicationRecord
-  validates_presence_of :date, :occasion
-  validates_uniqueness_of :date
+  validates :date, :occasion, presence: true
+  validates :date, uniqueness: true
   after_initialize :set_default_values, if: :new_record?
 
   def set_default_values
-    self.date = Time.now.strftime('%Y-%m-%d') unless date.present?
+    self.date = Time.zone.now.strftime('%Y-%m-%d') if date.blank?
   end
-
 end

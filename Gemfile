@@ -28,6 +28,8 @@ gem 'whenever'
 
 group :development, :test do
   gem 'byebug', platform: :mri
+  gem 'dotenv-rails'
+  gem 'factory_girl_rails'
   gem 'rspec-rails'
   gem 'rubocop'
   gem 'shoulda-matchers'

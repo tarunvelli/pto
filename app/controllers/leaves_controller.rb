@@ -18,9 +18,6 @@ class LeavesController < ApplicationController
     end
   end
 
-  def edit
-  end
-
   def update
     if @leave.update_attributes(leave_params)
       flash[:success] = 'Leave updated Successfully'
@@ -31,10 +28,9 @@ class LeavesController < ApplicationController
   end
 
   def destroy
-    if @leave.destroy
-      flash[:success] = 'Leave Cancelled'
-      redirect_to leaves_url
-    end
+    return unless @leave.destroy
+    flash[:success] = 'Leave Cancelled'
+    redirect_to leaves_url
   end
 
   def number_of_days
@@ -42,8 +38,7 @@ class LeavesController < ApplicationController
       params[:start_date].to_date,
       params[:end_date].to_date
     )
-
-    render json:@days
+    render json: @days
   end
 
   private
@@ -57,5 +52,4 @@ class LeavesController < ApplicationController
       :leave_start_from, :leave_end_at, :reason
     )
   end
-
 end
