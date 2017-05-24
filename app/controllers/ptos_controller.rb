@@ -4,10 +4,6 @@ class PtosController < ApplicationController
   before_action :admin_user
   before_action :set_pto
 
-  def edit
-  end
-
-
   def update
     @pto.no_of_pto = params[:no_of_pto]
     if @pto.save
@@ -28,4 +24,3 @@ class PtosController < ApplicationController
     redirect_to(root_url) unless current_user.admin?
   end
 end
-

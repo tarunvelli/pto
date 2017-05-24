@@ -5,12 +5,12 @@ class UsersController < ApplicationController
   before_action :set_user
 
   def update
-	  if @user.update_attributes(user_params)
-	    flash[:success] = 'Profile updated'
-	    redirect_to @user
-	  else
-	    render 'edit'
-	  end
+    if @user.update_attributes(user_params)
+      flash[:success] = 'Profile updated'
+      redirect_to @user
+    else
+      render 'edit'
+    end
   end
 
   private

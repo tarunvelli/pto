@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class HolidaysController < ApplicationController
-  before_action :admin_user, except: [:index]
-  before_action :set_holiday, except: [:new, :index]
+  before_action :admin_user, except: %i[index]
+  before_action :set_holiday, except: %i[new index]
 
   def new
     @holiday = Holiday.new
@@ -23,7 +23,7 @@ class HolidaysController < ApplicationController
   end
 
   def update
-    if @holiday.update_attributes(holiday_params)
+    if @holiday.update_attributes holiday_params
       flash[:success] = 'Holiday updated'
       redirect_to holidays_url
     else
@@ -32,16 +32,19 @@ class HolidaysController < ApplicationController
   end
 
   def destroy
-    if @holiday.destroy
-      flash[:success] = 'Holiday deleted'
-      redirect_to holidays_url
-    end
+    return unless @holiday.destroy
+    flash[:success] = 'Holiday deleted.'
+    redirect_to holidays_url
   end
 
   private
 
   def set_holiday
-    @holiday = params[:id].present? ? Holiday.find(params[:id]) : Holiday.new(holiday_params)
+    @holiday = params[:id].present? ? find_holiday : Holiday.new(holiday_params)
+  end
+
+  def find_holiday
+    Holiday.find(params[:id])
   end
 
   def holiday_params
