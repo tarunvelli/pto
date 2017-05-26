@@ -27,25 +27,27 @@ class User < ApplicationRecord
 
   def touch_no_of_leaves
     return unless previous_changes.keys.include?('start_date')
-
     self.total_leaves = self.remaining_leaves = number_of_leaves
     save!
   end
 
   def financial_year
-    current_year = Date.current.year
+    current_year = current_date.year
 
-    if Date.current < Date.new(current_year, 3, 31)
+    if current_date < Date.new(current_year, 3, 31)
       current_year - 1
     else
       current_year
     end
   end
 
+  def current_date
+    Date.current
+  end
+
   def number_of_leaves
     past_year = Date.new(financial_year, 4, 1) < start_date
     future_year = start_date < Date.new(financial_year + 1, 3, 31)
-
     if past_year && future_year
       (
         (
