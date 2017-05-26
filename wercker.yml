@@ -39,9 +39,9 @@ build:
       name: setup database
       code: bundle exec rake db:create db:migrate
 
-    #- script:
-      #name: rubocop
-      #code: bundle exec rubocop
+    - script:
+      name: rubocop
+      code: bundle exec rubocop
 
     #- script:
       #name: run unit tests and code coverage
