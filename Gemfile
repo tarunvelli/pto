@@ -31,6 +31,7 @@ group :development, :test do
   gem 'dotenv-rails'
   gem 'factory_girl_rails'
   gem 'rspec-rails'
+  gem 'rails-controller-testing'
   gem 'rubocop'
   gem 'shoulda-matchers'
   gem 'simplecov'
