@@ -26,17 +26,13 @@ RSpec.describe User, type: :model do
 
   describe :financial_year do
     it 'should return current financial year' do
-      allow_any_instance_of(User).to receive(
-        :current_date
-      ).and_return(Date.new(2017, 7 ,1))
+      allow(user).to receive(:current_date).and_return(Date.new(2017, 7, 1))
       user = User.new(total_leaves: 16, remaining_leaves: 11)
       expect(user.send(:financial_year)).to eq(2017)
     end
 
     it 'should return correct financial year' do
-      allow_any_instance_of(User).to receive(
-        :current_date
-      ).and_return(Date.new(2017, 3 ,1))
+      allow(user).to receive(:current_date).and_return(Date.new(2017, 3, 1))
       expect(user.send(:financial_year)).to eq(2016)
     end
   end
@@ -47,7 +43,7 @@ RSpec.describe User, type: :model do
       expect(user.send(:number_of_leaves)).to eq(16)
     end
 
-    it 'should return less number of total leaves if startdate is in current financial year' do
+    it 'should have less number of leaves if startdate is in current year' do
       user.update_attributes(start_date: Date.new(Time.zone.today.year, 6, 1))
       expect(user.send(:number_of_leaves)).to eq(13)
     end
@@ -55,9 +51,7 @@ RSpec.describe User, type: :model do
 
   describe :touch_no_of_leaves do
     it 'should return total number of leaves for user' do
-      allow_any_instance_of(User).to receive(
-        :number_of_leaves
-      ).and_return(16)
+      allow(user).to receive(:number_of_leaves).and_return(16)
       user.update_attributes(start_date: '2017-02-16')
       user.send(:touch_no_of_leaves)
       expect(user.total_leaves).to eq(16)
@@ -66,8 +60,8 @@ RSpec.describe User, type: :model do
   end
 
   describe :from_omniauth do
-    it 'should get all the user details from omniauth for successful authentication' do
-      OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new({
+    it 'should fetch all the user details succesfully' do
+      OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
         provider: 'google_oauth2',
         uid: '123',
         info: {
@@ -78,7 +72,7 @@ RSpec.describe User, type: :model do
           token: 'test',
           expires_at: '123456'
         }
-      })
+      )
 
       user = User.from_omniauth(OmniAuth.config.mock_auth[:google_oauth2])
       expect(user.provider).to eq('google_oauth2')

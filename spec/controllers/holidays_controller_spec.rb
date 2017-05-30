@@ -3,8 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe HolidaysController, type: :controller do
-  before:each do
-    allow_any_instance_of(HolidaysController).to receive(:admin_user).and_return(true)
+  before :each do |example|
+    unless example.metadata[:skip_before]
+      allow_any_instance_of(HolidaysController).to receive(
+        :admin_user
+      ).and_return(true)
+    end
     @holiday = Holiday.create(date: '20170723', occasion: 'testing')
   end
 
@@ -43,30 +47,34 @@ RSpec.describe HolidaysController, type: :controller do
 
   describe 'POST #create' do
     context 'with valid attributes' do
+      let(:holiday_params) do
+        { holiday: { date: '20170423', occasion: 'test' } }
+      end
       it 'creates a new holiday' do
-        expect {
-          post :create, params: { holiday: { date: '20170423', occasion: 'test' } }
-        }.to change(Holiday, :count).by(1)
-
+        expect { post :create, params: holiday_params }
+          .to change(Holiday, :count).by 1
         expect(assigns(:holiday).persisted?).to eq(true)
       end
 
       it 'redirects to the holiday#index page' do
-        post :create, params: { holiday: { date: '20170423', occasion: 'test' } }
+        post :create, params: holiday_params
         expect(response).to redirect_to holidays_url
       end
     end
 
     context 'with invalid attributes' do
+      let(:holiday_params) do
+        { holiday: { date: '20170423', occasion: nil } }
+      end
+
       it 'does not create the new holiday' do
-        expect {
-          post :create, params: { holiday: { date: '20170423', occasion: nil } }
-        }.to_not change(Holiday, :count)
+        expect { post :create, params: holiday_params }
+          .to_not change(Holiday, :count)
         expect(assigns(:holiday).persisted?).to eq(false)
       end
 
       it 're-renders the :new template with validation errors' do
-        post :create, params: { holiday: { date: '20170423', occasion: nil } }
+        post :create, params: { holiday: holiday_params }
         expect(assigns(:holiday).errors.present?).to eq(true)
         expect(response).to render_template(:new)
       end
@@ -75,30 +83,35 @@ RSpec.describe HolidaysController, type: :controller do
 
   describe 'PATCH #update' do
     context 'with valid attributes' do
-      it 'updates a existing holiday' do
-        expect {
-          patch :update, params: { holiday: { date: '20170423', occasion: 'update' }, id: @holiday.id }
-        }.not_to change(Holiday, :count)
+      let(:holiday_params) do
+        { holiday: { date: '20170423', occasion: 'update' }, id: @holiday.id }
+      end
 
+      it 'updates a existing holiday' do
+        expect { patch :update, params: holiday_params }
+          .not_to change(Holiday, :count)
         expect(assigns(:holiday).persisted?).to eq(true)
       end
 
       it 'redirects to the holiday#index page' do
-        patch :update, params: { holiday: { date: '20170423', occasion: 'update' }, id: @holiday.id }
+        patch :update, params: holiday_params
         expect(response).to redirect_to holidays_url
       end
     end
 
     context 'with invalid attributes' do
+      let(:holiday_params) do
+        { holiday: { date: '20170423', occasion: nil }, id: @holiday.id }
+      end
+
       it 'does not update the existing holiday' do
-        expect {
-          patch :update, params: { holiday: { date: '20170423', occasion: nil }, id: @holiday.id }
-        }.to_not change(Holiday, :count)
+        expect { patch :update, params: holiday_params }
+          .to_not change(Holiday, :count)
         expect(assigns(:holiday).errors.present?).to eq(true)
       end
 
       it 're-renders the :edit template with validation errors' do
-        patch :update, params: { holiday: { date: '20170423', occasion: nil }, id: @holiday.id }
+        patch :update, params: holiday_params
         expect(assigns(:holiday).errors.present?).to eq(true)
         expect(response).to render_template(:edit)
       end
@@ -106,10 +119,14 @@ RSpec.describe HolidaysController, type: :controller do
   end
 
   describe 'delete #destroy' do
-    it 'deletes the existing holiday' do
-      expect {
-        delete :destroy, params: { id: @holiday.id }
-      }.to change(Holiday, :count).by(-1)
+    it 'deletes the existing holiday and check admin', skip_before: true do
+      user = User.new(admin: true)
+      allow_any_instance_of(HolidaysController).to receive(
+        :current_user
+      ).and_return(user)
+      holiday = { id: @holiday.id }
+      expect { delete :destroy, params: holiday }
+        .to change(Holiday, :count).by(-1)
     end
   end
 end

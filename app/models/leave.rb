@@ -22,8 +22,9 @@ class Leave < ApplicationRecord
 
   def self.holiday(date)
     holidays = Holiday.all
+    return true if date.saturday? || date.sunday?
     holidays.each do |holiday|
-      return true if holiday.date == date || date.saturday? || date.sunday?
+      return true if holiday.date == date
     end
     false
   end
@@ -32,7 +33,7 @@ class Leave < ApplicationRecord
 
   def dates
     return unless leave_start_from && leave_end_at &&
-                  leave_start_from >= leave_end_at
+                  leave_start_from > leave_end_at
     errors.add(:leave_start_from, 'must be before end date')
   end
 
@@ -44,13 +45,8 @@ class Leave < ApplicationRecord
   end
 
   def post_to_slack
-    current_user = user
-    current_user.remaining_leaves = remaining_leaves_count
-    current_user.save!
-    Slacked.post(
-      " #{current_user.name} will be on leave from" \
-      " #{leave_start_from} to #{leave_end_at} "
-    )
+    user.remaining_leaves = remaining_leaves_count
+    user.save!
   end
 
   def user_leaves

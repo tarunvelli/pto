@@ -1,24 +1,28 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe SessionsController, type: :controller do
   describe 'POST #create' do
-    it 'should create new user session' do
-      user = User.create(name: 'test', email: 'test@test.com')
+    before :each do
+      @user = User.create(
+        name: 'test',
+        email: 'test@test.com'
+      )
       allow(User).to receive(
         :from_omniauth
-      ).and_return(user)
+      ).and_return(@user)
+    end
+    it 'should create new user session' do
       post :create
-      expect(session[:user_id]).to eq(user.id)
-      expect(response).to redirect_to edit_user_url(user.id)
+      expect(session[:user_id]).to eq(@user.id)
+      expect(response).to redirect_to edit_user_url(@user.id)
     end
 
     it 'should redirect to leaves index for existing user' do
-      user = User.create(name: 'test', email: 'test@test.com', remaining_leaves: 15)
-      allow(User).to receive(
-        :from_omniauth
-      ).and_return(user)
+      @user.update_attributes(remaining_leaves: 15)
       post :create
-      expect(session[:user_id]).to eq(user.id)
+      expect(session[:user_id]).to eq(@user.id)
       expect(response).to redirect_to leaves_url
     end
   end
@@ -30,5 +34,4 @@ RSpec.describe SessionsController, type: :controller do
       expect(response).to redirect_to root_path
     end
   end
-
 end

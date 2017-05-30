@@ -1,12 +1,8 @@
 # frozen_string_literal: true
 
 class HolidaysController < ApplicationController
-  before_action :admin_user, except: %i[index]
-  before_action :set_holiday, except: %i[new index]
-
-  def new
-    @holiday = Holiday.new
-  end
+  before_action :admin_user, except: [:index]
+  before_action :set_holiday, except: [:index]
 
   def create
     if @holiday.save
@@ -40,14 +36,13 @@ class HolidaysController < ApplicationController
   private
 
   def set_holiday
-    @holiday = params[:id].present? ? find_holiday : Holiday.new(holiday_params)
-  end
-
-  def find_holiday
-    Holiday.find(params[:id])
+    @holiday = Holiday.where(id: params[:id]).first_or_initialize(
+      holiday_params
+    )
   end
 
   def holiday_params
+    return if params[:holiday].blank?
     params.require(:holiday).permit(:date, :occasion)
   end
 
