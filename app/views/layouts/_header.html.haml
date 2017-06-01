@@ -17,3 +17,17 @@
                 %li.divider
                 %li
                   = link_to "Log out", signout_path, method: "delete"
+            %li
+              %p#time
+:javascript
+  (function () {
+    function startTime() {
+      var today = new Date();
+      var to_time = today.toLocaleTimeString();
+      document.getElementById('time').innerHTML = to_time;
+      t = setTimeout(function () {
+            startTime()
+          }, 500);
+     }
+     startTime();
+  })();

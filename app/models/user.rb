@@ -3,6 +3,7 @@
 class User < ApplicationRecord
   has_many :leaves, dependent: :destroy
   validates :name, :email, presence: true
+  validate :check_remaining_leaves
 
   after_commit :initialize_total_leaves_and_remaining_leaves
 
@@ -60,5 +61,10 @@ class User < ApplicationRecord
     else
       NO_OF_PTO
     end
+  end
+
+  def check_remaining_leaves
+    return unless remaining_leaves && remaining_leaves.negative?
+    errors.add(:generic, 'remaining leaves cant be negative')
   end
 end

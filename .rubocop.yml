@@ -36,3 +36,10 @@ Metrics/BlockLength:
     - "**/*_spec.rb"
 Style/SymbolArray:
   Enabled: false
+Date:
+  Enabled: false
+ParenthesesAsGroupedExpression:
+  Enabled: false
+Metrics/ClassLength:
+  Enabled: false
+

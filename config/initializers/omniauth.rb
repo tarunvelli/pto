@@ -11,5 +11,6 @@ Rails.application.config.middleware.use OmniAuth::Builder do
                ca_file: Rails.root.join('cacert.pem').to_s
              }
            },
+           scope: 'email, profile, https://www.googleapis.com/auth/calendar',
            hd: 'beautifulcode.in'
 end

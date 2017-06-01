@@ -5,7 +5,7 @@ class LeavesController < ApplicationController
   before_action :set_leave, except: [:create]
 
   def index
-    @leaves = current_user.leaves.order('created_at DESC')
+    @leaves = current_user.leaves.where("leave_end_at > ?",Date.current)
   end
 
   def create
