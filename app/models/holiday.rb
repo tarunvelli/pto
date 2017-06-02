@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# TODO: Rename to CompanyHoliday
 class Holiday < ApplicationRecord
   validates :date, :occasion, presence: true
   validates :date, uniqueness: true

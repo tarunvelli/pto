@@ -25,15 +25,20 @@ class User < ApplicationRecord
 
   private
 
+  # TODO: Rename to initialize_total_leaves_and_remaining_leaves
   def touch_no_of_leaves
     return unless previous_changes.keys.include?('start_date')
     self.total_leaves = self.remaining_leaves = number_of_leaves
     save!
   end
 
+  # TODO: Move financial year type to config (ex: Indian FY, US FY) and use that value 
+  # 2017-2018
+  # TODO: Rename to start_year_of_financial_year
   def financial_year
     current_year = current_date.year
 
+    # TODO: Remove hardcoding of financial year.
     if current_date < Date.new(current_year, 3, 31)
       current_year - 1
     else
@@ -41,10 +46,12 @@ class User < ApplicationRecord
     end
   end
 
+  # TODO: Try to get rid of this method.
   def current_date
     Date.current
   end
 
+  # TODO: Rename to compute_number_of_leaves_for_a_new_user
   def number_of_leaves
     past_year = Date.new(financial_year, 4, 1) < start_date
     future_year = start_date < Date.new(financial_year + 1, 3, 31)
@@ -58,4 +65,21 @@ class User < ApplicationRecord
       NO_OF_PTO
     end
   end
+
+  def number_of_leaves
+    did_user_join_in_between_this_fy =
+      (Date.new(financial_year, 4, 1) < start_date) &&
+      (start_date < Date.new(financial_year + 1, 3, 31))
+
+    if did_user_join_in_between_this_fy
+      (
+        (
+          Date.new(financial_year + 1, 3, 31) - start_date
+        ).to_i * NO_OF_PTO / 365
+      ).ceil
+    else
+      NO_OF_PTO
+    end
+  end
+
 end

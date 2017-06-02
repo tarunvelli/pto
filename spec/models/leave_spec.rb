@@ -35,6 +35,14 @@ RSpec.describe Leave, type: :model do
   end
 
   describe :business_days_between do
+    it 'should return 2 for a input of Fri to Mon'
+
+    it 'should return 4 for a input of Mon to Thurs'
+
+    it 'should return 1 if the start and end dates are the same'
+
+    it 'should exclude Holiday days during the period'
+
     it 'should return business days between two dates' do
       expect(Leave.business_days_between(
                Date.new(2017, 5, 26),
