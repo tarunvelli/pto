@@ -19,8 +19,8 @@ RSpec.describe LeavesController, type: :controller do
       .to receive(:current_user).and_return(user)
 
     @leave = user.leaves.create(
-      leave_start_from: '20170412',
-      leave_end_at: '20170413'
+      start_date: '20170412',
+      end_date: '20170413'
     )
   end
 
@@ -60,7 +60,7 @@ RSpec.describe LeavesController, type: :controller do
   describe 'POST #create' do
     context 'with valid attributes' do
       let(:leave_params) do
-        { leave_start_from: '20170414', leave_end_at: '20170415' }
+        { start_date: '20170414', end_date: '20170415' }
       end
 
       it 'creates a new leave' do
@@ -78,7 +78,7 @@ RSpec.describe LeavesController, type: :controller do
 
     context 'with invalid attributes' do
       let(:leave_params) do
-        { leave_start_from: '20170414' }
+        { start_date: '20170414' }
       end
 
       it 'does not create the new leave' do
@@ -98,7 +98,7 @@ RSpec.describe LeavesController, type: :controller do
   describe 'PATCH #update' do
     context 'with valid attributes' do
       let(:leave_params) do
-        { leave_start_from: '20170413', leave_end_at: '20170414' }
+        { start_date: '20170413', end_date: '20170414' }
       end
 
       it 'updates a existing leave' do
@@ -106,8 +106,8 @@ RSpec.describe LeavesController, type: :controller do
           .not_to change(Leave, :count)
         @leave.reload
         expect(assigns(:leave).persisted?).to eq(true)
-        expect(@leave.leave_start_from).to eq('20170413'.to_date)
-        expect(@leave.leave_end_at).to eq('20170414'.to_date)
+        expect(@leave.start_date).to eq('20170413'.to_date)
+        expect(@leave.end_date).to eq('20170414'.to_date)
       end
 
       it 'redirects to the leaves#index page' do
@@ -118,7 +118,7 @@ RSpec.describe LeavesController, type: :controller do
 
     context 'with invalid attributes' do
       let(:leave_params) do
-        { leave_start_from: '20170413', leave_end_at: nil }
+        { start_date: '20170413', end_date: nil }
       end
 
       it 'does not update the leave' do
@@ -126,7 +126,7 @@ RSpec.describe LeavesController, type: :controller do
           .to_not change(Leave, :count)
         @leave.reload
         expect(assigns(:leave).errors.present?).to eq(true)
-        expect(@leave.leave_start_from).to eq('20170412'.to_date)
+        expect(@leave.start_date).to eq('20170412'.to_date)
       end
 
       it 're-renders the :edit template with validation errors' do

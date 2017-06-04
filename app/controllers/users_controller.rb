@@ -21,7 +21,7 @@ class UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(
-      :name, :email, :start_date,
+      :name, :email, :joining_date,
       :total_leaves, :remaining_leaves
     )
   end

@@ -49,7 +49,7 @@ class LeavesController < ApplicationController
 
   def leave_params
     params.require(:leave).permit(
-      :leave_start_from, :leave_end_at, :reason
+      :start_date, :end_date
     )
   end
 end

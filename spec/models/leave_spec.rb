@@ -5,89 +5,106 @@ require 'rails_helper'
 RSpec.describe Leave, type: :model do
   user_params = { name: 'test', email: 'test@test.com', remaining_leaves: 15 }
   let(:user) { User.create(user_params) }
-  holiday_params = { leave_start_from: '20170412', leave_end_at: '20170413' }
-  let(:leave) { user.leaves.create(holiday_params) }
+  leave_params = { start_date: '20170412', end_date: '20170413' }
+  let(:leave) { user.leaves.create(leave_params) }
 
   describe :validations do
     it 'should belong to user' do
       expect(leave.user.id).not_to eq(nil)
     end
 
-    it 'should have valid user_id' do
-      leave.update_attributes(user_id: nil)
-      expect(leave.errors).to include(:user_id)
+    it 'should have valid start_date' do
+      leave.update_attributes(start_date: nil)
+      expect(leave.errors).to include(:start_date)
     end
 
-    it 'should have valid leave_start_from' do
-      leave.update_attributes(leave_start_from: nil)
-      expect(leave.errors).to include(:leave_start_from)
-    end
-
-    it 'should have valid leave_end_at' do
-      leave.update_attributes(leave_end_at: nil)
-      expect(leave.errors).to include(:leave_end_at)
+    it 'should have valid end_date' do
+      leave.update_attributes(end_date: nil)
+      expect(leave.errors).to include(:end_date)
     end
 
     it 'start date should be before end date' do
-      leave.update_attributes(leave_start_from: '20170414')
-      expect(leave.errors).to include(:leave_start_from)
+      leave.update_attributes(start_date: '20170414')
+      expect(leave.errors).to include(:start_date)
     end
   end
 
   describe :business_days_between do
-    it 'should return 2 for a input of Fri to Mon'
-
-    it 'should return 4 for a input of Mon to Thurs'
-
-    it 'should return 1 if the start and end dates are the same'
-
-    it 'should exclude Holiday days during the period'
-
-    it 'should return business days between two dates' do
+    it 'should return 2 for a input of Fri to Mon' do
       expect(Leave.business_days_between(
                Date.new(2017, 5, 26),
                Date.new(2017, 5, 29)
       )).to eq(2)
     end
+
+    it 'should return 4 for a input of Mon to Thurs' do
+      expect(Leave.business_days_between(
+               Date.new(2017, 5, 22),
+               Date.new(2017, 5, 25)
+      )).to eq(4)
+    end
+
+    it 'should return 1 if the start and end dates are the same' do
+      expect(Leave.business_days_between(
+               Date.new(2017, 5, 26),
+               Date.new(2017, 5, 26)
+      )).to eq(1)
+    end
   end
 
-  describe :holiday do
-    it 'should return false for normal date' do
-      expect(Leave.holiday(Date.new(2017, 5, 26))).to eq(false)
+  describe :is_holiday? do
+    it 'should return false for weekday unless it is holiday' do
+      expect(Leave.is_holiday?(Date.new(2017, 5, 26))).to eq(false)
     end
 
     it 'should return true for holiday' do
       @holiday = Holiday.create(date: '2017-02-14', occasion: 'testing')
-      expect(Leave.holiday(Date.new(2017, 2, 14))).to eq(true)
+      expect(Leave.is_holiday?(Date.new(2017, 2, 14))).to eq(true)
+    end
+
+    it 'should return true for saturday' do
+      expect(Leave.is_holiday?(Date.new(2017, 6, 3))).to eq(true)
+    end
+
+    it 'should return true for sunday' do
+      expect(Leave.is_holiday?(Date.new(2017, 6, 4))).to eq(true)
     end
   end
 
-  describe :dates do
-    it 'start date should be before end date' do
+  describe :verify_dates do
+    it 'should not add to errors if start date is before end date' do
       leave.update_attributes(
-        leave_start_from: '20170412',
-        leave_end_at: '20170413'
+        start_date: '20170412',
+        end_date: '20170413'
       )
-      expect(leave.errors).not_to include(:leave_start_from)
+      expect(leave.errors).not_to include(:generic)
     end
 
-    it 'start date should be before end date if not, add to errors' do
-      leave.update_attributes(leave_start_from: '20170414')
-      expect(leave.errors).to include(:leave_start_from)
+    it 'should add to errors if start date is before end date' do
+      leave.update_attributes(start_date: '20170414')
+      expect(leave.errors).to include(:start_date)
+      expect(leave.errors[:start_date])
+        .to include('must be before end date')
+    end
+
+    it 'should not add to errors if end_date is empty' do
+      leave.update_attributes(end_date: nil)
+      expect(leave.errors[:start_date])
+        .not_to include('must be before end date')
     end
   end
 
-  describe :days_count do
+  describe :set_number_of_business_days do
     it 'should set number of days for that leave' do
-      leave.send(:days_count)
+      leave.send(:set_number_of_business_days)
       expect(leave.number_of_days).to eq(2)
     end
   end
 
-  describe :user_leaves do
+  describe :update_remaining_leaves do
     it 'should set remaining leaves to the user' do
       leave.number_of_days = 2
-      leave.send(:user_leaves)
+      leave.send(:update_remaining_leaves)
       expect(user.remaining_leaves).to eq(15)
     end
   end
@@ -102,9 +119,9 @@ RSpec.describe Leave, type: :model do
 
   describe :edit_no_of_days do
     it 'should return new number of days' do
-      allow(leave).to receive(:old_days_count).and_return(2)
+      allow(leave).to receive(:number_of_days_was).and_return(2)
 
-      allow(leave).to receive(:new_days_count).and_return(3)
+      allow(leave).to receive(:number_of_days).and_return(3)
 
       expect(leave.send(:edit_no_of_days)).to eq(12)
     end
@@ -113,14 +130,27 @@ RSpec.describe Leave, type: :model do
   describe :check_date_conflicts do
     it 'should add to errors if there is date conflit' do
       allow(leave).to receive(:post_to_slack).and_return(true)
-      user.leaves.create(leave_start_from: '20170412', leave_end_at: '20170413')
       conflict_leave = user.leaves.create(
-        leave_start_from: '20170413',
-        leave_end_at: '20170414'
+        start_date: '20170413',
+        end_date: '20170414'
       )
       conflict_leave.send(:check_date_conflicts)
-      expect(conflict_leave.errors[:leave_start_from])
-        .to include(':There are date conflicts .please check Leave History')
+      expect(conflict_leave.errors[:generic])
+        .to include('Leave dates are overlapping with previous leave dates.
+                  Please correct.')
+    end
+
+    it 'should not add to errors if there is no date conflict' do
+      allow(leave).to receive(:post_to_slack).and_return(true)
+      normal_leave = user.leaves.create(
+        start_date: '20170414',
+        end_date: '20170415'
+      )
+      normal_leave.send(:check_date_conflicts)
+      expect(normal_leave.errors[:generic])
+        .not_to include('Leave dates are overlapping with previous leave dates.
+                  Please correct.')
+
     end
   end
 end

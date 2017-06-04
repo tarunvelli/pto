@@ -24,62 +24,64 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe :financial_year do
-    context 'Indian Financial Year' do
-      it 'should return 2017 when the current date is July 1st, 2017'
-      it 'should return 2016 when the current date is March 1st, 2017'
-    end
-
-    context 'US Financial Year' do
-      it 'should return 2017 when the current date is July 1st, 2017'
-      it 'should return 2017 when the current date is March 1st, 2017'
-      it 'should return 2016 when the current date is Dec 31st, 2016'
-    end
-
-
-    it 'should return current financial year' do
+  describe :start_year_of_indian_financial_year do
+    it 'should return 2017 when the current date is July 1st, 2017' do
       allow(user).to receive(:current_date).and_return(Date.new(2017, 7, 1))
-      expect(user.send(:financial_year)).to eq(2017)
+      expect(user.send(:start_year_of_indian_financial_year)).to eq(2017)
     end
 
-    it 'should return correct financial year' do
+    it 'should return 2016 when the current date is March 1st, 2017' do
       allow(user).to receive(:current_date).and_return(Date.new(2017, 3, 1))
-      expect(user.send(:financial_year)).to eq(2016)
-    end
-  end
-
-  describe :number_of_leaves do
-    it 'should return total number of leaves for user' do
-      user.update_attributes(start_date: '2017-02-16')
-      expect(user.send(:number_of_leaves)).to eq(16)
-    end
-
-    it 'should have less number of leaves if startdate is in current year' do
-      user.update_attributes(start_date: Date.new(Time.zone.today.year, 6, 1))
-      expect(user.send(:number_of_leaves)).to eq(13)
+      expect(user.send(:start_year_of_indian_financial_year)).to eq(2016)
     end
   end
 
   describe :compute_number_of_leaves_for_a_new_user do
-    it 'should return the maximum number of leaves/year if the user has already joined before this financial year'
+    it 'should return the maximum number of leaves/year if the \
+    user has already joined before this financial year' do
+      allow(user).to receive(:start_year_of_indian_financial_year).and_return(2017)
+      user.update_attributes(joining_date: '2017-02-16')
+      expect(user.send(:compute_number_of_leaves_for_a_new_user)).to eq(16)
+    end
 
-    it 'should return the half of the maximum leaves if the user joined exactly mid financial year'
+    it 'should return the half of the maximum leaves if \
+    the user joined exactly mid financial year' do
+      allow(user).to receive(:start_year_of_indian_financial_year).and_return(2017)
+      user.update_attributes(joining_date: '2017-10-01')
+      expect(user.send(:compute_number_of_leaves_for_a_new_user)).to eq(8)
+    end
 
-    it 'should return the quarter of the maximum leaves if the user joined in the last quarter of the financial year'
+    it 'should return the quarter of the maximum leaves if the user \
+    joined in the last quarter of the financial year' do
+      allow(user).to receive(:start_year_of_indian_financial_year).and_return(2017)
+      user.update_attributes(joining_date: '2018-01-01')
+      expect(user.send(:compute_number_of_leaves_for_a_new_user)).to eq(4)
+    end
 
-    it 'should return ceiling of the fractional value if the user joined in the second month of the first quarter'
+    it 'should return ceiling of the fractional value if the user \
+    joined in the second month of the first quarter' do
+      allow(user).to receive(:start_year_of_indian_financial_year).and_return(2017)
+      user.update_attributes(joining_date: '2018-02-01')
+      expect(user.send(:compute_number_of_leaves_for_a_new_user)).to eq(3)
+    end
   end
 
-  describe :touch_no_of_leaves do
-    it 'should set total_leaves and remaining leaves for a newly created user'
-    it 'should not do anything if the user start date is already set'
-
-    it 'should return total number of leaves for user' do
-      allow(user).to receive(:number_of_leaves).and_return(16)
-      user.update_attributes(start_date: '2017-02-16')
-      user.send(:touch_no_of_leaves)
+  describe :initialize_total_leaves_and_remaining_leaves do
+    it 'should set total_leaves and remaining leaves for \
+    a newly created user' do
+      allow(user).to receive(
+        :compute_number_of_leaves_for_a_new_user
+      ).and_return(16)
+      user.update_attributes(joining_date: '2017-02-16')
+      user.send(:initialize_total_leaves_and_remaining_leaves)
       expect(user.total_leaves).to eq(16)
       expect(user.remaining_leaves).to eq(16)
+    end
+
+    it 'should not do anything if there is no change in user start date' do
+      user.send(:initialize_total_leaves_and_remaining_leaves)
+      user.reload
+      expect(user.remaining_leaves).to eq(nil)
     end
   end
 

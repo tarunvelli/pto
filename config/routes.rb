@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   resources :users, only: [:show, :edit, :update]
   resources :leaves, except: [:show]
   resources :holidays
-  resource :ptos, only: [:edit, :update]
+  resource :oooconfigs, only: [:edit, :update]
   post '/number_of_days' => 'leaves#number_of_days', as: 'number_of_days'
 
   root to: 'home#show'
