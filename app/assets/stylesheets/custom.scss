@@ -184,6 +184,10 @@ input {
   }
 }
 
+.form-control {
+  width: 61%;
+}
+
 .checkbox {
   margin-top: -10px;
   margin-bottom: 10px;
@@ -302,9 +306,9 @@ span.picture {
 
 .leaves-block {
 
- padding: 20px 30px;
- text-align: center;
- margin-bottom: 20px;
+  padding: 20px 30px;
+  text-align: center;
+  margin-bottom: 20px;
 
 }
 
@@ -329,6 +333,12 @@ span.picture {
 
 #selectYear, #selectHeader {
   margin-top: 20px;
+}
+
+.submit {
+  padding-bottom: 15px;
+  background-color: #337ab7;
+  border-color: #2e6da4;
 }
 
 /* Sticky footer styles

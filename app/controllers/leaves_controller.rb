@@ -5,7 +5,16 @@ class LeavesController < ApplicationController
   before_action :set_leave, except: [:create]
 
   def index
-    @leaves = current_user.leaves.where("leave_end_at > ?",Date.current)
+    @total_leaves = current_user.leaves.order('end_date DESC')
+    @a = [];
+    @total_leaves.each do |leave|
+      lea = {}
+      lea[:startDate] = leave.start_date
+      lea[:endDate] = leave.end_date
+      @a.push(lea)
+    end
+    @a = @a.to_json
+    @editable_leaves = current_user.leaves.where("end_date > ?",Date.current)
   end
 
   def create

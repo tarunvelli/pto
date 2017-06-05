@@ -8,20 +8,21 @@ class OOOPeriod < ApplicationRecord
   validate :check_date_conflicts
 
   before_save :set_number_of_business_days
-  after_save :post_to_slack
+  before_save :google_calendar
+  after_save :save_user
   before_destroy :update_remaining_leaves
   after_destroy :save_user
 
   def self.business_days_between start_date, end_date
     business_days = 0
     while end_date >= start_date
-      business_days += 1 unless is_holiday?(end_date)
+      business_days += 1 unless holiday?(end_date)
       end_date -= 1.day
     end
     business_days
   end
 
-  def self.is_holiday?(date)
+  def self.holiday?(date)
     holidays = Holiday.all
     return true if date.saturday? || date.sunday?
     holidays.each do |holiday|
@@ -45,13 +46,58 @@ class OOOPeriod < ApplicationRecord
     )
   end
 
-  def post_to_slack
+  def google_calendar
     user.remaining_leaves = remaining_leaves_count
-    user.save!
+    update_google_calendar
   end
 
+  def google_client
+     calendar_service = Google::Apis::CalendarV3::CalendarService.new
+     calendar_service.authorization = user.oauth_token
+     calendar_service
+  end
+
+   def update_google_calendar
+     google_event_id.blank? ? insert_calendar : edit_calendar
+   end
+
+   def insert_calendar
+     client = google_client
+     event = Google::Apis::CalendarV3::Event.new ( {
+       summary: 'Leave',
+       description: 'will be on leave',
+       start: {
+         date_time: start_date.to_time.to_datetime,
+         time_zone: 'Asia/Kolkata'
+       },
+       end: {
+         date_time: (end_date + 1).to_time.to_datetime ,
+         time_zone: 'Asia/Kolkata'
+       }
+     })
+     response = client.insert_event('primary', event)
+     self.google_event_id = response.id
+   end
+
+   def edit_calendar
+     client = google_client
+     event = client.get_event('primary', google_event_id)
+     event.start.date_time = start_date.to_time.to_datetime
+     event.end.date_time = (end_date + 1).to_time.to_datetime
+     client.update_event('primary', event.id, event)
+   end
+
   def update_remaining_leaves
-    user.remaining_leaves = user.remaining_leaves + number_of_days.to_i
+    user.remaining_leaves = user.remaining_leaves + number_of_days
+    delete_event_google_calendar
+  end
+
+  def delete_event_google_calendar
+     client = google_client
+     begin
+       client.delete_event('primary', google_event_id)
+     rescue =>e
+     end
   end
 
   def save_user
