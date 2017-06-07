@@ -79,8 +79,12 @@ class OOOPeriod < ApplicationRecord
          time_zone: 'Asia/Kolkata'
        }
      })
-     response = client.insert_event(wfh_calendar_id, event)
-     self.google_event_id = response.id
+     begin
+       byebug
+       response = client.insert_event(wfh_calendar_id, event)
+       self.google_event_id = response.id
+     rescue =>e
+     end
    end
 
    def edit_calendar

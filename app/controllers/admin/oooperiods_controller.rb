@@ -4,7 +4,7 @@ class Admin::OooperiodsController < ApplicationController
   before_action :set_leave, except: [:create]
 
   def create
-    @leave = current_user.leaves.build(leave_params)
+    @leave = @user.leaves.build(leave_params)
     if @leave.save
       flash[:success] = 'OOO period form Submitted!'
       redirect_to admin_user_url(@user)
@@ -14,7 +14,6 @@ class Admin::OooperiodsController < ApplicationController
   end
 
   def update
-    byebug
     if @leave.update_attributes(leave_params)
       flash[:success] = 'OOO period updated Successfully'
       redirect_to admin_user_url(@user)
@@ -26,7 +25,7 @@ class Admin::OooperiodsController < ApplicationController
   def destroy
     return unless @leave.destroy
     flash[:success] = 'OOO Cancelled'
-    redirect_to leaves_url
+    redirect_to admin_user_url(@user)
   end
 
 
