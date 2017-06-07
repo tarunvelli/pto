@@ -7,11 +7,17 @@ Rails.application.routes.draw do
 
   resources :sessions, only: [:create, :destroy]
   resource :home, only: [:show]
-  resources :users, only: [:show, :edit, :update]
+  resources :users, only: [:show, :edit, :update, :index]
   resources :leaves, except: [:show]
   resources :holidays
   resource :oooconfigs, only: [:edit, :update]
   post '/number_of_days' => 'leaves#number_of_days', as: 'number_of_days'
 
   root to: 'home#show'
+
+  namespace :admin do
+    resources :users, only: [:show, :edit, :update, :index] do
+      resources :oooperiods
+    end
+  end
 end

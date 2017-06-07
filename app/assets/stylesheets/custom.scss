@@ -185,7 +185,11 @@ input {
 }
 
 .form-control {
-  width: 61%;
+  //width: 61%;
+}
+
+.calendar {
+  overflow: none;
 }
 
 .checkbox {

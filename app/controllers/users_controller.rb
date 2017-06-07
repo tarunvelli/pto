@@ -2,7 +2,8 @@
 
 class UsersController < ApplicationController
   before_action :ensure_signed_in
-  before_action :set_user
+  before_action :admin_user, only: [:index]
+  before_action :set_user, except: [:index]
 
   def update
     if @user.update_attributes(user_params)
@@ -11,6 +12,15 @@ class UsersController < ApplicationController
     else
       render 'edit'
     end
+  end
+
+  def index
+    @users = User.all
+  end
+
+  def show
+    @leaves = @user.leaves.order("end_date DESC")
+    @leave = Leave.new
   end
 
   private

@@ -1,0 +1,21 @@
+.container
+  .row
+    .col-md-6{:align => "left"}
+      %h3 List of Users
+  %table#user_table.table.table-striped.table-bordered
+    %thead
+      %tr
+        %td Id
+        %td Name
+        %td Email
+        %td Remaining Leaves
+        %td Show
+    %tbody
+      - @users.each do |user|
+        %tr
+          %td= user.id
+          %td= user.name
+          %td= user.email
+          %td= user.remaining_leaves
+          %td= link_to 'Show', user_path(user)
+

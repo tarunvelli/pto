@@ -61,10 +61,14 @@ class OOOPeriod < ApplicationRecord
      google_event_id.blank? ? insert_calendar : edit_calendar
    end
 
+
+
    def insert_calendar
      client = google_client
+     ooo_calendar_id = 'beautifulcode.in_u4r1aag3llp06abvmmt1nsie80@group.calendar.google.com'
+     wfh_calendar_id = "beautifulcode.in_ftlgca8tnpaqenr3i9ihgla3bg@group.calendar.google.com"
      event = Google::Apis::CalendarV3::Event.new ( {
-       summary: 'Leave',
+       summary: "#{user.name} Leave",
        description: 'will be on leave',
        start: {
          date_time: start_date.to_time.to_datetime,
@@ -75,16 +79,18 @@ class OOOPeriod < ApplicationRecord
          time_zone: 'Asia/Kolkata'
        }
      })
-     response = client.insert_event('primary', event)
+     response = client.insert_event(wfh_calendar_id, event)
      self.google_event_id = response.id
    end
 
    def edit_calendar
      client = google_client
-     event = client.get_event('primary', google_event_id)
+     ooo_calendar_id = 'beautifulcode.in_u4r1aag3llp06abvmmt1nsie80@group.calendar.google.com'
+     wfh_calendar_id = "beautifulcode.in_ftlgca8tnpaqenr3i9ihgla3bg@group.calendar.google.com"
+     event = client.get_event(wfh_calendar_id, google_event_id)
      event.start.date_time = start_date.to_time.to_datetime
      event.end.date_time = (end_date + 1).to_time.to_datetime
-     client.update_event('primary', event.id, event)
+     client.update_event(wfh_calendar_id, event.id, event)
    end
 
   def update_remaining_leaves
@@ -94,8 +100,10 @@ class OOOPeriod < ApplicationRecord
 
   def delete_event_google_calendar
      client = google_client
+     ooo_calendar_id = 'beautifulcode.in_u4r1aag3llp06abvmmt1nsie80@group.calendar.google.com'
+     wfh_calendar_id = "beautifulcode.in_ftlgca8tnpaqenr3i9ihgla3bg@group.calendar.google.com"
      begin
-       client.delete_event('primary', google_event_id)
+       client.delete_event(wfh_calendar_id, google_event_id)
      rescue =>e
      end
   end

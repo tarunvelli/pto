@@ -45,8 +45,4 @@ class HolidaysController < ApplicationController
     return if params[:holiday].blank?
     params.require(:holiday).permit(:date, :occasion)
   end
-
-  def admin_user
-    redirect_to(root_url) unless current_user.admin?
-  end
 end
