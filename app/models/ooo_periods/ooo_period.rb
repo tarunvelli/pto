@@ -56,11 +56,12 @@ class OOOPeriod < ApplicationRecord
       end
       user.remaining_leaves = remaining_leaves_count
     else
-      if remaining_leaves_count.negative?
+      remaining_wfhs = remaining_wfhs_count
+      if remaining_wfhs.negative?
         errors.add(:generic,
                    'you dont have enough remaining wfhs to apply this wfh')
       end
-      user.remaining_wfhs = remaining_wfhs_count
+      user.remaining_wfhs = remaining_wfhs
     end
   end
 
@@ -71,7 +72,6 @@ class OOOPeriod < ApplicationRecord
   end
 
   def update_google_calendar
-    #test_calendar
     google_event_id.blank? ? insert_calendar : edit_calendar
   end
 
@@ -95,20 +95,6 @@ class OOOPeriod < ApplicationRecord
     end
   end
 
-  def test_calendar
-    ooo_calendar_id = 'beautifulcode.in_u4r1aag3llp06abvmmt1nsi\
-    e80@group.calendar.google.com'
-    rule = Google::Apis::CalendarV3::AclRule.new(
-    scope: {
-      type: 'scopeType',
-      value: 'mani@beautifulcode.in',
-    },
-    role: 'owner'
-    )
-    byebug
-   result = google_client.insert_acl(ooo_calendar_id, rule)
-  end
-
   def edit_calendar
     client = google_client
     begin
@@ -121,10 +107,10 @@ class OOOPeriod < ApplicationRecord
   end
 
   def calendar_id
-    ooo_calendar_id = 'beautifulcode.in_u4r1aag3llp06abvmmt1nsi\
-    e80@group.calendar.google.com'
-    wfh_calendar_id = 'beautifulcode.in_ftlgca8tnpaqenr3i9ihgla3\
-    bg@group.calendar.google.com'
+    ooo_calendar_id =
+      'beautifulcode.in_u4r1aag3llp06abvmmt1nsie80@group.calendar.google.com'
+    wfh_calendar_id =
+      'beautifulcode.in_ftlgca8tnpaqenr3i9ihgla3bg@group.calendar.google.com'
     type == 'Leave' ? ooo_calendar_id : wfh_calendar_id
   end
 

@@ -52,7 +52,6 @@ ActiveRecord::Schema.define(version: 20170609044925) do
     t.boolean  "admin"
     t.date     "joining_date"
     t.integer  "token_expires_at"
-    t.string   "refresh_token"
     t.integer  "total_wfhs"
     t.integer  "remaining_wfhs"
   end

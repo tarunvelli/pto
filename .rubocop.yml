@@ -26,15 +26,17 @@ Metrics/AbcSize:
   Max: 20
 Metrics/MethodLength:
   CountComments: false
-  Max: 15
+  Max: 20
 Metrics/ModuleLength:
   Exclude:
     - "**/*_spec.rb"
-
+Metrics/AbcSize:
+  Enabled: false
 Metrics/BlockLength:
-  Exclude:
-    - "**/*_spec.rb"
+  Enabled: false
 Style/SymbolArray:
+  Enabled: false
+Style/ClassAndModuleChildren:
   Enabled: false
 Date:
   Enabled: false
@@ -42,4 +44,7 @@ ParenthesesAsGroupedExpression:
   Enabled: false
 Metrics/ClassLength:
   Enabled: false
+Lint/HandleExceptions:
+  Enabled: false
+
 

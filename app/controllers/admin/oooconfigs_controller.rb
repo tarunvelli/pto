@@ -2,7 +2,7 @@
 
 class Admin::OooconfigsController < ApplicationController
   before_action :admin_user
-  before_action :set_pto
+  before_action :set_ooo_config
 
   def update
     if @ooo_config.update_attributes(ooo_config_params)
@@ -15,7 +15,7 @@ class Admin::OooconfigsController < ApplicationController
 
   private
 
-  def set_pto
+  def set_ooo_config
     @ooo_config = OOOConfig.where('financial_year = ?',
                                   OOOConfig.financial_year).first
   end
@@ -26,9 +26,5 @@ class Admin::OooconfigsController < ApplicationController
                                                     :quarter2,
                                                     :quarter3,
                                                     :quarter4])
-  end
-
-  def admin_user
-    redirect_to(root_url) unless current_user.admin?
   end
 end

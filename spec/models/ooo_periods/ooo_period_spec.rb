@@ -112,9 +112,25 @@ RSpec.describe OOOPeriod, type: :model do
       expect(user.remaining_leaves).to eq(13)
     end
 
+    it 'should add to errors if remaining leaves count becomes negative' do
+      user.update_attributes(remaining_leaves: 2)
+      leave.update_attributes(start_date: '20170409')
+      leave.send(:update_user_attributes)
+      expect(leave.errors[:generic])
+        .to include('you dont have enough remaining leaves to apply this leave')
+    end
+
     it 'should set remaining wfhs if OOO period type is wfh' do
       wfh.send(:update_user_attributes)
       expect(user.remaining_wfhs).to eq(11)
+    end
+
+    it 'should add to errors if remaining wfhs count becomes negative' do
+      user.update_attributes(remaining_wfhs: 2)
+      wfh.update_attributes(start_date: '20170409')
+      wfh.send(:update_user_attributes)
+      expect(wfh.errors[:generic])
+        .to include('you dont have enough remaining wfhs to apply this wfh')
     end
 
     it 'should set remaining_wfhs on editing wfh' do
