@@ -1,4 +1,17 @@
 .container
+  %h1 OOO Settings
+  .row
+    .col-md-6.col-md-offset-3
+      = form_for(@ooo_config, url: admin_oooconfigs_path, method: :patch) do |f|
+        = f.label :leaves_count
+        = f.number_field :leaves_count, class: 'form-control'
+        .row
+          - @ooo_config.wfhs_count.each do |k,v|
+            .col-md-3
+              = f.label "wfhs_count for #{k}"
+              = f.number_field "wfhs_count[#{k}]",value: v, class: 'form-control'
+        = f.submit "Submit", class: "btn btn-primary"
+
   .row
     .col-md-6{:align => "left"}
       %h3 List of Users
@@ -9,6 +22,7 @@
         %td Name
         %td Email
         %td Remaining Leaves
+        %td Remaining Wfhs
         %td Show
     %tbody
       - @users.each do |user|
@@ -17,6 +31,7 @@
           %td= user.name
           %td= user.email
           %td= user.remaining_leaves
+          %td= user.remaining_wfhs
           %td= link_to 'Show', admin_user_path(user)
 
 

@@ -2,11 +2,16 @@
 
 require 'rails_helper'
 
-RSpec.describe Leave, type: :model do
-  user_params = { name: 'test', email: 'test@test.com', remaining_leaves: 15 }
+RSpec.describe OOOPeriod, type: :model do
+  user_params = { name: 'test',
+                  email: 'test@test.com',
+                  remaining_leaves: 15,
+                  remaining_wfhs: 13 }
   let(:user) { User.create(user_params) }
-  leave_params = { start_date: '20170412', end_date: '20170413' }
-  let(:leave) { user.leaves.create(leave_params) }
+  leave_params = { start_date: '20170412', end_date: '20170413', type: 'Leave' }
+  let(:leave) { user.o_o_o_periods.create(leave_params) }
+  wfh_params = { start_date: '20170414', end_date: '20170415', type: 'Wfh' }
+  let(:wfh) { user.o_o_o_periods.create(wfh_params) }
 
   describe :validations do
     it 'should belong to user' do
@@ -52,22 +57,22 @@ RSpec.describe Leave, type: :model do
     end
   end
 
-  describe :is_holiday? do
+  describe :holiday? do
     it 'should return false for weekday unless it is holiday' do
-      expect(Leave.is_holiday?(Date.new(2017, 5, 26))).to eq(false)
+      expect(Leave.holiday?(Date.new(2017, 5, 26))).to eq(false)
     end
 
     it 'should return true for holiday' do
       @holiday = Holiday.create(date: '2017-02-14', occasion: 'testing')
-      expect(Leave.is_holiday?(Date.new(2017, 2, 14))).to eq(true)
+      expect(Leave.holiday?(Date.new(2017, 2, 14))).to eq(true)
     end
 
     it 'should return true for saturday' do
-      expect(Leave.is_holiday?(Date.new(2017, 6, 3))).to eq(true)
+      expect(Leave.holiday?(Date.new(2017, 6, 3))).to eq(true)
     end
 
     it 'should return true for sunday' do
-      expect(Leave.is_holiday?(Date.new(2017, 6, 4))).to eq(true)
+      expect(Leave.holiday?(Date.new(2017, 6, 4))).to eq(true)
     end
   end
 
@@ -101,11 +106,20 @@ RSpec.describe Leave, type: :model do
     end
   end
 
-  describe :update_remaining_leaves do
-    it 'should set remaining leaves to the user' do
-      leave.number_of_days = 2
-      leave.send(:update_remaining_leaves)
-      expect(user.remaining_leaves).to eq(15)
+  describe :update_user_attributes do
+    it 'should set remaining leaves if OOO period type is Leave' do
+      leave.send(:update_user_attributes)
+      expect(user.remaining_leaves).to eq(13)
+    end
+
+    it 'should set remaining wfhs if OOO period type is wfh' do
+      wfh.send(:update_user_attributes)
+      expect(user.remaining_wfhs).to eq(11)
+    end
+
+    it 'should set remaining_wfhs on editing wfh' do
+      wfh.update_attributes(start_date: '20170415', google_event_id: 'test')
+      expect(user.remaining_wfhs).to eq(12)
     end
   end
 
@@ -127,30 +141,41 @@ RSpec.describe Leave, type: :model do
     end
   end
 
+  describe :update_user_remaining_attributes do
+    it 'should update user remaining leaves when a leave is deleted' do
+      leave.destroy
+      expect(user.remaining_leaves).to eq(15)
+    end
+
+    it 'should update user remaining wfhs when a wfh is deleted' do
+      wfh.destroy
+      expect(user.remaining_wfhs).to eq(13)
+    end
+  end
+
   describe :check_date_conflicts do
     it 'should add to errors if there is date conflit' do
-      allow(leave).to receive(:post_to_slack).and_return(true)
+      allow(leave).to receive(:update_google_calendar).and_return(true)
       conflict_leave = user.leaves.create(
         start_date: '20170413',
         end_date: '20170414'
       )
       conflict_leave.send(:check_date_conflicts)
       expect(conflict_leave.errors[:generic])
-        .to include('Leave dates are overlapping with previous leave dates.
-                  Please correct.')
+        .to include('dates are overlapping with previous OOO Period dates.
+      Please correct.')
     end
 
     it 'should not add to errors if there is no date conflict' do
-      allow(leave).to receive(:post_to_slack).and_return(true)
+      allow(leave).to receive(:update_google_calendar).and_return(true)
       normal_leave = user.leaves.create(
         start_date: '20170414',
         end_date: '20170415'
       )
       normal_leave.send(:check_date_conflicts)
       expect(normal_leave.errors[:generic])
-        .not_to include('Leave dates are overlapping with previous leave dates.
-                  Please correct.')
-
+        .not_to include('dates are overlapping with previous OOO Period dates.
+                         Please correct.')
     end
   end
 end

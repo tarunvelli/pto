@@ -14,15 +14,6 @@ class UsersController < ApplicationController
     end
   end
 
-  def index
-    @users = User.all
-  end
-
-  def show
-    @leaves = @user.leaves.order("end_date DESC")
-    @leave = Leave.new
-  end
-
   private
 
   def set_user

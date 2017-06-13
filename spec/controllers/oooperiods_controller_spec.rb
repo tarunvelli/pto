@@ -2,10 +2,10 @@
 
 require 'rails_helper'
 
-RSpec.describe LeavesController, type: :controller do
+RSpec.describe OooperiodsController, type: :controller do
   before :each do |example|
     unless example.metadata[:skip_before]
-      allow_any_instance_of(LeavesController)
+      allow_any_instance_of(OooperiodsController)
         .to receive(:ensure_signed_in).and_return(true)
     end
 
@@ -15,7 +15,7 @@ RSpec.describe LeavesController, type: :controller do
       remaining_leaves: 15
     )
 
-    allow_any_instance_of(LeavesController)
+    allow_any_instance_of(OooperiodsController)
       .to receive(:current_user).and_return(user)
 
     @leave = user.leaves.create(
@@ -34,10 +34,6 @@ RSpec.describe LeavesController, type: :controller do
       expect(response).to have_http_status(200)
     end
 
-    it 'assigns @leaves' do
-      expect(assigns(:leaves)).to eq([@leave])
-    end
-
     it 'renders the #index view' do
       expect(response).to render_template(:index)
     end
@@ -48,8 +44,8 @@ RSpec.describe LeavesController, type: :controller do
       get :new
     end
 
-    it 'assigns a new Leave to @leave' do
-      expect(assigns(:leave).new_record?).to eq(true)
+    it 'assigns a new Leave to @ooo_period' do
+      expect(assigns(:ooo_period).new_record?).to eq(true)
     end
 
     it 'renders the :new template' do
@@ -60,19 +56,19 @@ RSpec.describe LeavesController, type: :controller do
   describe 'POST #create' do
     context 'with valid attributes' do
       let(:leave_params) do
-        { start_date: '20170414', end_date: '20170415' }
+        { start_date: '20170414', end_date: '20170415', type: 'Leave' }
       end
 
       it 'creates a new leave' do
-        expect { post :create, params: { leave: leave_params } }
+        expect { post :create, params: { ooo_period: leave_params } }
           .to change(Leave, :count).by(1)
 
-        expect(assigns(:leave).persisted?).to eq(true)
+        expect(assigns(:ooo_period).persisted?).to eq(true)
       end
 
-      it 'redirects to the leaves#index page' do
-        post :create, params: { leave: leave_params }
-        expect(response).to redirect_to leaves_url
+      it 'redirects to the oooperiods#index page' do
+        post :create, params: { ooo_period: leave_params }
+        expect(response).to redirect_to oooperiods_url
       end
     end
 
@@ -82,14 +78,14 @@ RSpec.describe LeavesController, type: :controller do
       end
 
       it 'does not create the new leave' do
-        expect { post :create, params: { leave: leave_params } }
+        expect { post :create, params: { ooo_period: leave_params } }
           .to_not change(Leave, :count)
-        expect(assigns(:leave).persisted?).to eq(false)
+        expect(assigns(:ooo_period).persisted?).to eq(false)
       end
 
       it 're-renders the :new template with validation errors' do
-        post :create, params: { leave: leave_params }
-        expect(assigns(:leave).errors.present?).to eq(true)
+        post :create, params: { ooo_period: leave_params }
+        expect(assigns(:ooo_period).errors.present?).to eq(true)
         expect(response).to render_template(:new)
       end
     end
@@ -102,17 +98,18 @@ RSpec.describe LeavesController, type: :controller do
       end
 
       it 'updates a existing leave' do
-        expect { patch :update, params: { leave: leave_params, id: @leave.id } }
+        params = { ooo_period: leave_params, id: @leave.id }
+        expect { patch :update, params: params }
           .not_to change(Leave, :count)
         @leave.reload
-        expect(assigns(:leave).persisted?).to eq(true)
+        expect(assigns(:ooo_period).persisted?).to eq(true)
         expect(@leave.start_date).to eq('20170413'.to_date)
         expect(@leave.end_date).to eq('20170414'.to_date)
       end
 
       it 'redirects to the leaves#index page' do
-        patch :update, params: { leave: leave_params, id: @leave.id }
-        expect(response).to redirect_to leaves_url
+        patch :update, params: { ooo_period: leave_params, id: @leave.id }
+        expect(response).to redirect_to oooperiods_url
       end
     end
 
@@ -122,16 +119,17 @@ RSpec.describe LeavesController, type: :controller do
       end
 
       it 'does not update the leave' do
-        expect { patch :update, params: { leave: leave_params, id: @leave.id } }
+        params = { ooo_period: leave_params, id: @leave.id }
+        expect { patch :update, params: params }
           .to_not change(Leave, :count)
         @leave.reload
-        expect(assigns(:leave).errors.present?).to eq(true)
+        expect(assigns(:ooo_period).errors.present?).to eq(true)
         expect(@leave.start_date).to eq('20170412'.to_date)
       end
 
       it 're-renders the :edit template with validation errors' do
-        patch :update, params: { leave: leave_params, id: @leave.id }
-        expect(assigns(:leave).errors.present?).to eq(true)
+        patch :update, params: { ooo_period: leave_params, id: @leave.id }
+        expect(assigns(:ooo_period).errors.present?).to eq(true)
         expect(response).to render_template(:edit)
       end
     end
@@ -144,7 +142,7 @@ RSpec.describe LeavesController, type: :controller do
     end
 
     it 'should redirect to rootpath if not signed in', skip_before: true do
-      allow_any_instance_of(LeavesController).to receive(
+      allow_any_instance_of(OooperiodsController).to receive(
         :signed_in?
       ).and_return(false)
       delete :destroy, params: { id: @leave.id }

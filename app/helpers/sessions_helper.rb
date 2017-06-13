@@ -5,7 +5,7 @@ module SessionsHelper
     # Sign out the user if the oauth token is getting close to expiry.
     # User session expires 5 minutes prior to the oauth token expiry.
     current_user.present? &&
-    ((current_user.token_expires_at - 300) > Time.now.to_i)
+      ((current_user.token_expires_at - 300) > Time.now.to_i)
   end
 
   def current_user

@@ -23,7 +23,7 @@ RSpec.describe SessionsController, type: :controller do
       @user.update_attributes(remaining_leaves: 15)
       post :create
       expect(session[:user_id]).to eq(@user.id)
-      expect(response).to redirect_to leaves_url
+      expect(response).to redirect_to oooperiods_path
     end
   end
 

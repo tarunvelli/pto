@@ -12,5 +12,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
              }
            },
            scope: 'email, profile, https://www.googleapis.com/auth/calendar',
+           access_type: 'offline',
+           prompt: 'consent',
            hd: 'beautifulcode.in'
 end

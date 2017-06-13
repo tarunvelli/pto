@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170603110428) do
+ActiveRecord::Schema.define(version: 20170609044925) do
 
   create_table "holidays", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.date     "date"
@@ -20,9 +20,11 @@ ActiveRecord::Schema.define(version: 20170603110428) do
   end
 
   create_table "ooo_configs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer  "no_of_pto"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+    t.string   "financial_year"
+    t.integer  "leaves_count"
+    t.text     "wfhs_count",     limit: 65535
   end
 
   create_table "ooo_periods", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -50,6 +52,9 @@ ActiveRecord::Schema.define(version: 20170603110428) do
     t.boolean  "admin"
     t.date     "joining_date"
     t.integer  "token_expires_at"
+    t.string   "refresh_token"
+    t.integer  "total_wfhs"
+    t.integer  "remaining_wfhs"
   end
 
   add_foreign_key "ooo_periods", "users"
