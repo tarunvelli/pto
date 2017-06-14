@@ -35,12 +35,14 @@ class User < ApplicationRecord
 
   def initialize_leave_attributes_and_wfh_attributes
     return unless previous_changes.keys.include?('joining_date')
+    #TODO To figure out a better solution for solving LineLength
     self.total_leaves =
       self.remaining_leaves =
         compute_number_of_leaves_for_a_new_user
     self.total_wfhs =
       self.remaining_wfhs =
         compute_number_of_wfhs_for_a_new_user
+    #TODO As this is an instance method, u can either prepend self or not. But its better to maintain the same throughtout the method
     save!
   end
 
@@ -50,6 +52,7 @@ class User < ApplicationRecord
     check_date ? current_year - 1 : current_year
   end
 
+  #TODO You can get rid of this method and use Date.current at places where you need
   def current_date
     Date.current
   end
@@ -60,6 +63,7 @@ class User < ApplicationRecord
       (joining_date < Date.new(start_year_of_indian_financial_year + 1, 3, 31))
 
     if did_user_join_in_between_this_fy
+      #TODO Lets pair on this.
       (
         (
          Date.new(start_year_of_indian_financial_year + 1, 3, 31) - joining_date
@@ -79,6 +83,7 @@ class User < ApplicationRecord
         ) * 13 / 90
       ).ceil
     else
+      #TODO Why are we hardcoding the value here?
       13
     end
   end
@@ -88,6 +93,7 @@ class User < ApplicationRecord
       (quarter_month_numbers(Date.today) == quarter_month_numbers(joining_date))
   end
 
+  #TODO i see that we are using both fy calender and normal calender for the methods. Could be better id we rename them as quarter_month_numbers_of_finantial_year for more readability.
   def quarter_month_numbers(date)
     quarters = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]
     quarters[(date.month - 1) / 3]

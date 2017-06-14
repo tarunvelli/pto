@@ -36,6 +36,7 @@ class OOOPeriod < ApplicationRecord
   private
 
   def verify_dates
+    #TODO Any reason for checking start_date && end_date are present or not?
     return unless start_date && end_date &&
                   start_date > end_date
     errors.add(:start_date, 'must be before end date')
@@ -51,15 +52,19 @@ class OOOPeriod < ApplicationRecord
   def update_user_attributes
     if type == 'Leave'
       if remaining_leaves_count.negative?
-        errors.add(:generic,
-                   'you dont have enough remaining leaves to apply this leave')
+        errors.add(
+          :generic,
+          'you dont have enough remaining leaves to apply this leave'
+        )
       end
       user.remaining_leaves = remaining_leaves_count
     else
       remaining_wfhs = remaining_wfhs_count
       if remaining_wfhs.negative?
-        errors.add(:generic,
-                   'you dont have enough remaining wfhs to apply this wfh')
+        errors.add(
+          :generic,
+          'you dont have enough remaining wfhs to apply this wfh'
+        )
       end
       user.remaining_wfhs = remaining_wfhs
     end
@@ -88,6 +93,7 @@ class OOOPeriod < ApplicationRecord
         time_zone: 'Asia/Kolkata'
       }
     })
+    #TODO Fix calender issues
     begin
       response = client.insert_event(calendar_id, event)
       self.google_event_id = response.id
@@ -97,6 +103,7 @@ class OOOPeriod < ApplicationRecord
 
   def edit_calendar
     client = google_client
+    #TODO Fix calender issues
     begin
       event = client.get_event(calendar_id, google_event_id)
       event.start.date_time = start_date.to_time.to_datetime
@@ -107,6 +114,8 @@ class OOOPeriod < ApplicationRecord
   end
 
   def calendar_id
+    #TODO Lets pair on how to handle linelength for cases such as these. I feel that the asignments should be done on the same line
+    #TODO Better to put Calender id in config file rather than being hardcoded. With this implementation, you dont need to assign the ids to variables.
     ooo_calendar_id =
       'beautifulcode.in_u4r1aag3llp06abvmmt1nsie80@group.calendar.google.com'
     wfh_calendar_id =
@@ -115,6 +124,7 @@ class OOOPeriod < ApplicationRecord
   end
 
   def update_user_remaining_attributes
+    #TODO Condition can be written as an instance method to check if OOO type is leave? or wfh?
     if type == 'Leave'
       user.remaining_leaves += number_of_days
     else
@@ -124,12 +134,14 @@ class OOOPeriod < ApplicationRecord
 
   def delete_event_google_calendar
     client = google_client
+    #TODO Fix calender issues
     begin
       client.delete_event(calendar_id, google_event_id)
     rescue
     end
   end
 
+  #TODO You could get rid of this method 
   def save_user
     user.save!
   end
@@ -141,9 +153,10 @@ class OOOPeriod < ApplicationRecord
       next if ooo_period == self
       next unless start_date <= ooo_period.end_date &&
                   ooo_period.start_date <= end_date
-      errors.add(:generic,
-                 'dates are overlapping with previous OOO Period dates.
-      Please correct.')
+      errors.add(
+        :generic,
+        'dates are overlapping with previous OOO Period dates. Please correct.'
+      )
       break
     end
   end

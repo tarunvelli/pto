@@ -17,6 +17,7 @@ class OOOConfig < ApplicationRecord
   def update_user_leave_attributes
     return unless changes.keys.include?('leaves_count') &&
                   financial_year == OOOConfig.financial_year
+    #TODO find_each makes sense when there is a batchsize specified. Any reason for using it oveer 'each'?
     User.all.find_each do |user|
       user.total_leaves = leaves_count
       if leaves_count_was.present?
@@ -24,6 +25,7 @@ class OOOConfig < ApplicationRecord
       else
         user.remaining_leaves = leaves_count
       end
+      #TODO Any reason for sending validate false? Its better to put a conditional validation rather than setting here
       user.save(validate: false)
     end
   end

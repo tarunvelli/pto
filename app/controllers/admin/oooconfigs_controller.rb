@@ -16,15 +16,15 @@ class Admin::OooconfigsController < ApplicationController
   private
 
   def set_ooo_config
-    @ooo_config = OOOConfig.where('financial_year = ?',
-                                  OOOConfig.financial_year).first
+    @ooo_config = OOOConfig.where(
+      'financial_year = ?', OOOConfig.financial_year
+    ).first
   end
 
   def ooo_config_params
-    params.require(:ooo_config).permit(:leaves_count,
-                                       wfhs_count: [:quarter1,
-                                                    :quarter2,
-                                                    :quarter3,
-                                                    :quarter4])
+    params.require(:ooo_config).permit(
+      :leaves_count,
+      wfhs_count: [:quarter1, :quarter2, :quarter3, :quarter4]
+    )
   end
 end

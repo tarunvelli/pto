@@ -6,8 +6,9 @@ class Admin::UsersController < ApplicationController
 
   def index
     @users = User.all
-    @ooo_config = OOOConfig.where('financial_year = ?',
-                                  OOOConfig.financial_year).first
+    @ooo_config = OOOConfig.where(
+      'financial_year = ?', OOOConfig.financial_year
+    ).first
   end
 
   def show
