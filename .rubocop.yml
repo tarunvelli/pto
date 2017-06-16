@@ -46,3 +46,6 @@ Metrics/ClassLength:
   Enabled: false
 Lint/HandleExceptions:
   Enabled: false
+Rails/FindEach:
+  Enabled: false
+

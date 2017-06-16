@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class OooperiodsController < ApplicationController
-  #TODO Why are there teo controllers with tha same name?
   before_action :ensure_signed_in
   before_action :set_ooo_period, except: [:create]
 

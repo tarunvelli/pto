@@ -1,13 +1,13 @@
 .row
   .col-md-6.col-md-offset-3
     = form_for(@user) do |f|
-      = f.label :name
-      = f.text_field :name, class: 'form-control', :readonly => true
-      = f.label :email
-      = f.email_field :email, class: 'form-control', :readonly => true
-      = f.label :joining_date
-      = f.date_field :joining_date, class: 'form-control', :readonly => true
-      = f.label :leaves
-      = f.number_field :total_leaves, class: 'form-control', :readonly => true
-
+      .form-group
+        = f.label :name
+        = f.text_field :name, class: 'form-control', :readonly => true
+      .form-group
+        = f.label :email
+        = f.email_field :email, class: 'form-control', :readonly => true
+      .form-group
+        = f.label :joining_date
+        = f.date_field :joining_date, class: 'form-control', :readonly => true
 

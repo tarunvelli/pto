@@ -9,8 +9,7 @@ RSpec.describe UsersController, type: :controller do
     @user = User.create(
       name: 'test',
       email: 'test@test.com',
-      remaining_leaves: 15,
-      joining_date: '20170216'
+      remaining_leaves: 15
     )
     allow_any_instance_of(UsersController)
       .to receive(:current_user).and_return(@user)

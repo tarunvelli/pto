@@ -36,7 +36,6 @@ class OOOPeriod < ApplicationRecord
   private
 
   def verify_dates
-    #TODO Any reason for checking start_date && end_date are present or not?
     return unless start_date && end_date &&
                   start_date > end_date
     errors.add(:start_date, 'must be before end date')
@@ -50,7 +49,7 @@ class OOOPeriod < ApplicationRecord
   end
 
   def update_user_attributes
-    if type == 'Leave'
+    if leave?
       if remaining_leaves_count.negative?
         errors.add(
           :generic,
@@ -83,17 +82,15 @@ class OOOPeriod < ApplicationRecord
   def insert_calendar
     client = google_client
     event = Google::Apis::CalendarV3::Event.new ( {
-      summary: user.name.to_s,
+      summary: "#{user.name}-#{type}",
       start: {
-        date_time: start_date.to_time.to_datetime,
-        time_zone: 'Asia/Kolkata'
+        date: start_date.strftime('%Y-%m-%d')
       },
       end: {
-        date_time: (end_date + 1).to_time.to_datetime,
-        time_zone: 'Asia/Kolkata'
+        date: (end_date + 1).strftime('%Y-%m-%d')
       }
     })
-    #TODO Fix calender issues
+    # TODO: Fix calender issues
     begin
       response = client.insert_event(calendar_id, event)
       self.google_event_id = response.id
@@ -103,45 +100,39 @@ class OOOPeriod < ApplicationRecord
 
   def edit_calendar
     client = google_client
-    #TODO Fix calender issues
     begin
       event = client.get_event(calendar_id, google_event_id)
-      event.start.date_time = start_date.to_time.to_datetime
-      event.end.date_time = (end_date + 1).to_time.to_datetime
+      event.start.date = start_date.strftime('%Y-%m-%d')
+      event.end.date = (end_date + 1).strftime('%Y-%m-%d')
       client.update_event(calendar_id, event.id, event)
     rescue
     end
   end
 
   def calendar_id
-    #TODO Lets pair on how to handle linelength for cases such as these. I feel that the asignments should be done on the same line
-    #TODO Better to put Calender id in config file rather than being hardcoded. With this implementation, you dont need to assign the ids to variables.
-    ooo_calendar_id =
-      'beautifulcode.in_u4r1aag3llp06abvmmt1nsie80@group.calendar.google.com'
-    wfh_calendar_id =
-      'beautifulcode.in_ftlgca8tnpaqenr3i9ihgla3bg@group.calendar.google.com'
-    type == 'Leave' ? ooo_calendar_id : wfh_calendar_id
+    leave? ? OOO_CALENDAR_ID : WFH_CALENDAR_ID
   end
 
   def update_user_remaining_attributes
-    #TODO Condition can be written as an instance method to check if OOO type is leave? or wfh?
-    if type == 'Leave'
+    if leave?
       user.remaining_leaves += number_of_days
     else
       user.remaining_wfhs += number_of_days
     end
   end
 
+  def leave?
+    type == 'Leave'
+  end
+
   def delete_event_google_calendar
     client = google_client
-    #TODO Fix calender issues
     begin
       client.delete_event(calendar_id, google_event_id)
     rescue
     end
   end
 
-  #TODO You could get rid of this method 
   def save_user
     user.save!
   end

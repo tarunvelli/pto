@@ -1,12 +1,7 @@
 .row
-  .col-md-6.col-md-offset-3
-    = form_for(@user) do |f|
-      = f.label :name
-      = f.text_field :name, class: 'form-control', :readonly => true
-
   .row
     .col-md-9
-      %h1 Calendar
+      %h1 #{@user.name}'s Calendar
       #calendar
     .col-md-3
       %h1 Apply OOO
@@ -42,9 +37,6 @@
   .row
     .col-md-10.col-md-offset-1
       %h1 Leave History
-  .row
-    .col-md-6{:align => "left"}
-      %h3 List of Leaves
   %table#leave_history.table.table-striped.table-bordered
     %thead
       %tr
@@ -66,9 +58,6 @@
   .row
     .col-md-10.col-md-offset-1
       %h1 WFH History
-  .row
-    .col-md-6{:align => "left"}
-      %h3 List of Wfhs
   %table#wfh_history.table.table-striped.table-bordered
     %thead
       %tr
@@ -98,7 +87,7 @@
       var obj = {
         startDate: new Date(parts[0],parts[1]-1,parts[2]),
         endDate: new Date(en[0],en[1]-1,en[2]),
-        color: 'skyblue'
+        color: 'red'
       }
       ds.push(obj)
     }

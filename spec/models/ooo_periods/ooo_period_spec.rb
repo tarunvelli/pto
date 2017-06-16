@@ -177,9 +177,9 @@ RSpec.describe OOOPeriod, type: :model do
         end_date: '20170414'
       )
       conflict_leave.send(:check_date_conflicts)
-      expect(conflict_leave.errors[:generic])
-        .to include('dates are overlapping with previous OOO Period dates.
-      Please correct.')
+      expect(conflict_leave.errors[:generic]).to include(
+        'dates are overlapping with previous OOO Period dates. Please correct.'
+      )
     end
 
     it 'should not add to errors if there is no date conflict' do

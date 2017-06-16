@@ -8,14 +8,15 @@
     %link{ rel: 'icon', href: image_path('favicon.png') }
     %title PTO Manager | BeautifulCode
     = csrf_meta_tags
-    = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload'
     = javascript_include_tag 'application', 'data-turbolinks-track': 'reload'
     = javascript_include_tag 'http://www.bootstrap-year-calendar.com/download/v1.1.0/bootstrap-year-calendar.min.js'
     = stylesheet_link_tag 'http://www.bootstrap-year-calendar.com/download/v1.1.0/bootstrap-year-calendar.min.css'
+    = stylesheet_link_tag 'https://bootswatch.com/yeti/bootstrap.min.css'
+    = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload'
   %body
     = render 'layouts/header'
 
-    .container
+    #container.container
       - flash.each do |message_type, message|
         .alert{ class: "alert-#{message_type}" }
           = message

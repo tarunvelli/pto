@@ -2,8 +2,7 @@
 
 class UsersController < ApplicationController
   before_action :ensure_signed_in
-  before_action :admin_user, only: [:index]
-  before_action :set_user, except: [:index]
+  before_action :set_user
 
   def update
     if @user.update_attributes(user_params)

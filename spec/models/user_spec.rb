@@ -4,6 +4,17 @@ require 'rails_helper'
 
 RSpec.describe User, type: :model do
   let(:user) { User.create(name: 'test', email: 'test@beautifulcode.in') }
+  before:each do
+    config_params = { financial_year: OOOConfig.financial_year,
+                      leaves_count: 16,
+                      wfhs_count: {
+                        "quarter1": 13,
+                        "quarter2": 13,
+                        "quarter3": 13,
+                        "quarter4": 13
+                      } }
+    @ooo_config = OOOConfig.create(config_params)
+  end
 
   describe 'validations' do
     it 'should have valid name' do
