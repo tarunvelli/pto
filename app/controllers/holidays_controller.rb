@@ -2,11 +2,7 @@
 
 class HolidaysController < ApplicationController
   before_action :admin_user, except: [:index]
-  before_action :set_holiday, except: [:new, :index]
-
-  def new
-    @holiday = Holiday.new
-  end
+  before_action :set_holiday, except: [:index]
 
   def create
     if @holiday.save
@@ -23,7 +19,7 @@ class HolidaysController < ApplicationController
   end
 
   def update
-    if @holiday.update_attributes(holiday_params)
+    if @holiday.update_attributes holiday_params
       flash[:success] = 'Holiday updated'
       redirect_to holidays_url
     else
@@ -32,23 +28,21 @@ class HolidaysController < ApplicationController
   end
 
   def destroy
-    if @holiday.destroy
-      flash[:success] = 'Holiday deleted'
-      redirect_to holidays_url
-    end
+    return unless @holiday.destroy
+    flash[:success] = 'Holiday deleted.'
+    redirect_to holidays_url
   end
 
   private
 
   def set_holiday
-    @holiday = params[:id].present? ? Holiday.find(params[:id]) : Holiday.new(holiday_params)
+    @holiday = Holiday.where(id: params[:id]).first_or_initialize(
+      holiday_params
+    )
   end
 
   def holiday_params
+    return if params[:holiday].blank?
     params.require(:holiday).permit(:date, :occasion)
-  end
-
-  def admin_user
-    redirect_to(root_url) unless current_user.admin?
   end
 end

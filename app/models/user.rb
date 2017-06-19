@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
+  has_many :o_o_o_periods
   has_many :leaves, dependent: :destroy
+  has_many :wfhs, dependent: :destroy
   validates :name, :email, presence: true
+  validate :check_remaining_leaves
+  validate :check_remaining_wfhs
 
-  after_commit :touch_no_of_leaves
+  after_commit :initialize_leave_attributes_and_wfh_attributes
 
   def self.from_omniauth(auth)
     user = where(provider: auth.provider, uid: auth.uid).first_or_initialize
@@ -20,40 +24,92 @@ class User < ApplicationRecord
   end
 
   def no_of_leaves_used
-    total_leaves - remaining_leaves.to_i
+    total_leaves - remaining_leaves
+  end
+
+  def no_of_wfhs_used
+    total_wfhs - remaining_wfhs
   end
 
   private
 
-  def touch_no_of_leaves
-    return unless previous_changes.keys.include?('start_date')
-
-    self.total_leaves = self.remaining_leaves = number_of_leaves
+  def initialize_leave_attributes_and_wfh_attributes
+    return unless previous_changes.keys.include?('joining_date')
+    # TODO: To figure out a better solution for solving LineLength
+    self.total_leaves =
+      self.remaining_leaves =
+        compute_number_of_leaves_for_a_new_user
+    self.total_wfhs =
+      self.remaining_wfhs =
+        compute_number_of_wfhs_for_a_new_user
     save!
   end
 
-  def financial_year
-    current_year = Date.current.year
+  def start_year_of_indian_financial_year
+    current_year = current_date.year
+    check_date = current_date < Date.new(current_year, 3, 31)
+    check_date ? current_year - 1 : current_year
+  end
 
-    if Date.current < Date.new(current_year, 3, 31)
-      current_year - 1
+  def current_date
+    Date.current
+  end
+
+  def compute_number_of_leaves_for_a_new_user
+    did_user_join_in_between_this_fy =
+      (Date.new(start_year_of_indian_financial_year, 4, 1) < joining_date) &&
+      (joining_date < Date.new(start_year_of_indian_financial_year + 1, 3, 31))
+
+    if did_user_join_in_between_this_fy
+      (
+        (
+         Date.new(start_year_of_indian_financial_year + 1, 3, 31) - joining_date
+        ) * ooo_config.leaves_count / 365
+      ).ceil
     else
-      current_year
+      ooo_config.leaves_count
     end
   end
 
-  def number_of_leaves
-    past_year = Date.new(financial_year, 4, 1) < start_date
-    future_year = start_date < Date.new(financial_year + 1, 3, 31)
-
-    if past_year && future_year
+  def compute_number_of_wfhs_for_a_new_user
+    if did_user_join_in_current_quarter
       (
         (
-          Date.new(financial_year + 1, 3, 31) - start_date
-        ).to_i * NO_OF_PTO / 365
+         Date.new(current_date.year, quarter_month_numbers(Date.today)[2], 30) -
+         joining_date
+        ) * ooo_config.wfhs_count[:"#{current_quarter}"].to_i / 90
       ).ceil
     else
-      NO_OF_PTO
+      ooo_config.wfhs_count[:"#{current_quarter}"].to_i
     end
+  end
+
+  def ooo_config
+    OOOConfig.find_by('financial_year = ?', OOOConfig.financial_year)
+  end
+
+  def current_quarter
+    quarters = %w[quarter4 quarter1 quarter2 quarter3]
+    quarters[(Date.today.month - 1) / 3]
+  end
+
+  def did_user_join_in_current_quarter
+    (Date.today.year == joining_date.year) &&
+      (quarter_month_numbers(Date.today) == quarter_month_numbers(joining_date))
+  end
+
+  def quarter_month_numbers(date)
+    quarters = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]
+    quarters[(date.month - 1) / 3]
+  end
+
+  def check_remaining_leaves
+    return unless remaining_leaves && remaining_leaves.negative?
+    errors.add(:generic, 'remaining leaves cant be negative')
+  end
+
+  def check_remaining_wfhs
+    return unless remaining_wfhs && remaining_wfhs.negative?
+    errors.add(:generic, 'remaining wfhs cant be negative')
   end
 end

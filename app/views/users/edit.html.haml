@@ -3,10 +3,13 @@
   .col-md-6.col-md-offset-3
     = form_for(@user) do |f|
       = render 'shared/error_messages', object: f.object
-      = f.label :name
-      = f.text_field :name, class: 'form-control'
-      = f.label :email
-      = f.email_field :email, class: 'form-control'
-      = f.label :joining_date
-      = f.date_field :start_date, class: 'form-control'
+      .form-group
+        = f.label :name
+        = f.text_field :name, class: 'form-control'
+      .form-group
+        = f.label :email
+        = f.email_field :email, class: 'form-control'
+      .form-group
+        = f.label :joining_date
+        = f.date_field :joining_date, class: 'form-control', required:'required'
       = f.submit "Save changes", class: "btn btn-primary"

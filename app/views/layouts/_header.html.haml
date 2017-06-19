@@ -5,9 +5,9 @@
       %nav
         %ul.nav.navbar-nav.navbar-right
           - if signed_in?
-            %li= link_to "Home", leaves_path
+            %li= link_to "Home", oooperiods_path
             - if current_user.admin?
-              %li= link_to "Admin", holidays_path
+              %li= link_to "Admin", admin_users_path
             %li.dropdown
               %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
                 %strong= current_user.name
@@ -17,3 +17,17 @@
                 %li.divider
                 %li
                   = link_to "Log out", signout_path, method: "delete"
+            %li
+              %p#time
+:javascript
+  (function () {
+    function startTime() {
+      var today = new Date();
+      var to_time = today.toLocaleTimeString();
+      document.getElementById('time').innerHTML = to_time;
+      t = setTimeout(function () {
+            startTime()
+          }, 500);
+     }
+     startTime();
+  })();

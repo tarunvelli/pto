@@ -1,24 +1,22 @@
-# README
+# PTO
+  Paid Take off
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+ # How to run the app locally?
+ Dependencies
+ 1) Install ruby 2.3.1 using the following command `rvm install 2.3.1`
+ 2) Install mysql locally using homebrew
 
-Things you may want to cover:
 
-* Ruby version
+ `gem install bundler` # Installs bundler
 
-* System dependencies
+ `bundle install` # Installs the gems
 
-* Configuration
+ `bundle exec rake db:create` # To create the database
 
-* Database creation
+ `bundle exec rake db:migrate` # To run the migrations
 
-* Database initialization
+Setup a valid .env file that defines the required ENV variables.
 
-* How to run the test suite
+ `bundle exec rails s` # Start the rails server.
 
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+ Open 'http://localhost:3000' in your browser.

@@ -1,0 +1,121 @@
+.row
+  .col-md-9
+    %h1 Calendar
+    #calendar
+  .col-md-3
+    .row
+      %h1 Apply OOO
+      = render 'shared/ooo_period_form', url: oooperiods_path, method: :post
+    .row
+      %table#user_leaves.table.table-striped.table-bordered
+        %h2 Leave Stats
+        %tbody
+          %tr
+            %td Total Leaves
+            %td= current_user.total_leaves
+          %tr
+            %td Remaining Leaves
+            %td= current_user.remaining_leaves
+          %tr
+            %td Leaves used
+            %td= current_user.no_of_leaves_used
+    .row
+      %table#user_wfhs.table.table-striped.table-bordered
+        %h2 WFH Stats
+        %tbody
+          %tr
+            %td Total WFHs
+            %td= current_user.total_wfhs
+          %tr
+            %td Remaining WFHs
+            %td= current_user.remaining_wfhs
+          %tr
+            %td WFHs used
+            %td= current_user.no_of_wfhs_used
+
+
+.row
+  %h1 List of Leaves
+%table#leave_history.table.table-striped.table-bordered
+  %thead
+    %tr
+      %td Start Date
+      %td End Date
+      %td Number of Days
+      %td Edit
+      %td Delete
+  %tbody
+    - @editable_leaves.each do |leave|
+      %tr
+        %td= leave.start_date
+        %td= leave.end_date
+        %td= leave.number_of_days
+        %td= link_to 'Edit', edit_oooperiod_path(leave)
+        %td
+          = link_to 'Delete',oooperiod_path(leave), method: :delete, data: { confirm: 'Are you sure?' }
+
+.row
+  %h1 List of WFHs
+%table#wfh_history.table.table-striped.table-bordered
+  %thead
+    %tr
+      %td Start Date
+      %td End Date
+      %td Number of Days
+      %td Edit
+      %td Delete
+  %tbody
+    - @editable_wfhs.each do |wfh|
+      %tr
+        %td= wfh.start_date
+        %td= wfh.end_date
+        %td= wfh.number_of_days
+        %td= link_to 'Edit', edit_oooperiod_path(wfh)
+        %td
+          = link_to 'Delete',oooperiod_path(wfh), method: :delete, data: { confirm: 'Are you sure?' }
+
+:javascript
+$(document).ready(function() {
+
+  var leaves = #{@total_leaves.to_json}
+  var ds = [];
+  for (var i=0;i<leaves.length;i++){
+    var parts =leaves[i].start_date.split('-');
+    var en = leaves[i].end_date.split('-');
+    var obj = {
+      startDate: new Date(parts[0],parts[1]-1,parts[2]),
+      endDate: new Date(en[0],en[1]-1,en[2]),
+      color: 'red'
+    }
+    ds.push(obj)
+  }
+  var wfhs = #{@total_wfhs.to_json}
+  for (var i=0;i<wfhs.length;i++){
+    var parts =wfhs[i].start_date.split('-');
+    var en = wfhs[i].end_date.split('-');
+    var obj = {
+      startDate: new Date(parts[0],parts[1]-1,parts[2]),
+      endDate: new Date(en[0],en[1]-1,en[2]),
+      color: 'green'
+    }
+    ds.push(obj)
+  }
+
+  $('#calendar').calendar({
+    dataSource: ds,
+    customDayRenderer: function(element, date) {
+      if(date.getTime() == new Date().getTime()) {
+        $(element).css('background-color', 'red');
+        $(element).css('color', 'white');
+        $(element).css('border-radius', '15px');
+      }
+    }
+  });
+
+} );
+
+
+
+
+
+

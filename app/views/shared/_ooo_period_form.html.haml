@@ -1,0 +1,15 @@
+= form_for(@ooo_period, method: method, url: url, as: :ooo_period) do |f|
+  = render 'shared/error_messages', object: f.object
+  .form-group
+    = f.label :start_date
+    = f.date_field :start_date, id:'start_date' , class: 'form-control'
+  .form-group
+    = f.label :end_date
+    = f.date_field :end_date, id:'end_date', class: 'form-control'
+  .radio-inline
+    = f.radio_button :type, 'Leave', checked: true
+    = f.label :type_leave, 'Leave'
+  .radio-inline
+    = f.radio_button :type, 'Wfh'
+    = f.label :type_wfh, 'WFH'
+  = f.submit "Submit", class: "btn btn-primary form-control"
