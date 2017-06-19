@@ -9,6 +9,7 @@ end
 
 gem 'bootstrap-sass', '3.3.6'
 gem 'coffee-rails', '~> 4.2'
+gem 'dotenv-rails'
 gem 'execjs'
 gem 'fullcalendar-rails'
 gem 'google-api-client', '~> 0.11', require: 'google/apis/calendar_v3'
@@ -28,7 +29,6 @@ gem 'whenever'
 
 group :development, :test do
   gem 'byebug', platform: :mri
-  gem 'dotenv-rails'
   gem 'factory_girl_rails'
   gem 'rails-controller-testing'
   gem 'rspec-rails'
