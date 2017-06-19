@@ -57,29 +57,42 @@ build:
           exit 1
         fi
 
+deploy_staging:
+  steps:
+    - script:
+      name: set rails environment
+      code: export RAILS_ENV=test
+
+    - rails-database-yml
+
+    - script:
+      name: install gems
+      code: |
+        echo "gem: --no-rdoc --no-ri" > ~/.gemrc
+        rm -f .ruby-version
+        gem install bundler
+        bundle install --without deployment test --retry=3 --no-cache --quiet
+
     - script:
       name: precompile assets
       code: bundle exec rake assets:precompile
 
-    # Create pto-deployment.json for initialization
-    - script:
-      name: create pto-deployment.json
-      code: bash ./scripts/create_pto-deployment.yaml.sh
+    ## Create pto-deployment.json for initialization
+    #- script:
+      #name: create pto-deployment.json
+      #code: bash ./scripts/create_pto-deployment.yaml.sh
 
-    # Create pto-service.json for initialization
-    - script:
-      name: create pto-service.json
-      code: bash ./scripts/create_pto-service.json.sh
+    ## Create pto-service.json for initialization
+    #- script:
+      #name: create pto-service.json
+      #code: bash ./scripts/create_pto-service.json.sh
 
     - script:
       name: prepare nginx conf
       code: |
         cd /pipeline/source
         export RAILS_ENV=staging
-        bash ./scripts/app_env_vars.sh
         sed -i 's/test/staging/g' config/database.yml
-        SECRET=$(ruby -e "require 'securerandom'; puts SecureRandom.hex(64)")
-        sed -i -e "s@STAGING_SECRET@$SECRET@" config/secrets.yml
         bash ./scripts/nginx_conf.sh
 
     - internal/docker-push:
@@ -90,8 +103,6 @@ build:
         repository: itsprdp/pto
         registry: https://registry.hub.docker.com
 
-deploy_staging:
-  steps:
     # create secrets
     #- kubectl:
     #server: $KUBERNETES_MASTER_IP
@@ -120,9 +131,9 @@ deploy_staging:
         #command: create -f $MS_NAME-service.json --record
 
     ## rolling update
-    - kubectl:
-        server: $KUBERNETES_MASTER_IP
-        username: $KUBERNETES_USERNAME
-        password: $KUBERNETES_PASSWORD
-        insecure-skip-tls-verify: true
-        command: set image deployment $MS_NAME $MS_NAME=itsprdp/$MS_NAME:${WERCKER_GIT_COMMIT} --record
+    #- kubectl:
+        #server: $KUBERNETES_MASTER_IP
+        #username: $KUBERNETES_USERNAME
+        #password: $KUBERNETES_PASSWORD
+        #insecure-skip-tls-verify: true
+        #command: set image deployment $MS_NAME $MS_NAME=itsprdp/$MS_NAME:${WERCKER_GIT_COMMIT} --record

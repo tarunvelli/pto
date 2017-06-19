@@ -39,7 +39,7 @@ cat > /etc/nginx/nginx.conf <<EOF
 
       passenger_app_root /pipeline/source;
       passenger_enabled on;
-      passenger_app_env ${RAILS_ENV};
+      #passenger_app_env ${RAILS_ENV};
 
       error_page 404 /404.html;
       error_page 500 502 503 504 /500.html;
