@@ -87,14 +87,6 @@ deploy_staging:
       #name: create pto-service.json
       #code: bash ./scripts/create_pto-service.json.sh
 
-    - script:
-      name: prepare nginx conf
-      code: |
-        cd /pipeline/source
-        export RAILS_ENV=staging
-        sed -i 's/test/staging/g' config/database.yml
-        bash ./scripts/nginx_conf.sh
-
     - internal/docker-push:
         username: $DOCKER_HUB_USERNAME
         password: $DOCKER_HUB_PASSWORD
