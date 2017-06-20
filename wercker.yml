@@ -37,7 +37,7 @@ build:
 
     - script:
       name: setup database
-      code: bundle exec rake db:create db:migrate
+      code: bundle exec rake db:drop db:create db:migrate
 
     - script:
       name: rubocop
