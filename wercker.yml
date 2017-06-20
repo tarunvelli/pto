@@ -94,6 +94,7 @@ deploy_staging:
         ports: "8080"
         repository: itsprdp/pto
         registry: https://registry.hub.docker.com
+        working-dir: /pipeline/source
 
     # create secrets
     #- kubectl:
