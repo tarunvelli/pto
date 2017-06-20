@@ -33,6 +33,7 @@ build:
         echo "gem: --no-rdoc --no-ri" > ~/.gemrc
         rm .ruby-version
         gem install bundler
+        gem install tzinfo-data
         bundle install --without deployment test --retry=3 --no-cache --quiet
 
     - script:
