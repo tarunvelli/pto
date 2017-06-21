@@ -21,16 +21,24 @@ RSpec.describe OOOPeriod, type: :model do
     it 'should have valid start_date' do
       leave.update_attributes(start_date: nil)
       expect(leave.errors).to include(:start_date)
+      expect(leave.errors[:start_date]).to include("can't be blank")
     end
 
     it 'should have valid end_date' do
       leave.update_attributes(end_date: nil)
       expect(leave.errors).to include(:end_date)
+      expect(leave.errors[:end_date]).to include("can't be blank")
     end
 
     it 'start date should be before end date' do
       leave.update_attributes(start_date: '20170414')
       expect(leave.errors).to include(:start_date)
+    end
+
+    it 'should have valid type' do
+      leave.update_attributes(type: nil)
+      expect(leave.errors).to include(:type)
+      expect(leave.errors[:type]).to include("can't be blank")
     end
   end
 
@@ -76,26 +84,24 @@ RSpec.describe OOOPeriod, type: :model do
     end
   end
 
-  describe :verify_dates do
-    it 'should not add to errors if start date is before end date' do
-      leave.update_attributes(
-        start_date: '20170412',
-        end_date: '20170413'
-      )
-      expect(leave.errors).not_to include(:generic)
+  describe 'end_date before start_date should add an error' do
+    context 'start date is before end date' do
+      it 'should not add to errors if start date is before end date' do
+        leave.update_attributes(
+          start_date: '20170412',
+          end_date: '20170413'
+        )
+        expect(leave.errors).not_to include(:generic)
+      end
     end
 
-    it 'should add to errors if start date is before end date' do
-      leave.update_attributes(start_date: '20170414')
-      expect(leave.errors).to include(:start_date)
-      expect(leave.errors[:start_date])
-        .to include('must be before end date')
-    end
-
-    it 'should not add to errors if end_date is empty' do
-      leave.update_attributes(end_date: nil)
-      expect(leave.errors[:start_date])
-        .not_to include('must be before end date')
+    context 'start date is after end date' do
+      it 'should add to errors if start date is before end date' do
+        leave.update_attributes(start_date: '20170414')
+        expect(leave.errors).to include(:start_date)
+        expect(leave.errors[:start_date])
+          .to include('must be before end date')
+      end
     end
   end
 
@@ -170,28 +176,32 @@ RSpec.describe OOOPeriod, type: :model do
   end
 
   describe :check_date_conflicts do
-    it 'should add to errors if there is date conflit' do
-      allow(leave).to receive(:update_google_calendar).and_return(true)
-      conflict_leave = user.leaves.create(
-        start_date: '20170413',
-        end_date: '20170414'
-      )
-      conflict_leave.send(:check_date_conflicts)
-      expect(conflict_leave.errors[:generic]).to include(
-        'dates are overlapping with previous OOO Period dates. Please correct.'
-      )
+    context 'if date conflict exist' do
+      it 'should add to errors' do
+        allow(leave).to receive(:update_google_calendar).and_return(true)
+        conflict_leave = user.leaves.create(
+          start_date: '20170413',
+          end_date: '20170414'
+        )
+        conflict_leave.send(:check_date_conflicts)
+        expect(conflict_leave.errors[:generic]).to include(
+          "dates are overlapping with previous OOO Period dates.Please correct."
+        )
+      end
     end
 
-    it 'should not add to errors if there is no date conflict' do
-      allow(leave).to receive(:update_google_calendar).and_return(true)
-      normal_leave = user.leaves.create(
-        start_date: '20170414',
-        end_date: '20170415'
-      )
-      normal_leave.send(:check_date_conflicts)
-      expect(normal_leave.errors[:generic])
-        .not_to include('dates are overlapping with previous OOO Period dates.
-                         Please correct.')
+    context 'if date conflict does not exist' do
+      it 'should not add to errors' do
+        allow(leave).to receive(:update_google_calendar).and_return(true)
+        normal_leave = user.leaves.create(
+          start_date: '20170414',
+          end_date: '20170415'
+        )
+        normal_leave.send(:check_date_conflicts)
+        expect(normal_leave.errors[:generic])
+          .not_to include('dates are overlapping with previous OOO Period dates.
+                          Please correct.')
+      end
     end
   end
 end
