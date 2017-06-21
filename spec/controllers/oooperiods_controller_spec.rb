@@ -9,14 +9,18 @@ RSpec.describe OooperiodsController, type: :controller do
         .to receive(:ensure_signed_in).and_return(true)
     end
 
-    user = User.create(
-      name: 'test',
-      email: 'test@test.com',
-      remaining_leaves: 15
-    )
+    user = User.create(name: 'test',
+                       email: 'test@beautifulcode.in',
+                       joining_date: '2017-02-16',
+                       oauth_token: 'test',
+                       token_expires_at: 123)
 
     allow_any_instance_of(OooperiodsController)
       .to receive(:current_user).and_return(user)
+
+    OOOConfig.create(financial_year: '2017-2018',
+                     leaves_count: 16,
+                     wfhs_count: 13)
 
     @leave = user.leaves.create(
       start_date: '20170412',
@@ -74,7 +78,7 @@ RSpec.describe OooperiodsController, type: :controller do
 
     context 'with invalid attributes' do
       let(:leave_params) do
-        { start_date: '20170414' }
+        { start_date: '20170414', type: 'Leave' }
       end
 
       it 'does not create the new leave' do
@@ -94,7 +98,7 @@ RSpec.describe OooperiodsController, type: :controller do
   describe 'PATCH #update' do
     context 'with valid attributes' do
       let(:leave_params) do
-        { start_date: '20170413', end_date: '20170414' }
+        { start_date: '20170413', end_date: '20170414', type: 'Leave' }
       end
 
       it 'updates a existing leave' do
@@ -111,11 +115,21 @@ RSpec.describe OooperiodsController, type: :controller do
         patch :update, params: { ooo_period: leave_params, id: @leave.id }
         expect(response).to redirect_to oooperiods_url
       end
+
+      it 'update leave to wfh' do
+        wfh_params = { start_date: '20170413',
+                       end_date: '20170414',
+                       type: 'Wfh' }
+        params = { ooo_period: wfh_params, id: @leave.id }
+        expect { patch :update, params: params }
+          .to change(Leave, :count).by(-1)
+        expect(assigns(:ooo_period).persisted?).to eq(true)
+      end
     end
 
     context 'with invalid attributes' do
       let(:leave_params) do
-        { start_date: '20170413', end_date: nil }
+        { start_date: '20170413', end_date: nil, type: 'Leave' }
       end
 
       it 'does not update the leave' do
@@ -147,14 +161,6 @@ RSpec.describe OooperiodsController, type: :controller do
       ).and_return(false)
       delete :destroy, params: { id: @leave.id }
       expect(response).to redirect_to root_path
-    end
-  end
-
-  describe 'number_of_days' do
-    it 'should return number of days between two dates' do
-      param = { start_date: '20170412', end_date: '20170413' }
-      post :number_of_days, params: param
-      expect(response.body.to_json).to include('2')
     end
   end
 end

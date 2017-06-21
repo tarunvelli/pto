@@ -8,30 +8,30 @@
       = render 'shared/ooo_period_form', url: admin_user_oooperiods_path(@user), method: :post
       .row
         %table#user_leaves.table.table-striped.table-bordered
-          %h2 Leave Stats
+          %h3 Leave Stats (#{@financial_year})
           %tbody
             %tr
               %td Total Leaves
-              %td= @user.total_leaves
+              %td= @user.total_leaves_count(@financial_year)
             %tr
               %td Remaining Leaves
-              %td= @user.remaining_leaves
+              %td= @user.remaining_leaves_count(@financial_year, nil)
             %tr
               %td Leaves used
-              %td= @user.no_of_leaves_used
+              %td= @user.leaves_used_count(@financial_year)
       .row
         %table#user_wfhs.table.table-striped.table-bordered
-          %h2 WFH Stats
+          %h3 WFH Stats (Q#{@current_quarter})
           %tbody
             %tr
               %td Total WFH
-              %td= @user.total_wfhs
+              %td= @user.total_wfhs_count(@financial_year, @current_quarter)
             %tr
               %td Remaining WFH
-              %td= @user.remaining_wfhs
+              %td= @user.remaining_wfhs_count(@financial_year, @current_quarter, nil)
             %tr
               %td WFH used
-              %td= @user.no_of_wfhs_used
+              %td= @user.wfhs_used_count(@financial_year, @current_quarter)
 
 
   .row
@@ -50,7 +50,7 @@
         %tr
           %td= leave.start_date
           %td= leave.end_date
-          %td= leave.number_of_days
+          %td= leave.business_days_count_between(leave.start_date, leave.end_date)
           %td= link_to 'Edit', edit_admin_user_oooperiod_path(leave.user, leave)
           %td
             = link_to 'Delete', admin_user_oooperiod_path(leave.user, leave), method: :delete, data: { confirm: 'Are you sure?' }
@@ -71,7 +71,7 @@
         %tr
           %td= wfh.start_date
           %td= wfh.end_date
-          %td= wfh.number_of_days
+          %td= wfh.days_count_between(wfh.start_date, wfh.end_date, wfh.updated_at)
           %td= link_to 'Edit', edit_admin_user_oooperiod_path(wfh.user, wfh)
           %td
             = link_to 'Delete',admin_user_oooperiod_path(wfh.user, wfh), method: :delete, data: { confirm: 'Are you sure?' }
@@ -79,32 +79,61 @@
 
 :javascript
   $(document).ready(function() {
-    var a = #{@leaves.to_json}
-    var ds = [];
-    for (var i=0;i<a.length;i++){
-      var parts =a[i].start_date.split('-');
-      var en = a[i].end_date.split('-');
-      var obj = {
-        startDate: new Date(parts[0],parts[1]-1,parts[2]),
-        endDate: new Date(en[0],en[1]-1,en[2]),
-        color: 'red'
+    var leaves = #{@leaves.to_json}
+    var data = [];
+    for (var i=0;i<leaves.length;i++){
+      var start_date = moment(leaves[i].start_date);
+      var end_date = moment(leaves[i].end_date);
+      var currentDate = moment(start_date);
+      var stopDate = moment(end_date);
+      var dateArray = new Array();
+      while (currentDate <= stopDate) {
+        if (currentDate.day() % 6 != 0) {
+          dateArray.push( moment(currentDate) )
+        }
+        currentDate = moment(currentDate).add(1, 'days');
       }
-      ds.push(obj)
+      for (j = 0; j < dateArray.length; j++) {
+        var obj = {
+          startDate: dateArray[j],
+          endDate: dateArray[j],
+          color: 'red'
+        }
+        data.push(obj)
+      }
     }
     var wfhs = #{@wfhs.to_json}
     for (var i=0;i<wfhs.length;i++){
-      var parts =wfhs[i].start_date.split('-');
-      var en = wfhs[i].end_date.split('-');
-      var obj = {
-        startDate: new Date(parts[0],parts[1]-1,parts[2]),
-        endDate: new Date(en[0],en[1]-1,en[2]),
-         color: 'green'
+      var start_date = moment(wfhs[i].start_date);
+      var end_date = moment(wfhs[i].end_date);
+      var currentDate = moment(start_date);
+      var stopDate = moment(end_date);
+      var dateArray = new Array();
+      while (currentDate <= stopDate) {
+        if (currentDate.day() % 6 != 0) {
+          dateArray.push( moment(currentDate) )
+        }
+        currentDate = moment(currentDate).add(1, 'days');
       }
-      ds.push(obj)
+      for (j = 0; j < dateArray.length; j++) {
+        var obj = {
+          startDate: dateArray[j],
+          endDate: dateArray[j],
+          color: 'green'
+        }
+        data.push(obj)
+      }
     }
 
     $('#calendar').calendar({
-      dataSource: ds
+      dataSource: data,
+      customDayRenderer: function(element, date) {
+        if(date.toDateString()  == new Date().toDateString() ) {
+          $(element).css('background-color', 'skyblue');
+          $(element).css('color', 'white');
+          $(element).css('border-radius', '15px');
+        }
+      }
     });
 
   } );

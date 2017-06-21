@@ -18,6 +18,7 @@ AllCops:
     - 'app/helpers/application_helper.rb'
     - 'db/**/*'
     - 'bin/*'
+    - 'lib/tasks/*'
   TargetRubyVersion: 2.3
 Style/Documentation:
   Description: 'Document classes and non-namespace modules.'
@@ -25,8 +26,7 @@ Style/Documentation:
 Metrics/AbcSize:
   Max: 20
 Metrics/MethodLength:
-  CountComments: false
-  Max: 20
+  Enabled: false
 Metrics/ModuleLength:
   Exclude:
     - "**/*_spec.rb"
@@ -37,6 +37,8 @@ Metrics/BlockLength:
 Style/SymbolArray:
   Enabled: false
 Style/ClassAndModuleChildren:
+  Enabled: false
+Style/ConditionalAssignment:
   Enabled: false
 Date:
   Enabled: false

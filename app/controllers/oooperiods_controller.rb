@@ -3,18 +3,21 @@
 class OooperiodsController < ApplicationController
   before_action :ensure_signed_in
   before_action :set_ooo_period, except: [:create]
+  before_action :choose_ooo_period_class, only: [:update]
 
   def index
     @total_leaves = current_user.leaves.order('end_date DESC')
     @editable_leaves = current_user.leaves.where('end_date > ?', Date.current)
     @total_wfhs = current_user.wfhs.order('end_date DESC')
     @editable_wfhs = current_user.wfhs.where('end_date > ?', Date.current)
+    @financial_year = OOOConfig.financial_year
+    @current_quarter = FinancialQuarter.new.current_quarter
   end
 
   def create
-    @ooo_period = current_user.o_o_o_periods.build(ooo_period_params)
+    @ooo_period = current_user.ooo_periods.build(ooo_period_params)
     if @ooo_period.save
-      flash[:success] = 'OOO Period form Submitted!'
+      flash[:success] = "#{@ooo_period.type} applied!"
       redirect_to oooperiods_url
     else
       render 'new'
@@ -23,7 +26,7 @@ class OooperiodsController < ApplicationController
 
   def update
     if @ooo_period.update_attributes(ooo_period_params)
-      flash[:success] = 'OOO Period updated Successfully'
+      flash[:success] = "#{@ooo_period.type} updated Successfully"
       redirect_to oooperiods_url
     else
       render 'edit'
@@ -32,16 +35,8 @@ class OooperiodsController < ApplicationController
 
   def destroy
     return unless @ooo_period.destroy
-    flash[:success] = 'OOO Period Cancelled'
+    flash[:success] = "#{@ooo_period.type} Cancelled"
     redirect_to oooperiods_url
-  end
-
-  def number_of_days
-    @days = OOOPeriod.business_days_between(
-      params[:start_date].to_date,
-      params[:end_date].to_date
-    )
-    render json: @days
   end
 
   private
@@ -56,5 +51,10 @@ class OooperiodsController < ApplicationController
 
   def ooo_period_params
     params.require(:ooo_period).permit(:start_date, :end_date, :type)
+  end
+
+  def choose_ooo_period_class
+    return unless @ooo_period.type != ooo_period_params[:type]
+    @ooo_period = @ooo_period.becomes(ooo_period_params[:type].constantize)
   end
 end

@@ -1,10 +1,40 @@
 .home-page {
   background-image: image-url("pto-bg.jpg");
   background-size: cover;
-  bottom: 40px;
-  left: 0;
-  opacity: 0.5;
   position: absolute;
-  right: 0;
-  top: 50px;
+  top: 44px;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
 }
+  .link-btn{
+    text-align: center;
+    position: relative;
+    width: 280px;
+    margin: auto;
+    vertical-align: middle;
+    display: block;
+    margin-top: 40px;
+  }
+  .btn-container {
+     width: 600px;
+    height: 200px;
+    background-color: white;
+    opacity: 0.9;
+    margin: auto;
+    border-radius: 6px;
+    padding-top: 40px;
+    text-align: center;
+    margin-top: 24vh;
+    span.beautiful, span.code{
+    text-transform: uppercase;
+    font-size: 24px;
+    font-weight: lighter;
+    color: #428bca;
+    }
+    span.code{
+    font-weight: bolder;
+    }
+
+  }
+
