@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 class OOOConfig < ApplicationRecord
-  validates :leaves_count, presence: :true
+  validates :leaves_count, :wfhs_count, presence: :true
   before_save :update_user_leave_attributes
   before_save :update_user_wfh_attributes
-  serialize :wfhs_count, Hash
 
   def self.financial_year
     check_date = Date.current < Date.new(Date.current.year, 3, 31)
@@ -32,20 +31,14 @@ class OOOConfig < ApplicationRecord
     return unless changes.keys.include?('wfhs_count') &&
                   financial_year == OOOConfig.financial_year
     User.all.each do |user|
-      user.total_wfhs = wfhs_count[:"#{current_quarter}"].to_i
-      if wfhs_count_was[:"#{current_quarter}"].present?
+      user.total_wfhs = wfhs_count.to_i
+      if wfhs_count_was.present?
         user.remaining_wfhs +=
-          wfhs_count[:"#{current_quarter}"].to_i -
-          wfhs_count_was[:"#{current_quarter}"].to_i
+          wfhs_count.to_i - wfhs_count_was.to_i
       else
-        user.remaining_wfhs = wfhs_count[:"#{current_quarter}"].to_i
+        user.remaining_wfhs = wfhs_count.to_i
       end
       user.save(validate: false)
     end
-  end
-
-  def current_quarter
-    quarters = %w[quarter4 quarter1 quarter2 quarter3]
-    quarters[(Date.today.month - 1) / 3]
   end
 end

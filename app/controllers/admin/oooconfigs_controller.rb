@@ -5,6 +5,7 @@ class Admin::OooconfigsController < ApplicationController
   before_action :set_ooo_config
 
   def update
+    byebug
     if @ooo_config.update_attributes(ooo_config_params)
       flash[:success] = 'configs are updated'
       redirect_to admin_users_path
@@ -22,9 +23,6 @@ class Admin::OooconfigsController < ApplicationController
   end
 
   def ooo_config_params
-    params.require(:ooo_config).permit(
-      :leaves_count,
-      wfhs_count: [:quarter1, :quarter2, :quarter3, :quarter4]
-    )
+    params.require(:ooo_config).permit(:leaves_count, :wfhs_count)
   end
 end

@@ -1,13 +1,12 @@
 %h1 OOO Settings
 .row
   .col-md-6.col-md-offset-3
-    = form_for(@ooo_config, url: edit_admin_oooconfigs_path, method: :patch) do |f|
-      = f.label :leaves_count
-      = f.number_field :leaves_count, class: 'form-control'
-      .row
-        - @ooo_config.wfhs_count.each do |k,v|
-          .col-md-3
-            = f.label "wfhs_count for #{k}"
-            = f.number_field "wfhs_count[#{k}]",value: v, class: 'form-control'
+    = form_for(@ooo_config, url: admin_oooconfigs_path, method: :patch) do |f|
+      .form-group
+        = f.label :leaves_count
+        = f.number_field :leaves_count, class: 'form-control'
+      .form-group
+        = f.label :wfhs_count
+        = f.number_field :wfhs_count, class: 'form-control'
       = f.submit "Submit", class: "btn btn-primary"
 

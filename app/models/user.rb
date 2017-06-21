@@ -77,20 +77,15 @@ class User < ApplicationRecord
         (
          Date.new(current_date.year, quarter_month_numbers(Date.today)[2], 30) -
          joining_date
-        ) * ooo_config.wfhs_count[:"#{current_quarter}"].to_i / 90
+        ) * ooo_config.wfhs_count.to_i / 90
       ).ceil
     else
-      ooo_config.wfhs_count[:"#{current_quarter}"].to_i
+      ooo_config.wfhs_count.to_i
     end
   end
 
   def ooo_config
     OOOConfig.find_by('financial_year = ?', OOOConfig.financial_year)
-  end
-
-  def current_quarter
-    quarters = %w[quarter4 quarter1 quarter2 quarter3]
-    quarters[(Date.today.month - 1) / 3]
   end
 
   def did_user_join_in_current_quarter

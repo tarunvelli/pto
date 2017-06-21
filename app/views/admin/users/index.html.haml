@@ -1,39 +1,39 @@
-%h1 OOO Settings
 .row
-  .col-md-6.col-md-offset-3
+  .col-md-9
+    %h1 List of Users
+    %table#user_table.table.table-striped.table-bordered
+      %thead
+        %tr
+          %td Id
+          %td Name
+          %td Email
+          %td Joining Date
+          %td Remaining Leaves
+          %td Remaining WFHs
+          %td Actions
+      %tbody
+        - @users.each do |user|
+          %tr
+            %td= user.id
+            %td= user.name
+            %td= user.email
+            %td= user.joining_date
+            %td= user.remaining_leaves
+            %td= user.remaining_wfhs
+            %td= link_to 'Show', admin_user_path(user)
+
+  .col-md-3
+    %h1 OOO Settings
     = form_for(@ooo_config, url: admin_oooconfigs_path, method: :patch) do |f|
+      .form-group
+        = f.label :financial_year
+        = f.select :financial_year, (Time.zone.now.year - 5)..(Time.zone.now.year + 1), class: 'form-control'
       .form-group
         = f.label :leaves_count
         = f.number_field :leaves_count, class: 'form-control'
-      .row
-        - @ooo_config.wfhs_count.each do |k,v|
-          .col-md-3
-            .form-group
-              = f.label "wfhs_count for #{k}"
-              = f.number_field "wfhs_count[#{k}]",value: v, class: 'form-control'
+      .form-group
+        = f.label :wfhs_count
+        = f.number_field :wfhs_count, class: 'form-control'
       = f.submit "Submit", class: "btn btn-primary"
-
-.row
-  %h1 List of Users
-%table#user_table.table.table-striped.table-bordered
-  %thead
-    %tr
-      %td Id
-      %td Name
-      %td Email
-      %td Joining Date
-      %td Remaining Leaves
-      %td Remaining WFHs
-      %td Actions
-  %tbody
-    - @users.each do |user|
-      %tr
-        %td= user.id
-        %td= user.name
-        %td= user.email
-        %td= user.joining_date
-        %td= user.remaining_leaves
-        %td= user.remaining_wfhs
-        %td= link_to 'Show', admin_user_path(user)
 
 
