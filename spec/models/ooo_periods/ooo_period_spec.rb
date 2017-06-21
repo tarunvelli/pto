@@ -3,6 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe OOOPeriod, type: :model do
+  #TODO Lets pair on this, we'll be using factoryGirl for setting up instances
   user_params = { name: 'test',
                   email: 'test@test.com',
                   remaining_leaves: 15,
@@ -55,6 +56,8 @@ RSpec.describe OOOPeriod, type: :model do
                Date.new(2017, 5, 26)
       )).to eq(1)
     end
+
+    #TODO should return an error if end_date is greater than start date
   end
 
   describe :holiday? do
@@ -68,15 +71,23 @@ RSpec.describe OOOPeriod, type: :model do
     end
 
     it 'should return true for saturday' do
+      #TODO mocking the methods would provide much better readability
       expect(Leave.holiday?(Date.new(2017, 6, 3))).to eq(true)
     end
 
     it 'should return true for sunday' do
+      #TODO mocking the methods would provide much better readability
       expect(Leave.holiday?(Date.new(2017, 6, 4))).to eq(true)
     end
   end
 
   describe :verify_dates do
+    # TODO in situations where you are needed to use 'if' in description, introduce 'context' block
+    # context 'start_date before end_date' do
+    #   it 'should not add to errors' do
+    #   end
+    # end
+
     it 'should not add to errors if start date is before end date' do
       leave.update_attributes(
         start_date: '20170412',
@@ -85,6 +96,7 @@ RSpec.describe OOOPeriod, type: :model do
       expect(leave.errors).not_to include(:generic)
     end
 
+    #TODO end_date before start_date should add an error, please change the description of the block
     it 'should add to errors if start date is before end date' do
       leave.update_attributes(start_date: '20170414')
       expect(leave.errors).to include(:start_date)
@@ -92,11 +104,14 @@ RSpec.describe OOOPeriod, type: :model do
         .to include('must be before end date')
     end
 
+    #TODO Any reason on why it shouldnt add to the errors?
     it 'should not add to errors if end_date is empty' do
       leave.update_attributes(end_date: nil)
       expect(leave.errors[:start_date])
         .not_to include('must be before end date')
     end
+    #TODO what if start_date is empty
+    #TODO what if start_date and end_date are empty
   end
 
   describe :set_number_of_business_days do
@@ -106,6 +121,7 @@ RSpec.describe OOOPeriod, type: :model do
     end
   end
 
+  #TODO add more test cases, this logic is where ravi found a bug
   describe :update_user_attributes do
     it 'should set remaining leaves if OOO period type is Leave' do
       leave.send(:update_user_attributes)
@@ -139,23 +155,10 @@ RSpec.describe OOOPeriod, type: :model do
     end
   end
 
-  describe :save_user do
-    it 'should save the user' do
-      leave.send(:save_user)
-      expected_user = User.where("name = 'test'")[0]
-      expect(expected_user.email).to eq('test@test.com')
-    end
-  end
-
-  describe :edit_no_of_days do
-    it 'should return new number of days' do
-      allow(leave).to receive(:number_of_days_was).and_return(2)
-
-      allow(leave).to receive(:number_of_days).and_return(3)
-
-      expect(leave.send(:edit_no_of_days)).to eq(12)
-    end
-  end
+  #TODO describe :update_google_calendar
+  #TODO describe :insert_calendar
+  #TODO describe :edit_calendar
+  #TODO describe :calendar_id
 
   describe :update_user_remaining_attributes do
     it 'should update user remaining leaves when a leave is deleted' do
@@ -166,6 +169,17 @@ RSpec.describe OOOPeriod, type: :model do
     it 'should update user remaining wfhs when a wfh is deleted' do
       wfh.destroy
       expect(user.remaining_wfhs).to eq(13)
+    end
+  end
+
+  #TODO describe :leave
+  #TODO describe :delete_event_google_calendar
+
+  describe :save_user do
+    it 'should save the user' do
+      leave.send(:save_user)
+      expected_user = User.where("name = 'test'")[0]
+      expect(expected_user.email).to eq('test@test.com')
     end
   end
 
@@ -191,7 +205,17 @@ RSpec.describe OOOPeriod, type: :model do
       normal_leave.send(:check_date_conflicts)
       expect(normal_leave.errors[:generic])
         .not_to include('dates are overlapping with previous OOO Period dates.
-                         Please correct.')
+      Please correct.')
+    end
+  end
+
+  describe :edit_no_of_days do
+    it 'should return new number of days' do
+      allow(leave).to receive(:number_of_days_was).and_return(2)
+
+      allow(leave).to receive(:number_of_days).and_return(3)
+
+      expect(leave.send(:edit_no_of_days)).to eq(12)
     end
   end
 end
