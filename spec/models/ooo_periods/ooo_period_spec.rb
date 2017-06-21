@@ -194,4 +194,34 @@ RSpec.describe OOOPeriod, type: :model do
                          Please correct.')
     end
   end
+
+  describe :type_change do
+    context 'if leave is changed to wfh' do
+      it 'only if type is changed but not dates' do
+        leave.update_attributes(type: 'Wfh')
+        expect(user.remaining_leaves).to eq(15)
+        expect(user.remaining_wfhs).to eq(10)
+      end
+
+      it 'if both type and dates are changed' do
+        leave.update_attributes(type: 'Wfh', start_date: '20170411')
+        expect(user.remaining_leaves).to eq(15)
+        expect(user.remaining_wfhs).to eq(9)
+      end
+    end
+
+    context 'if wfh is changed to leave' do
+      it 'only if type is changed but not dates' do
+        wfh.update_attributes(type: 'Leave')
+        expect(user.remaining_leaves).to eq(14)
+        expect(user.remaining_wfhs).to eq(13)
+      end
+
+      it 'if both type and dates are changed' do
+        wfh.update_attributes(type: 'Leave', end_date: '20170417')
+        expect(user.remaining_leaves).to eq(13)
+        expect(user.remaining_wfhs).to eq(13)
+      end
+    end
+  end
 end

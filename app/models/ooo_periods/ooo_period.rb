@@ -50,13 +50,14 @@ class OOOPeriod < ApplicationRecord
 
   def update_user_attributes
     if leave?
-      if remaining_leaves_count.negative?
+      remaining_leaves = remaining_leaves_count
+      if remaining_leaves.negative?
         errors.add(
           :generic,
           'you dont have enough remaining leaves to apply this leave'
         )
       end
-      user.remaining_leaves = remaining_leaves_count
+      user.remaining_leaves = remaining_leaves
     else
       remaining_wfhs = remaining_wfhs_count
       if remaining_wfhs.negative?
@@ -76,7 +77,19 @@ class OOOPeriod < ApplicationRecord
   end
 
   def update_google_calendar
-    google_event_id.blank? ? insert_calendar : edit_calendar
+    if changes.key?(:type) && type_was
+      begin
+        google_client.delete_event(type_change_calendar_id, google_event_id)
+        insert_calendar
+      rescue
+      end
+    else
+      google_event_id.blank? ? insert_calendar : edit_calendar
+    end
+  end
+
+  def type_change_calendar_id
+    type_was == 'Leave' ? OOO_CALENDAR_ID : WFH_CALENDAR_ID
   end
 
   def insert_calendar
@@ -153,7 +166,7 @@ class OOOPeriod < ApplicationRecord
   end
 
   def remaining_leaves_count
-    if changes.key?(:number_of_days)
+    if changes.key?(:number_of_days) || changes.key?(:type)
       calculate_remaining_leaves
     else
       user.remaining_leaves
@@ -161,7 +174,7 @@ class OOOPeriod < ApplicationRecord
   end
 
   def remaining_wfhs_count
-    if changes.key?(:number_of_days)
+    if changes.key?(:number_of_days) || changes.key?(:type)
       calculate_remaining_wfhs
     else
       user.remaining_wfhs
@@ -174,7 +187,12 @@ class OOOPeriod < ApplicationRecord
 
   def edit_no_of_wfh_days
     determine_number_of_wfh_days
-    user.remaining_wfhs + number_of_days_was - number_of_days
+    if changes.key?(:type)
+      user.remaining_leaves += number_of_days_was
+      user.remaining_wfhs - number_of_days
+    else
+      user.remaining_wfhs + number_of_days_was - number_of_days
+    end
   end
 
   def new_no_of_wfh_days
@@ -192,7 +210,12 @@ class OOOPeriod < ApplicationRecord
   end
 
   def edit_no_of_days
-    user.remaining_leaves + number_of_days_was - number_of_days
+    if changes.key?(:type)
+      user.remaining_wfhs += number_of_days_was
+      user.remaining_leaves - number_of_days
+    else
+      user.remaining_leaves + number_of_days_was - number_of_days
+    end
   end
 
   def new_no_of_days
