@@ -27,13 +27,28 @@
     = form_for(@ooo_config, url: admin_oooconfigs_path, method: :patch) do |f|
       .form-group
         = f.label :financial_year
-        = f.select :financial_year, (Time.zone.now.year - 5)..(Time.zone.now.year + 1), class: 'form-control'
+        = f.select :financial_year, (Time.zone.now.year - 5)..(Time.zone.now.year + 1), id: 'financial_year', class: 'form-control'
       .form-group
         = f.label :leaves_count
-        = f.number_field :leaves_count, class: 'form-control'
+        = f.number_field :leaves_count, id:'leaves_count', class: 'form-control'
       .form-group
         = f.label :wfhs_count
-        = f.number_field :wfhs_count, class: 'form-control'
+        = f.number_field :wfhs_count, id:'wfhs_count', class: 'form-control'
       = f.submit "Submit", class: "btn btn-primary"
 
+:javascript
+  $("#ooo_config_financial_year").on("change",function(){
+    UpdateOOOConfigs();
+  });
 
+  function UpdateOOOConfigs() {
+     var financial_year = $("#ooo_config_financial_year").val();
+     if (financial_year){
+     $.ajax({
+       type: "GET",
+       url: "/refreshconfigs",
+       data: { financial_year: financial_year } ,
+       success: function(data){$("#leaves_count").val(leaves_count), $("#wfhs_count")}
+     });
+     }
+   };

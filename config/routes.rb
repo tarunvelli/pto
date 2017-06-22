@@ -21,4 +21,6 @@ Rails.application.routes.draw do
 
     resource :oooconfigs
   end
+
+  get '/refreshconfigs' => 'admin/oooconfigs#refreshconfigs', as: 'refreshconfigs'
 end
