@@ -8,30 +8,30 @@
       = render 'shared/ooo_period_form', url: admin_user_oooperiods_path(@user), method: :post
       .row
         %table#user_leaves.table.table-striped.table-bordered
-          %h2 Leave Stats
+          %h3 Leave Stats (#{@current_financial_year})
           %tbody
             %tr
               %td Total Leaves
-              %td= @user.total_leaves
+              %td= @ooo_periods_info.total_leaves
             %tr
               %td Remaining Leaves
-              %td= @user.remaining_leaves
+              %td= @ooo_periods_info.remaining_leaves
             %tr
               %td Leaves used
-              %td= @user.no_of_leaves_used
+              %td= @ooo_periods_info.total_leaves - @ooo_periods_info.remaining_leaves
       .row
         %table#user_wfhs.table.table-striped.table-bordered
-          %h2 WFH Stats
+          %h3 WFH Stats (#{@current_quarter})
           %tbody
             %tr
               %td Total WFH
-              %td= @user.total_wfhs
+              %td= @ooo_periods_info.total_wfhs["#{@current_quarter}"]
             %tr
               %td Remaining WFH
-              %td= @user.remaining_wfhs
+              %td= @ooo_periods_info.remaining_wfhs["#{@current_quarter}"].to_i
             %tr
               %td WFH used
-              %td= @user.no_of_wfhs_used
+              %td= @ooo_periods_info.total_wfhs["#{@current_quarter}"] - @ooo_periods_info.remaining_wfhs["#{@current_quarter}"].to_i
 
 
   .row
@@ -58,7 +58,7 @@
   .row
     .col-md-10.col-md-offset-1
       %h1 WFH History
-  %table#wfh_history.table.table-striped.table-bordered
+  %table#wfh_history.table.table-striped.table-bordereddata
     %thead
       %tr
         %td Start Date
@@ -79,32 +79,40 @@
 
 :javascript
   $(document).ready(function() {
-    var a = #{@leaves.to_json}
-    var ds = [];
-    for (var i=0;i<a.length;i++){
-      var parts =a[i].start_date.split('-');
-      var en = a[i].end_date.split('-');
+    var leaves = #{@leaves.to_json}
+    var data = [];
+    for (var i=0;i<leaves.length;i++){
+      //var start_date =leaves[i].start_date.split('-');
+      var end_date = leaves[i].end_date.split('-');
       var obj = {
-        startDate: new Date(parts[0],parts[1]-1,parts[2]),
-        endDate: new Date(en[0],en[1]-1,en[2]),
+        //startDate: new Date(start_date[0],start_date[1]-1,start_date[2]),
+        startDate: moment(leaves[i].start_date),
+        endDate: new Date(end_date[0],end_date[1]-1,end_date[2]),
         color: 'red'
       }
-      ds.push(obj)
+      data.push(obj)
     }
     var wfhs = #{@wfhs.to_json}
     for (var i=0;i<wfhs.length;i++){
-      var parts =wfhs[i].start_date.split('-');
-      var en = wfhs[i].end_date.split('-');
+      var start_date =wfhs[i].start_date.split('-');
+      var end_date = wfhs[i].end_date.split('-');
       var obj = {
-        startDate: new Date(parts[0],parts[1]-1,parts[2]),
-        endDate: new Date(en[0],en[1]-1,en[2]),
+        startDate: new Date(start_date[0],start_date[1]-1,start_date[2]),
+        endDate: new Date(end_date[0],end_date[1]-1,end_date[2]),
          color: 'green'
       }
-      ds.push(obj)
+      data.push(obj)
     }
 
     $('#calendar').calendar({
-      dataSource: ds
+      dataSource: data,
+      customDayRenderer: function(element, date) {
+        if(date.toDateString()  == new Date().toDateString() ) {
+          $(element).css('background-color', 'skyblue');
+          $(element).css('color', 'white');
+          $(element).css('border-radius', '15px');
+        }
+      }
     });
 
   } );

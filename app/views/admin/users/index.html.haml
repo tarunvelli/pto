@@ -1,6 +1,8 @@
 .row
   .col-md-9
     %h1 List of Users
+    = form_tag(admin_users_path, method: :get) do |f|
+      = select_tag "financial_year", options_for_select(@financial_years, params[:financial_year]), id: 'users_financial_year', :onchange => "this.form.submit();"
     %table#user_table.table.table-striped.table-bordered
       %thead
         %tr
@@ -12,34 +14,43 @@
           %td Remaining WFHs
           %td Actions
       %tbody
-        - @users.each do |user|
+        - @users_info.each do |user_info|
           %tr
-            %td= user.id
-            %td= user.name
-            %td= user.email
-            %td= user.joining_date
-            %td= user.remaining_leaves
-            %td= user.remaining_wfhs
-            %td= link_to 'Show', admin_user_path(user)
+            %td= user_info.user.id
+            %td= user_info.user.name
+            %td= user_info.user.email
+            %td= user_info.user.joining_date
+            %td= user_info.remaining_leaves
+            %td= user_info.remaining_wfhs["q1"]
+            %td= link_to 'Show', admin_user_path(user_info.user)
 
   .col-md-3
     %h1 OOO Settings
     = form_for(@ooo_config, url: admin_oooconfigs_path, method: :patch) do |f|
-      .form-group
-        = f.label :financial_year
-        = f.select :financial_year, (Time.zone.now.year - 5)..(Time.zone.now.year + 1), id: 'financial_year', class: 'form-control'
       .form-group
         = f.label :leaves_count
         = f.number_field :leaves_count, id:'leaves_count', class: 'form-control'
       .form-group
         = f.label :wfhs_count
         = f.number_field :wfhs_count, id:'wfhs_count', class: 'form-control'
-      = f.submit "Submit", class: "btn btn-primary"
+      - if @ooo_config.financial_year == OOOConfig.financial_year
+        = f.submit "Submit", class: "btn btn-primary"
 
 :javascript
   $("#ooo_config_financial_year").on("change",function(){
     UpdateOOOConfigs();
   });
+
+  function UpdateUsersIndex() {
+     var financial_year = $("#users_financial_year").val();
+     if (financial_year){
+     $.ajax({
+       type: "GET",
+       url: "/admin/users",
+       data: { financial_year: financial_year }
+     });
+     }
+  };
 
   function UpdateOOOConfigs() {
      var financial_year = $("#ooo_config_financial_year").val();
@@ -48,7 +59,10 @@
        type: "GET",
        url: "/refreshconfigs",
        data: { financial_year: financial_year } ,
-       success: function(data){$("#leaves_count").val(leaves_count), $("#wfhs_count")}
+       success: function(data){
+         $("#leaves_count").val(data['leaves_count'])
+         $("#wfhs_count").val(data['wfhs_count'])
+         }
      });
      }
    };

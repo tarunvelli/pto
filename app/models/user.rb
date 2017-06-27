@@ -2,6 +2,7 @@
 
 class User < ApplicationRecord
   has_many :o_o_o_periods
+  has_many :ooo_periods_infos, dependent: :destroy, autosave: true
   has_many :leaves, dependent: :destroy
   has_many :wfhs, dependent: :destroy
   validates :name, :email, presence: true
@@ -36,13 +37,38 @@ class User < ApplicationRecord
   def initialize_leave_attributes_and_wfh_attributes
     return unless previous_changes.keys.include?('joining_date')
     # TODO: To figure out a better solution for solving LineLength
-    self.total_leaves =
-      self.remaining_leaves =
+    total_leaves =
+      remaining_leaves =
         compute_number_of_leaves_for_a_new_user
-    self.total_wfhs =
-      self.remaining_wfhs =
-        compute_number_of_wfhs_for_a_new_user
+    total_wfhs = remaining_wfhs = form_wfhs_hash
+    ooo_periods_infos.create(
+      financial_year: OOOConfig.financial_year,
+      remaining_leaves: remaining_leaves,
+      total_leaves: total_leaves,
+      total_wfhs: total_wfhs,
+      remaining_wfhs: remaining_wfhs
+    )
     save!
+  end
+
+  def form_wfhs_hash
+    wfhs_count = compute_number_of_wfhs_for_a_new_user
+    wfhs_hash = {}
+    for i in 1..4
+      if i < current_quarter
+        wfhs_hash["q#{i}"] = 0
+      elsif i == current_quarter
+        wfhs_hash["q#{i}"] = wfhs_count
+      else
+        wfhs_hash["q#{i}"] = ooo_config.wfhs_count
+      end
+    end
+    wfhs_hash
+  end
+
+  def current_quarter
+    quarters = [4, 1, 2, 3]
+    quarters[(Date.today.month - 1) / 3]
   end
 
   def start_year_of_indian_financial_year

@@ -7,8 +7,7 @@ class OOOPeriod < ApplicationRecord
   validate :verify_dates
   validate :check_date_conflicts
 
-  before_save :set_number_of_business_days
-  before_save :update_user_attributes
+  validate :set_and_check_user_attributes
   before_save :update_google_calendar
   after_save :save_user
   before_destroy :update_user_remaining_attributes
@@ -48,25 +47,186 @@ class OOOPeriod < ApplicationRecord
     )
   end
 
-  def update_user_attributes
-    if leave?
-      remaining_leaves = remaining_leaves_count
-      if remaining_leaves.negative?
+  def set_and_check_user_attributes
+    set_number_of_business_days
+    leave? ? set_user_leave_attributes : set_user_wfh_attributes
+  end
+
+  def set_user_leave_attributes
+    number_of_days_was ? edit_leave : new_leave
+  end
+
+  def new_leave
+    if get_financial_year(start_date) == get_financial_year(end_date)
+      financial_year = get_financial_year(start_date)
+      user_info = user_ooo_period_info(financial_year)
+      user_info.remaining_leaves -= number_of_days
+      if user_info.remaining_leaves.negative?
         errors.add(
           :generic,
           'you dont have enough remaining leaves to apply this leave'
         )
       end
-      user.remaining_leaves = remaining_leaves
+      user_info.save!
     else
-      remaining_wfhs = remaining_wfhs_count
-      if remaining_wfhs.negative?
+      start_date_financial_year = get_financial_year(start_date)
+      start_date_user_info = user_ooo_period_info(start_date_financial_year)
+      start_date_user_info.remaining_leaves -= OOOPeriod.business_days_between(
+        start_date.to_date,
+        Date.new(start_date.year, 3, -1)
+      )
+      start_date_user_info.save!
+      end_date_financial_year = get_financial_year(end_date)
+      end_date_user_info = user_ooo_period_info(end_date_financial_year)
+      end_date_user_info.remaining_leaves -= OOOPeriod.business_days_between(
+        Date.new(end_date.year, 4, 1),
+        end_date.to_date
+      )
+      end_date_user_info.save!
+      if start_date_user_info.remaining_leaves.negative? ||
+         end_date_user_info.remaining_leaves.negative?
+        errors.add(
+          :generic,
+          'you dont have enough remaining leaves to apply this leave'
+        )
+      end
+    end
+  end
+
+  def edit_leave
+    changes.key?(:type) ? increase_remaining_wfhs : increase_remaining_leaves
+    new_leave
+  end
+
+  def increase_remaining_leaves
+    if get_financial_year(start_date_was) == get_financial_year(end_date_was)
+      financial_year = get_financial_year(start_date_was)
+      user_info = user_ooo_period_info(financial_year)
+      user_info.remaining_leaves += number_of_days_was
+      user_info.save!
+    else
+      start_date_financial_year = get_financial_year(start_date_was)
+      start_date_user_info = user_ooo_period_info(start_date_financial_year)
+      start_date_user_info.remaining_leaves += OOOPeriod.business_days_between(
+        start_date_was.to_date,
+        Date.new(start_date_was.year, 3, -1)
+      )
+      end_date_financial_year = get_financial_year(end_date_was)
+      end_date_user_info = user_ooo_period_info(end_date_financial_year)
+      end_date_user_info.remaining_leaves += OOOPeriod.business_days_between(
+        Date.new(end_date_was.year, 4, 1),
+        end_date_was.to_date
+      )
+      start_date_user_info.save!
+      end_date_user_info.save!
+    end
+  end
+
+  def increase_remaining_wfhs
+    if year_and_quarter(start_date_was) == year_and_quarter(end_date_was)
+      financial_year = get_financial_year(start_date)
+      user_info = user_ooo_period_info(financial_year)
+      user_info.remaining_wfhs[get_quarter(start_date_was)] += number_of_days_was
+      user_info.save!
+    else
+      start_date_quarter = get_quarter(start_date_was)
+      start_date_financial_year = get_financial_year(start_date_was)
+      start_date_user_info = user_ooo_period_info(start_date_financial_year)
+      start_date_user_info.remaining_wfhs[start_date_quarter] += OOOPeriod.business_days_between(
+        start_date_was.to_date,
+        Date.new(start_date_was.year, end_month_of_quarter(start_date_was), -1)
+      )
+      start_date_user_info.save!
+      end_date_quarter = get_quarter(end_date_was)
+      end_date_financial_year = get_financial_year(end_date_was)
+      end_date_user_info = user_ooo_period_info(end_date_financial_year)
+      end_date_user_info.remaining_wfhs[end_date_quarter] += OOOPeriod.business_days_between(
+        Date.new(end_date_was.year, start_month_of_quarter(end_date_was), 1),
+        end_date_was.to_date
+      )
+      end_date_user_info.save!
+    end
+  end
+
+  def user_ooo_period_info(financial_year)
+    user.ooo_periods_infos.where('financial_year = ? ', financial_year).first
+  end
+
+  def set_user_wfh_attributes
+    number_of_days_was ? edit_wfh : new_wfh
+  end
+
+  def edit_wfh
+    changes.key?(:type) ? increase_remaining_leaves : increase_remaining_wfhs
+    new_wfh
+  end
+
+  def new_wfh
+    if year_and_quarter(start_date) == year_and_quarter(end_date)
+      financial_year = get_financial_year(start_date)
+      user_info = user_ooo_period_info(financial_year)
+      user_info.remaining_wfhs[get_quarter(start_date)] -= number_of_days
+      if user_info.remaining_wfhs[get_quarter(start_date)].negative?
         errors.add(
           :generic,
           'you dont have enough remaining wfhs to apply this wfh'
         )
+      else
+        user_info.save!
       end
-      user.remaining_wfhs = remaining_wfhs
+    else
+      start_date_quarter = get_quarter(start_date)
+      start_date_financial_year = get_financial_year(start_date)
+      start_date_user_info = user_ooo_period_info(start_date_financial_year)
+      start_date_user_info.remaining_wfhs[start_date_quarter] -= OOOPeriod.business_days_between(
+        start_date.to_date,
+        Date.new(start_date.year, end_month_of_quarter(start_date), -1)
+      )
+      start_date_user_info.save!
+      end_date_quarter = get_quarter(end_date)
+      end_date_financial_year = get_financial_year(end_date)
+      end_date_user_info = user_ooo_period_info(end_date_financial_year)
+      end_date_user_info.remaining_wfhs[end_date_quarter] -= OOOPeriod.business_days_between(
+        Date.new(end_date.year, start_month_of_quarter(end_date), 1),
+        end_date.to_date
+      )
+      if start_date_user_info.remaining_wfhs[start_date_quarter].negative? ||
+         end_date_user_info.remaining_wfhs[end_date_quarter].negative?
+        errors.add(
+          :generic,
+          'you dont have enough remaining wfhs to apply this wfh'
+        )
+      else
+        end_date_user_info.save!
+      end
+    end
+  end
+
+  def year_and_quarter(date)
+    quarters = %w[q4 q1 q2 q3]
+    get_financial_year(date) + quarters[(date.month - 1) / 3]
+  end
+
+  def end_month_of_quarter(date)
+    quarter_end_months = [3, 6, 9, 12]
+    quarter_end_months[(date.month - 1) / 3]
+  end
+
+  def start_month_of_quarter(date)
+    quarter_start_months = [1, 4, 7, 10]
+    quarter_start_months[(date.month - 1) / 3]
+  end
+
+  def get_quarter(date)
+    quarters = %w[q4 q1 q2 q3]
+    quarters[(date.month - 1) / 3]
+  end
+
+  def get_financial_year(date)
+    if date.month > 3
+      "#{date.year}-#{date.year + 1}"
+    else
+      "#{date.year - 1}-#{date.year}"
     end
   end
 
@@ -127,11 +287,7 @@ class OOOPeriod < ApplicationRecord
   end
 
   def update_user_remaining_attributes
-    if leave?
-      user.remaining_leaves += number_of_days
-    else
-      user.remaining_wfhs += number_of_days
-    end
+    leave? ? increase_remaining_leaves : increase_remaining_wfhs
   end
 
   def leave?
@@ -163,62 +319,5 @@ class OOOPeriod < ApplicationRecord
       )
       break
     end
-  end
-
-  def remaining_leaves_count
-    if changes.key?(:number_of_days) || changes.key?(:type)
-      calculate_remaining_leaves
-    else
-      user.remaining_leaves
-    end
-  end
-
-  def remaining_wfhs_count
-    if changes.key?(:number_of_days) || changes.key?(:type)
-      calculate_remaining_wfhs
-    else
-      user.remaining_wfhs
-    end
-  end
-
-  def calculate_remaining_wfhs
-    number_of_days_was ? edit_no_of_wfh_days : new_no_of_wfh_days
-  end
-
-  def edit_no_of_wfh_days
-    determine_number_of_wfh_days
-    if changes.key?(:type)
-      user.remaining_leaves += number_of_days_was
-      user.remaining_wfhs - number_of_days
-    else
-      user.remaining_wfhs + number_of_days_was - number_of_days
-    end
-  end
-
-  def new_no_of_wfh_days
-    determine_number_of_wfh_days
-    user.remaining_wfhs - number_of_days
-  end
-
-  def determine_number_of_wfh_days
-    return unless start_date.to_datetime - 450.minutes < DateTime.current
-    self.number_of_days += 2 - 1
-  end
-
-  def calculate_remaining_leaves
-    number_of_days_was ? edit_no_of_days : new_no_of_days
-  end
-
-  def edit_no_of_days
-    if changes.key?(:type)
-      user.remaining_wfhs += number_of_days_was
-      user.remaining_leaves - number_of_days
-    else
-      user.remaining_leaves + number_of_days_was - number_of_days
-    end
-  end
-
-  def new_no_of_days
-    user.remaining_leaves - number_of_days
   end
 end

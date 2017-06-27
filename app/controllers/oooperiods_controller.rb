@@ -9,6 +9,9 @@ class OooperiodsController < ApplicationController
     @editable_leaves = current_user.leaves.where('end_date > ?', Date.current)
     @total_wfhs = current_user.wfhs.order('end_date DESC')
     @editable_wfhs = current_user.wfhs.where('end_date > ?', Date.current)
+    @financial_year = OOOConfig.financial_year
+    @current_quarter = "q#{current_user.send(:current_quarter)}"
+    @ooo_periods_info = current_user.ooo_periods_infos.where('financial_year = ? ', @financial_year).first
   end
 
   def create
