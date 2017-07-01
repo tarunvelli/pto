@@ -59,6 +59,31 @@ input[type="radio"] {
 .container {
   width: 90%;
 }
+
+.financial_year {
+  text-align: right;
+  margin-top: 32px;
+  label {
+    font-size: 16px
+  }
+}
+.radio-inline{
+padding-left: 0px;
+padding-right: 24px;
+}
+.legend-green, .legend-red{
+      display: inline-block;
+    height: 14px;
+    width: 20px;
+    margin-right: 24px;
+    vertical-align: middle;
+}
+.legend-green{
+background-color: green;
+}
+.legend-red{
+background-color: red;
+}
 /* Sticky footer styles
 -------------------------------------------------- */
 html {

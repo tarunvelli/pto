@@ -6,9 +6,9 @@ class Admin::OooperiodsController < ApplicationController
   before_action :set_ooo_period, except: [:create]
 
   def create
-    @ooo_period = @user.o_o_o_periods.build(ooo_period_params)
+    @ooo_period = @user.ooo_periods.build(ooo_period_params)
     if @ooo_period.save
-      flash[:success] = 'OOO period form Submitted!'
+      flash[:success] = "#{@ooo_period.type} applied!"
       redirect_to admin_user_url(@user)
     else
       render 'new'
@@ -17,7 +17,7 @@ class Admin::OooperiodsController < ApplicationController
 
   def update
     if @ooo_period.update_attributes(ooo_period_params)
-      flash[:success] = 'OOO period updated Successfully'
+      flash[:success] = "#{@ooo_period.type} updated Successfully"
       redirect_to admin_user_url(@user)
     else
       render 'edit'
@@ -26,7 +26,7 @@ class Admin::OooperiodsController < ApplicationController
 
   def destroy
     return unless @ooo_period.destroy
-    flash[:success] = 'OOO Cancelled'
+    flash[:success] = "#{@ooo_period.type} Cancelled"
     redirect_to admin_user_url(@user)
   end
 

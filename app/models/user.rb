@@ -1,15 +1,11 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
-  has_many :o_o_o_periods
-  has_many :ooo_periods_infos, dependent: :destroy, autosave: true
-  has_many :leaves, dependent: :destroy
-  has_many :wfhs, dependent: :destroy
-  validates :name, :email, presence: true
-  validate :check_remaining_leaves
-  validate :check_remaining_wfhs
-
-  after_commit :initialize_leave_attributes_and_wfh_attributes
+  has_many :ooo_periods, class_name: 'OOOPeriod'
+  has_many :leaves
+  has_many :wfhs
+  validates :name, :email, :oauth_token, :token_expires_at, presence: true
+  validate :beautifulcode_mail
 
   def self.from_omniauth(auth)
     user = where(provider: auth.provider, uid: auth.uid).first_or_initialize
@@ -24,46 +20,75 @@ class User < ApplicationRecord
     user
   end
 
-  def no_of_leaves_used
-    total_leaves - remaining_leaves
+  def beautifulcode_mail
+    return unless email
+    return unless email.split('@')[1] != 'beautifulcode.in'
+    errors.add(:email, 'must be a beautifulcode.in email')
   end
 
-  def no_of_wfhs_used
-    total_wfhs - remaining_wfhs
-  end
-
-  private
-
-  def initialize_leave_attributes_and_wfh_attributes
-    return unless previous_changes.keys.include?('joining_date')
-    # TODO: To figure out a better solution for solving LineLength
-    total_leaves =
-      remaining_leaves =
-        compute_number_of_leaves_for_a_new_user
-    total_wfhs = remaining_wfhs = form_wfhs_hash
-    ooo_periods_infos.create(
-      financial_year: OOOConfig.financial_year,
-      remaining_leaves: remaining_leaves,
-      total_leaves: total_leaves,
-      total_wfhs: total_wfhs,
-      remaining_wfhs: remaining_wfhs
-    )
-    save!
-  end
-
-  def form_wfhs_hash
-    wfhs_count = compute_number_of_wfhs_for_a_new_user
-    wfhs_hash = {}
-    for i in 1..4
-      if i < current_quarter
-        wfhs_hash["q#{i}"] = 0
-      elsif i == current_quarter
-        wfhs_hash["q#{i}"] = wfhs_count
+  def remaining_leaves(financial_year, exclude_leave_id)
+    years = financial_year.split('-')
+    start_date = Date.new(years[0].to_i, 4, 1)
+    end_date = Date.new(years[1].to_i, 3, -1)
+    leaves = Leave.where('user_id = ? & start_date >= ? & start_date <= ?',
+                         id, start_date, end_date)
+    leaves_used = 0
+    leaves.each do |leave|
+      next if leave.id == exclude_leave_id
+      if leave.end_date > end_date
+        leaves_used += leave.business_days_between(leave.start_date, end_date)
       else
-        wfhs_hash["q#{i}"] = ooo_config.wfhs_count
+        leaves_used += leave.number_of_days
       end
     end
-    wfhs_hash
+    total_leaves(financial_year) - leaves_used
+  end
+
+  def leaves_used(financial_year)
+    total_leaves(financial_year) - remaining_leaves(financial_year, 0)
+  end
+
+  def wfhs_used(financial_year, quarter)
+    total_wfhs(financial_year, quarter) -
+      remaining_wfhs(financial_year, quarter, 0)
+  end
+
+  def remaining_wfhs(financial_year, quarter, exclude_wfh_id)
+    start_date = get_start_date(financial_year, quarter)
+    end_date = get_end_date(financial_year, quarter)
+    wfhs = Wfh.where('user_id = ? AND start_date >= ? AND start_date <= ?',
+                     id, start_date, end_date)
+    wfhs_used = 0
+    wfhs.each do |wfh|
+      next if wfh.id == exclude_wfh_id
+      if wfh.end_date > end_date
+        wfhs_used += calculate_number_of_days_in_wfh(wfh, end_date)
+      else
+        wfhs_used += wfh.number_of_days
+      end
+    end
+    total_wfhs(financial_year, quarter) - wfhs_used
+  end
+
+  def calculate_number_of_days_in_wfh(wfh, end_date)
+    number_of_days = wfh.business_days_between(wfh.start_date, end_date)
+    if wfh.start_date.to_datetime - 450.minutes < wfh.updated_at
+      number_of_days + 1
+    else
+      number_of_days
+    end
+  end
+
+  def get_start_date(financial_year, quarter)
+    years = financial_year.split('-')
+    year = quarter != 4 ? years[0] : years[1]
+    Date.new(year.to_i, quarter_month_numbers(quarter)[0], 1)
+  end
+
+  def get_end_date(financial_year, quarter)
+    years = financial_year.split('-')
+    year = quarter != 4 ? years[0] : years[1]
+    Date.new(year.to_i, quarter_month_numbers(quarter)[2], -1)
   end
 
   def current_quarter
@@ -71,66 +96,47 @@ class User < ApplicationRecord
     quarters[(Date.today.month - 1) / 3]
   end
 
-  def start_year_of_indian_financial_year
-    current_year = current_date.year
-    check_date = current_date < Date.new(current_year, 3, 31)
-    check_date ? current_year - 1 : current_year
-  end
+  def total_leaves(financial_year)
+    return 0 if get_end_date(financial_year, 4) < joining_date
+    did_user_join_in_between_given_fy =
+      (get_start_date(financial_year, 1) < joining_date) &&
+      (joining_date < get_end_date(financial_year, 4))
 
-  def current_date
-    Date.current
-  end
-
-  def compute_number_of_leaves_for_a_new_user
-    did_user_join_in_between_this_fy =
-      (Date.new(start_year_of_indian_financial_year, 4, 1) < joining_date) &&
-      (joining_date < Date.new(start_year_of_indian_financial_year + 1, 3, 31))
-
-    if did_user_join_in_between_this_fy
+    if did_user_join_in_between_given_fy
       (
         (
-         Date.new(start_year_of_indian_financial_year + 1, 3, 31) - joining_date
-        ) * ooo_config.leaves_count / 365
+         get_end_date(financial_year, 4) - joining_date
+        ) * ooo_config(financial_year).leaves_count / 365
       ).ceil
     else
-      ooo_config.leaves_count
+      ooo_config(financial_year).leaves_count
     end
   end
 
-  def compute_number_of_wfhs_for_a_new_user
-    if did_user_join_in_current_quarter
+  def total_wfhs(financial_year, quarter)
+    return 0 if get_end_date(financial_year, quarter) < joining_date
+    if did_user_join_in_given_quarter(financial_year, quarter)
       (
         (
-         Date.new(current_date.year, quarter_month_numbers(Date.today)[2], 30) -
-         joining_date
-        ) * ooo_config.wfhs_count.to_i / 90
+         get_end_date(financial_year, quarter) - joining_date
+        ) * ooo_config(financial_year).wfhs_count / 90
       ).ceil
     else
-      ooo_config.wfhs_count.to_i
+      ooo_config(financial_year).wfhs_count
     end
   end
 
-  def ooo_config
-    OOOConfig.find_by('financial_year = ?', OOOConfig.financial_year)
+  def ooo_config(financial_year)
+    OOOConfig.find_by('financial_year = ?', financial_year)
   end
 
-  def did_user_join_in_current_quarter
-    (Date.today.year == joining_date.year) &&
-      (quarter_month_numbers(Date.today) == quarter_month_numbers(joining_date))
+  def did_user_join_in_given_quarter(financial_year, quarter)
+    get_start_date(financial_year, quarter) <= joining_date &&
+      joining_date <= get_end_date(financial_year, quarter)
   end
 
-  def quarter_month_numbers(date)
-    quarters = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]
-    quarters[(date.month - 1) / 3]
-  end
-
-  def check_remaining_leaves
-    return unless remaining_leaves && remaining_leaves.negative?
-    errors.add(:generic, 'remaining leaves cant be negative')
-  end
-
-  def check_remaining_wfhs
-    return unless remaining_wfhs && remaining_wfhs.negative?
-    errors.add(:generic, 'remaining wfhs cant be negative')
+  def quarter_month_numbers(quarter)
+    month_numbers = [[4, 5, 6], [7, 8, 9], [10, 11, 12], [1, 2, 3]]
+    month_numbers[quarter - 1]
   end
 end

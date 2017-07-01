@@ -12,31 +12,31 @@
         %tbody
           %tr
             %td Total Leaves
-            %td= @ooo_periods_info.total_leaves
+            %td= current_user.total_leaves(@financial_year)
           %tr
             %td Remaining Leaves
-            %td= @ooo_periods_info.remaining_leaves
+            %td= current_user.remaining_leaves(@financial_year, 0)
           %tr
             %td Leaves used
-            %td= @ooo_periods_info.total_leaves - @ooo_periods_info.remaining_leaves
+            %td= current_user.leaves_used(@financial_year)
     .row
       %table#user_wfhs.table.table-striped.table-bordered
-        %h3 WFH Stats (#{@current_quarter})
+        %h3 WFH Stats (Q#{@current_quarter})
         %tbody
           %tr
             %td Total WFHs
-            %td= @ooo_periods_info.total_wfhs["#{@current_quarter}"]
+            %td= current_user.total_wfhs(@financial_year, @current_quarter)
           %tr
             %td Remaining WFHs
-            %td= @ooo_periods_info.remaining_wfhs["#{@current_quarter}"].to_i
+            %td= current_user.remaining_wfhs(@financial_year, @current_quarter, 0)
           %tr
             %td WFHs used
-            %td= @ooo_periods_info.total_wfhs["#{@current_quarter}"] - @ooo_periods_info.remaining_wfhs["#{@current_quarter}"]
+            %td= current_user.wfhs_used(@financial_year, @current_quarter)
 
 
 
 .row
-  %h1 List of up coming Leaves
+  %h1 Up coming Leaves
 %table#leave_history.table.table-striped.table-bordered
   %thead
     %tr
@@ -56,7 +56,7 @@
           = link_to 'Delete',oooperiod_path(leave), method: :delete, data: { confirm: 'Are you sure?' }
 
 .row
-  %h1 List of up coming WFHs
+  %h1 Up coming WFHs
 %table#wfh_history.table.table-striped.table-bordered
   %thead
     %tr
@@ -102,14 +102,25 @@
     }
     var wfhs = #{@total_wfhs.to_json}
     for (var i=0;i<wfhs.length;i++){
-      var start_date =wfhs[i].start_date.split('-');
-      var end_date = wfhs[i].end_date.split('-');
-      var obj = {
-        startDate: new Date(start_date[0],start_date[1]-1,start_date[2]),
-        endDate: new Date(end_date[0],end_date[1]-1,end_date[2]),
-         color: 'green'
+      var start_date = moment(wfhs[i].start_date);
+      var end_date = moment(wfhs[i].end_date);
+      var currentDate = moment(start_date);
+      var stopDate = moment(end_date);
+      var dateArray = new Array();
+      while (currentDate <= stopDate) {
+        if (currentDate.day() % 6 != 0) {
+          dateArray.push( moment(currentDate) )
+        }
+        currentDate = moment(currentDate).add(1, 'days');
       }
-      data.push(obj)
+      for (j = 0; j < dateArray.length; j++) {
+        var obj = {
+          startDate: dateArray[j],
+          endDate: dateArray[j],
+          color: 'green'
+        }
+        data.push(obj)
+      }
     }
 
     $('#calendar').calendar({

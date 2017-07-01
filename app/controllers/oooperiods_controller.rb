@@ -10,14 +10,13 @@ class OooperiodsController < ApplicationController
     @total_wfhs = current_user.wfhs.order('end_date DESC')
     @editable_wfhs = current_user.wfhs.where('end_date > ?', Date.current)
     @financial_year = OOOConfig.financial_year
-    @current_quarter = "q#{current_user.send(:current_quarter)}"
-    @ooo_periods_info = current_user.ooo_periods_infos.where('financial_year = ? ', @financial_year).first
+    @current_quarter = current_user.current_quarter
   end
 
   def create
-    @ooo_period = current_user.o_o_o_periods.build(ooo_period_params)
+    @ooo_period = current_user.ooo_periods.build(ooo_period_params)
     if @ooo_period.save
-      flash[:success] = 'OOO Period form Submitted!'
+      flash[:success] = "#{@ooo_period.type} applied!"
       redirect_to oooperiods_url
     else
       render 'new'
@@ -26,7 +25,7 @@ class OooperiodsController < ApplicationController
 
   def update
     if @ooo_period.update_attributes(ooo_period_params)
-      flash[:success] = 'OOO Period updated Successfully'
+      flash[:success] = "#{@ooo_period.type} updated Successfully"
       redirect_to oooperiods_url
     else
       render 'edit'
@@ -35,16 +34,8 @@ class OooperiodsController < ApplicationController
 
   def destroy
     return unless @ooo_period.destroy
-    flash[:success] = 'OOO Period Cancelled'
+    flash[:success] = "#{@ooo_period.type} Cancelled"
     redirect_to oooperiods_url
-  end
-
-  def number_of_days
-    @days = OOOPeriod.business_days_between(
-      params[:start_date].to_date,
-      params[:end_date].to_date
-    )
-    render json: @days
   end
 
   private

@@ -8,30 +8,30 @@
       = render 'shared/ooo_period_form', url: admin_user_oooperiods_path(@user), method: :post
       .row
         %table#user_leaves.table.table-striped.table-bordered
-          %h3 Leave Stats (#{@current_financial_year})
+          %h3 Leave Stats (#{@financial_year})
           %tbody
             %tr
               %td Total Leaves
-              %td= @ooo_periods_info.total_leaves
+              %td= @user.total_leaves(@financial_year)
             %tr
               %td Remaining Leaves
-              %td= @ooo_periods_info.remaining_leaves
+              %td= @user.remaining_leaves(@financial_year, 0)
             %tr
               %td Leaves used
-              %td= @ooo_periods_info.total_leaves - @ooo_periods_info.remaining_leaves
+              %td= @user.leaves_used(@financial_year)
       .row
         %table#user_wfhs.table.table-striped.table-bordered
-          %h3 WFH Stats (#{@current_quarter})
+          %h3 WFH Stats (Q#{@current_quarter})
           %tbody
             %tr
               %td Total WFH
-              %td= @ooo_periods_info.total_wfhs["#{@current_quarter}"]
+              %td= @user.total_wfhs(@financial_year, @current_quarter)
             %tr
               %td Remaining WFH
-              %td= @ooo_periods_info.remaining_wfhs["#{@current_quarter}"].to_i
+              %td= @user.remaining_wfhs(@financial_year, @current_quarter, 0)
             %tr
               %td WFH used
-              %td= @ooo_periods_info.total_wfhs["#{@current_quarter}"] - @ooo_periods_info.remaining_wfhs["#{@current_quarter}"].to_i
+              %td= @user.wfhs_used(@financial_year, @current_quarter)
 
 
   .row
@@ -58,7 +58,7 @@
   .row
     .col-md-10.col-md-offset-1
       %h1 WFH History
-  %table#wfh_history.table.table-striped.table-bordereddata
+  %table#wfh_history.table.table-striped.table-bordered
     %thead
       %tr
         %td Start Date
@@ -82,26 +82,47 @@
     var leaves = #{@leaves.to_json}
     var data = [];
     for (var i=0;i<leaves.length;i++){
-      //var start_date =leaves[i].start_date.split('-');
-      var end_date = leaves[i].end_date.split('-');
-      var obj = {
-        //startDate: new Date(start_date[0],start_date[1]-1,start_date[2]),
-        startDate: moment(leaves[i].start_date),
-        endDate: new Date(end_date[0],end_date[1]-1,end_date[2]),
-        color: 'red'
+      var start_date = moment(leaves[i].start_date);
+      var end_date = moment(leaves[i].end_date);
+      var currentDate = moment(start_date);
+      var stopDate = moment(end_date);
+      var dateArray = new Array();
+      while (currentDate <= stopDate) {
+        if (currentDate.day() % 6 != 0) {
+          dateArray.push( moment(currentDate) )
+        }
+        currentDate = moment(currentDate).add(1, 'days');
       }
-      data.push(obj)
+      for (j = 0; j < dateArray.length; j++) {
+        var obj = {
+          startDate: dateArray[j],
+          endDate: dateArray[j],
+          color: 'red'
+        }
+        data.push(obj)
+      }
     }
     var wfhs = #{@wfhs.to_json}
     for (var i=0;i<wfhs.length;i++){
-      var start_date =wfhs[i].start_date.split('-');
-      var end_date = wfhs[i].end_date.split('-');
-      var obj = {
-        startDate: new Date(start_date[0],start_date[1]-1,start_date[2]),
-        endDate: new Date(end_date[0],end_date[1]-1,end_date[2]),
-         color: 'green'
+      var start_date = moment(wfhs[i].start_date);
+      var end_date = moment(wfhs[i].end_date);
+      var currentDate = moment(start_date);
+      var stopDate = moment(end_date);
+      var dateArray = new Array();
+      while (currentDate <= stopDate) {
+        if (currentDate.day() % 6 != 0) {
+          dateArray.push( moment(currentDate) )
+        }
+        currentDate = moment(currentDate).add(1, 'days');
       }
-      data.push(obj)
+      for (j = 0; j < dateArray.length; j++) {
+        var obj = {
+          startDate: dateArray[j],
+          endDate: dateArray[j],
+          color: 'green'
+        }
+        data.push(obj)
+      }
     }
 
     $('#calendar').calendar({

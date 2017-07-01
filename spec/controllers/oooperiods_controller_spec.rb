@@ -9,14 +9,18 @@ RSpec.describe OooperiodsController, type: :controller do
         .to receive(:ensure_signed_in).and_return(true)
     end
 
-    user = User.create(
-      name: 'test',
-      email: 'test@test.com',
-      remaining_leaves: 15
-    )
+    user = User.create(name: 'test',
+                       email: 'test@beautifulcode.in',
+                       joining_date: '2017-02-16',
+                       oauth_token: 'test',
+                       token_expires_at: 123)
 
     allow_any_instance_of(OooperiodsController)
       .to receive(:current_user).and_return(user)
+
+    OOOConfig.create(financial_year: '2017-2018',
+                     leaves_count: 16,
+                     wfhs_count: 13)
 
     @leave = user.leaves.create(
       start_date: '20170412',
@@ -147,14 +151,6 @@ RSpec.describe OooperiodsController, type: :controller do
       ).and_return(false)
       delete :destroy, params: { id: @leave.id }
       expect(response).to redirect_to root_path
-    end
-  end
-
-  describe 'number_of_days' do
-    it 'should return number of days between two dates' do
-      param = { start_date: '20170412', end_date: '20170413' }
-      post :number_of_days, params: param
-      expect(response.body.to_json).to include('2')
     end
   end
 end

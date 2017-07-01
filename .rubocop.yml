@@ -38,6 +38,8 @@ Style/SymbolArray:
   Enabled: false
 Style/ClassAndModuleChildren:
   Enabled: false
+Style/ConditionalAssignment:
+  Enabled: false
 Date:
   Enabled: false
 ParenthesesAsGroupedExpression:

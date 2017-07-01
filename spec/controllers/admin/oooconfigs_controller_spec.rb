@@ -6,10 +6,7 @@ RSpec.describe Admin::OooconfigsController, type: :controller do
   before :each do
     @config_params = { financial_year: OOOConfig.financial_year,
                        leaves_count: 20,
-                       wfhs_count: { "quarter1": 15,
-                                     "quarter2": 15,
-                                     "quarter3": 15,
-                                     "quarter4": 15 } }
+                       wfhs_count: 15 }
     @ooo_config = OOOConfig.create(@config_params)
     allow_any_instance_of(Admin::OooconfigsController).to receive(
       :admin_user

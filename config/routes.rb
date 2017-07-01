@@ -9,8 +9,6 @@ Rails.application.routes.draw do
   resource :home, only: [:show]
   resources :users, only: [:show, :edit, :update, :index]
   resources :oooperiods, except: [:show]
-  resources :holidays
-  post '/number_of_days' => 'oooperiods#number_of_days', as: 'number_of_days'
 
   root to: 'home#show'
 
@@ -18,9 +16,6 @@ Rails.application.routes.draw do
     resources :users, only: [:show, :edit, :update, :index] do
       resources :oooperiods
     end
-
     resource :oooconfigs
   end
-
-  get '/refreshconfigs' => 'admin/oooconfigs#refreshconfigs', as: 'refreshconfigs'
 end

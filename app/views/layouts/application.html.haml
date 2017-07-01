@@ -25,7 +25,10 @@
         = yield
       - else
         .home-page
-          = link_to 'Sign in with BeautifulCode Account', '/auth/google_oauth2', class: 'btn btn-warning'
+          .btn-container
+            %span.beautiful beautiful
+            %span.code Code
+            = link_to 'Sign in with BeautifulCode Account', '/auth/google_oauth2', class: 'btn btn-primary link-btn'
 
     %footer.footer
       %a{ href: 'http://www.beautifulcode.in' }

@@ -7,16 +7,19 @@ RSpec.describe Admin::OooperiodsController, type: :controller do
     allow_any_instance_of(Admin::OooperiodsController)
       .to receive(:ensure_signed_in).and_return(true)
 
-    @user = User.create(
-      name: 'test',
-      email: 'test@test.com',
-      remaining_leaves: 15
-    )
+    @user = User.create(name: 'test',
+                        email: 'test@beautifulcode.in',
+                        joining_date: '2017-02-16',
+                        oauth_token: 'test',
+                        token_expires_at: 123)
+    OOOConfig.create(financial_year: '2017-2018',
+                     leaves_count: 16,
+                     wfhs_count: 13)
 
     allow_any_instance_of(Admin::OooperiodsController)
       .to receive(:admin_user).and_return(true)
 
-    @leave = @user.o_o_o_periods.create(
+    @leave = @user.ooo_periods.create(
       start_date: '20170412',
       end_date: '20170413',
       type: 'Leave'

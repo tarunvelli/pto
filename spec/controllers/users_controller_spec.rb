@@ -6,11 +6,11 @@ RSpec.describe UsersController, type: :controller do
   before :each do
     allow_any_instance_of(UsersController)
       .to receive(:ensure_signed_in).and_return(true)
-    @user = User.create(
-      name: 'test',
-      email: 'test@test.com',
-      remaining_leaves: 15
-    )
+    @user = User.create(name: 'test',
+                        email: 'test@beautifulcode.in',
+                        joining_date: '2017-02-16',
+                        oauth_token: 'test',
+                        token_expires_at: 123)
     allow_any_instance_of(UsersController)
       .to receive(:current_user).and_return(@user)
   end
@@ -18,14 +18,14 @@ RSpec.describe UsersController, type: :controller do
   describe 'PATCH #update' do
     it 'should update the user profile succesfully' do
       param = { user: { name: 'updated test',
-                        email: 'email@updated.com' }, id: @user.id }
+                        email: 'email@beautifulcode.in' }, id: @user.id }
       expect { patch :update, params: param }
         .not_to change(User, :count)
 
       @user.reload
       expect(assigns(:user).persisted?).to eq(true)
       expect(@user.name).to eq('updated test')
-      expect(@user.email).to eq('email@updated.com')
+      expect(@user.email).to eq('email@beautifulcode.in')
     end
 
     it 'should redirect to user page' do

@@ -13,11 +13,6 @@ class Admin::OooconfigsController < ApplicationController
     end
   end
 
-  def refreshconfigs
-    render json:{ leaves_count: @ooo_config.leaves_count,
-                  wfhs_count: @ooo_config.wfhs_count }
-  end
-
   private
 
   def set_ooo_config
