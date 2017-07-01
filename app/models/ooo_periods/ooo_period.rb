@@ -20,8 +20,13 @@ class OOOPeriod < ApplicationRecord
       end_date -= 1.day
     end
     business_days
+
+    # TODO
+    # Create an array of dates =  [start_date, +1,.., end_date]
+    # dates.collect {|d| d.day}.reject {|d| ['satruday', 'sunday'].include?(d).count
   end
 
+  # TODO: Move 3 methods to FY models
   def year_and_quarter(date)
     quarters = %w[q4 q1 q2 q3]
     get_financial_year(date) + quarters[(date.month - 1) / 3]
@@ -62,6 +67,7 @@ class OOOPeriod < ApplicationRecord
 
   def check_user_attributes
     return unless start_date && end_date
+    # TODO: Dont store the derivable number_of_days
     set_number_of_business_days
     leave? ? check_user_leaves : check_user_wfhs
   end
@@ -94,6 +100,14 @@ class OOOPeriod < ApplicationRecord
     self.start_date = Time.zone.now.strftime('%Y-%m-%d') if start_date.blank?
     self.end_date = Time.zone.now.strftime('%Y-%m-%d') if end_date.blank?
   end
+
+=begin
+def number_of_days
+  raise 'Should be defined in the concrete class'
+end
+
+and define this method in the concrete class.
+=end
 
   def set_number_of_business_days
     number_of_days = business_days_between(

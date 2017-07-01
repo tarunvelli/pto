@@ -16,6 +16,7 @@ RSpec.describe User, type: :model do
     @ooo_config = OOOConfig.create(config_params)
   end
 
+  # TODO: Refactor these tests to use a loop.
   describe 'validations' do
     it 'should have valid name' do
       user.update_attributes(name: nil)
@@ -39,7 +40,7 @@ RSpec.describe User, type: :model do
   end
 
   describe :beautifulcode_mail do
-    it 'add error if email does not belong to beautifulcode domain' do
+    it 'should add an error if email does not belong to beautifulcode domain' do
       user.update_attributes(email: 'test@test.com')
       expect(user.errors).to include(:email)
       expect(user.errors[:email]).to include('must be a beautifulcode.in email')
@@ -74,7 +75,7 @@ RSpec.describe User, type: :model do
                                   end_date: '2017-06-29')
     end
 
-    context 'does not exclude any leave' do
+    context 'when it does not exclude any leave' do
       it 'should return remaining leaves for given financial year' do
         expect(user.remaining_leaves('2017-2018', 0)).to eq(15)
       end
@@ -90,7 +91,7 @@ RSpec.describe User, type: :model do
       end
     end
 
-    context 'exclude one leave' do
+    context 'when it excludes one leave' do
       it 'should return remaining leaves for given financial year by\
       excluding given leave' do
         expect(user.remaining_leaves('2017-2018', @leave.id)).to eq(16)
