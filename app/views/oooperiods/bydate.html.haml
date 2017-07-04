@@ -1,0 +1,36 @@
+.row
+  = form_tag(bydate_oooperiods_path, method: :get) do |f|
+    = label_tag 'select Date'
+    = date_select 'sect_date', nil, {:selected => @date}, {:class => 'datepicker', :onchange => "this.form.submit();"}
+.row
+  .col-md-6
+    %h2 Users on Leave
+    %table#leaves.table.table-striped.table-bordered
+      %thead
+        %tr
+          %td User Name
+          %td Start Date
+          %td End Date
+      %tbody
+        - @leaves.each do |leave|
+          %tr
+            %td= leave.user.name
+            %td= leave.start_date
+            %td= leave.end_date
+  .col-md-6
+    %h2 Users on WFH
+    %table#wfh.table.table-striped.table-bordered
+      %thead
+        %tr
+          %td User Name
+          %td Start Date
+          %td End Date
+      %tbody
+        - @wfhs.each do |wfh|
+          %tr
+            %td= wfh.user.name
+            %td= wfh.start_date
+            %td= wfh.end_date
+
+:javascript
+  $('.datepicker').datepicker();

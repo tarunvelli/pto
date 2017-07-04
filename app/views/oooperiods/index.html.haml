@@ -50,7 +50,7 @@
       %tr
         %td= leave.start_date
         %td= leave.end_date
-        %td= leave.business_days_count_between(leave.start_date, leave.end_date)
+        %td= OOOPeriod.business_days_count_between(leave.start_date, leave.end_date)
         %td= link_to 'Edit', edit_oooperiod_path(leave)
         %td
           = link_to 'Delete',oooperiod_path(leave), method: :delete, data: { confirm: 'Are you sure?' }
@@ -70,7 +70,7 @@
       %tr
         %td= wfh.start_date
         %td= wfh.end_date
-        %td= wfh.days_count_between(wfh.start_date, wfh.end_date, wfh.updated_at)
+        %td= Wfh.days_count_between(wfh.start_date, wfh.end_date, wfh.updated_at)
         %td= link_to 'Edit', edit_oooperiod_path(wfh)
         %td
           = link_to 'Delete',oooperiod_path(wfh), method: :delete, data: { confirm: 'Are you sure?' }

@@ -15,21 +15,22 @@ RSpec.describe OOOPeriod, type: :model do
   before do
     ooo_config_params = { financial_year: '2017-2018',
                           leaves_count: 16,
-                          wfhs_count: 13 }
+                          wfhs_count: 13,
+                          wfh_headsup_hours: 7.5,
+                          wfh_penalty_coefficient: 1 }
+
     @ooo_config = OOOConfig.create(ooo_config_params)
   end
 
   describe :days_count_between do
     it 'should return number of days for given wfh and end date' do
-      allow(wfh).to receive(:business_days_count_between).and_return(2)
-      expect(wfh.days_count_between(wfh.start_date, wfh.end_date, '20170412'))
+      expect(Wfh.days_count_between(wfh.start_date, wfh.end_date, '20170412'))
         .to eq(2)
     end
 
     it 'should return one day more if he does not apply wfh before 7hr 30 min\
     of start date' do
-      allow(wfh).to receive(:business_days_count_between).and_return(2)
-      expect(wfh.days_count_between(wfh.start_date, wfh.end_date, '20170414'))
+      expect(Wfh.days_count_between(wfh.start_date, wfh.end_date, '20170414'))
         .to eq(3)
     end
   end

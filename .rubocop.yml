@@ -23,6 +23,8 @@ AllCops:
 Style/Documentation:
   Description: 'Document classes and non-namespace modules.'
   Enabled: false
+Metrics/LineLength:
+  Max: 120
 Metrics/AbcSize:
   Max: 20
 Metrics/MethodLength:
@@ -39,6 +41,8 @@ Style/SymbolArray:
 Style/ClassAndModuleChildren:
   Enabled: false
 Style/ConditionalAssignment:
+  Enabled: false
+Style/EmptyCaseCondition:
   Enabled: false
 Date:
   Enabled: false

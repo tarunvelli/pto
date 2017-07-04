@@ -7,11 +7,11 @@ class OooperiodsController < ApplicationController
 
   def index
     @total_leaves = current_user.leaves.order('end_date DESC')
-    @editable_leaves = current_user.leaves.where('end_date > ?', Date.current)
+    @editable_leaves = current_user.leaves.where('end_date >= ?', Date.current)
     @total_wfhs = current_user.wfhs.order('end_date DESC')
-    @editable_wfhs = current_user.wfhs.where('end_date > ?', Date.current)
-    @financial_year = OOOConfig.financial_year
-    @current_quarter = FinancialQuarter.new.current_quarter
+    @editable_wfhs = current_user.wfhs.where('end_date >= ?', Date.current)
+    @financial_year = OOOConfig.current_financial_year
+    @current_quarter = FinancialQuarter.current_quarter
   end
 
   def create
@@ -22,6 +22,12 @@ class OooperiodsController < ApplicationController
     else
       render 'new'
     end
+  end
+
+  def bydate
+    @date = params[:sect_date].present? ? params[:sect_date].values.join('/').to_date : Date.today
+    @leaves = Leave.where('start_date <= ? && end_date >= ?', @date, @date)
+    @wfhs = Wfh.where('start_date <= ? && end_date >= ?', @date, @date)
   end
 
   def update
@@ -42,11 +48,7 @@ class OooperiodsController < ApplicationController
   private
 
   def set_ooo_period
-    @ooo_period = params[:id].present? ? ooo_period : OOOPeriod.new
-  end
-
-  def ooo_period
-    OOOPeriod.find(params[:id])
+    @ooo_period = params[:id].present? ? OOOPeriod.find(params[:id]) : OOOPeriod.new
   end
 
   def ooo_period_params

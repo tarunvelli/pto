@@ -2,28 +2,22 @@
 
 class Admin::UsersController < ApplicationController
   before_action :admin_user
-  before_action :set_user, except: [:index]
 
   def index
-    @financial_year = params[:financial_year] || OOOConfig.financial_year
+    @financial_year = params[:financial_year] || OOOConfig.current_financial_year
     @ooo_config = OOOConfig.where('financial_year = ?', @financial_year).first
-    @users = User.where('joining_date <= ?',
-                        FinancialYear.new.end_date(@financial_year))
-    @financial_years = OOOConfig.all.order('financial_year DESC')
-                                .pluck('financial_year')
+    @users = User.where('joining_date <= ?', FinancialYear.new(@financial_year).end_date)
+    @financial_years = OOOConfig.all.order('financial_year DESC').pluck('financial_year')
   end
 
   def show
+    id = params[:select_user] || params[:id]
+    @user = User.find(id)
     @leaves = @user.leaves.order('end_date DESC')
     @wfhs = @user.wfhs.order('end_date DESC')
     @ooo_period = OOOPeriod.new
-    @financial_year = OOOConfig.financial_year
-    @current_quarter = FinancialQuarter.new.current_quarter
-  end
-
-  private
-
-  def set_user
-    @user = User.find(params[:id])
+    @financial_year = OOOConfig.current_financial_year
+    @current_quarter = FinancialQuarter.current_quarter
+    @users = User.all
   end
 end

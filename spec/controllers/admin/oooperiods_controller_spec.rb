@@ -14,7 +14,9 @@ RSpec.describe Admin::OooperiodsController, type: :controller do
                         token_expires_at: 123)
     OOOConfig.create(financial_year: '2017-2018',
                      leaves_count: 16,
-                     wfhs_count: 13)
+                     wfhs_count: 13,
+                     wfh_headsup_hours: 7.5,
+                     wfh_penalty_coefficient: 1)
 
     allow_any_instance_of(Admin::OooperiodsController)
       .to receive(:admin_user).and_return(true)
