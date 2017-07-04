@@ -7,16 +7,19 @@ RSpec.describe Admin::OooperiodsController, type: :controller do
     allow_any_instance_of(Admin::OooperiodsController)
       .to receive(:ensure_signed_in).and_return(true)
 
-    @user = User.create(
-      name: 'test',
-      email: 'test@test.com',
-      remaining_leaves: 15
-    )
+    @user = User.create(name: 'test',
+                        email: 'test@beautifulcode.in',
+                        joining_date: '2017-02-16',
+                        oauth_token: 'test',
+                        token_expires_at: 123)
+    OOOConfig.create(financial_year: '2017-2018',
+                     leaves_count: 16,
+                     wfhs_count: 13)
 
     allow_any_instance_of(Admin::OooperiodsController)
       .to receive(:admin_user).and_return(true)
 
-    @leave = @user.o_o_o_periods.create(
+    @leave = @user.ooo_periods.create(
       start_date: '20170412',
       end_date: '20170413',
       type: 'Leave'
@@ -45,7 +48,7 @@ RSpec.describe Admin::OooperiodsController, type: :controller do
 
     context 'with invalid attributes' do
       let(:leave_params) do
-        { start_date: '20170414' }
+        { start_date: '20170414', type: 'Leave' }
       end
 
       it 'does not create the new leave' do
@@ -66,7 +69,7 @@ RSpec.describe Admin::OooperiodsController, type: :controller do
   describe 'PATCH #update' do
     context 'with valid attributes' do
       let(:leave_params) do
-        { start_date: '20170413', end_date: '20170414' }
+        { start_date: '20170413', end_date: '20170414', type: 'Leave' }
       end
 
       it 'updates a existing leave' do
@@ -84,11 +87,21 @@ RSpec.describe Admin::OooperiodsController, type: :controller do
         patch :update, params: params
         expect(response).to redirect_to admin_user_url(@user)
       end
+
+      it 'update leave to wfh' do
+        wfh_params = { start_date: '20170413',
+                       end_date: '20170414',
+                       type: 'Wfh' }
+        params = { user_id: @user.id, ooo_period: wfh_params, id: @leave.id }
+        expect { patch :update, params: params }
+          .to change(Leave, :count).by(-1)
+        expect(assigns(:ooo_period).persisted?).to eq(true)
+      end
     end
 
     context 'with invalid attributes' do
       let(:leave_params) do
-        { start_date: '20170413', end_date: nil }
+        { start_date: '20170413', end_date: nil, type: 'Leave' }
       end
 
       it 'does not update the leave' do

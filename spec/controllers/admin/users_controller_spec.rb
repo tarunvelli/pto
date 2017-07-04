@@ -6,11 +6,11 @@ RSpec.describe Admin::UsersController, type: :controller do
   before :each do
     allow_any_instance_of(Admin::UsersController)
       .to receive(:admin_user).and_return(true)
-    @user = User.create(
-      name: 'test',
-      email: 'test@test.com',
-      remaining_leaves: 15
-    )
+    @user = User.create(name: 'test',
+                        email: 'test@beautifulcode.in',
+                        joining_date: '2017-02-16',
+                        oauth_token: 'test',
+                        token_expires_at: 123)
   end
 
   describe 'GET #index' do

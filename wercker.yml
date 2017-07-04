@@ -51,7 +51,7 @@ build:
         cat rspec_output.log
         COVERAGE=$(cat rspec_output.log| grep 'Coverage report' | awk '{ print $12 }')
 
-        if [ $COVERAGE == "(98.67%)" ]; then
+        if [ $COVERAGE == "(96.83%)" ]; then
           echo "Good job with the unit tests!"
         else
           echo "Not enough unit tests to let you get away with it. ($COVERAGE)"

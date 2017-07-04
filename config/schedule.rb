@@ -5,5 +5,5 @@ every :weekday, at: '9am' do
 end
 
 every :year, at: 'March 31st 11:59pm' do
-  rake 'config:reset_leaves_every_year'
+  rake 'config:set_ooo_configs_every_year'
 end

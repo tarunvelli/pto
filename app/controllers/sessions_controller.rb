@@ -4,7 +4,7 @@ class SessionsController < ApplicationController
   def create
     user = User.from_omniauth(request.env['omniauth.auth'])
     session[:user_id] = user.id
-    if current_user.remaining_leaves
+    if current_user.joining_date
       redirect_to oooperiods_path
     else
       redirect_to edit_user_path(user.id)

@@ -10,30 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170609044925) do
-
-  create_table "holidays", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.date     "date"
-    t.string   "occasion"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
+ActiveRecord::Schema.define(version: 20170702182216) do
 
   create_table "ooo_configs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
     t.string   "financial_year"
     t.integer  "leaves_count"
-    t.text     "wfhs_count",     limit: 65535
+    t.integer  "wfhs_count"
+    t.index ["financial_year"], name: "index_ooo_configs_on_financial_year", unique: true, using: :btree
   end
 
   create_table "ooo_periods", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.date     "start_date"
     t.date     "end_date"
-    t.float    "number_of_days",  limit: 24
     t.integer  "user_id"
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
     t.string   "google_event_id"
     t.string   "type"
     t.index ["user_id"], name: "index_ooo_periods_on_user_id", using: :btree
@@ -47,13 +40,9 @@ ActiveRecord::Schema.define(version: 20170609044925) do
     t.datetime "created_at",       null: false
     t.datetime "updated_at",       null: false
     t.string   "email"
-    t.integer  "remaining_leaves"
-    t.integer  "total_leaves"
     t.boolean  "admin"
     t.date     "joining_date"
     t.integer  "token_expires_at"
-    t.integer  "total_wfhs"
-    t.integer  "remaining_wfhs"
   end
 
   add_foreign_key "ooo_periods", "users"

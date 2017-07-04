@@ -1,39 +1,40 @@
-%h1 OOO Settings
 .row
-  .col-md-6.col-md-offset-3
+  .col-md-9
+    .col-md-8
+      %h1 Users
+    .col-md-4.financial_year
+      = form_tag(admin_users_path, method: :get) do |f|
+        = label_tag 'financial_year'
+        = select_tag 'financial_year', options_for_select(@financial_years, params[:financial_year]), id: 'financial_year', :onchange => "this.form.submit();"
+    %table#user_table.table.table-striped.table-bordered
+      %thead
+        %tr
+          %td Id
+          %td Name
+          %td Email
+          %td Joining Date
+          %td Leaves taken
+          %td WFHs taken (Q1, Q2, Q3, Q4)
+          %td Actions
+      %tbody
+        - @users.each do |user|
+          %tr
+            %td= user.id
+            %td= user.name
+            %td= user.email
+            %td= user.joining_date
+            %td= user.leaves_used_count(@financial_year)
+            %td= "#{user.wfhs_used_count(@financial_year, 1)}, #{user.wfhs_used_count(@financial_year, 2)}, #{user.wfhs_used_count(@financial_year, 3)}, #{user.wfhs_used_count(@financial_year, 4)}"
+            %td= link_to 'Show', admin_user_path(user)
+
+  .col-md-3
+    %h1 OOO Settings
     = form_for(@ooo_config, url: admin_oooconfigs_path, method: :patch) do |f|
       .form-group
-        = f.label :leaves_count
-        = f.number_field :leaves_count, class: 'form-control'
-      .row
-        - @ooo_config.wfhs_count.each do |k,v|
-          .col-md-3
-            .form-group
-              = f.label "wfhs_count for #{k}"
-              = f.number_field "wfhs_count[#{k}]",value: v, class: 'form-control'
-      = f.submit "Submit", class: "btn btn-primary"
-
-.row
-  %h1 List of Users
-%table#user_table.table.table-striped.table-bordered
-  %thead
-    %tr
-      %td Id
-      %td Name
-      %td Email
-      %td Joining Date
-      %td Remaining Leaves
-      %td Remaining WFHs
-      %td Actions
-  %tbody
-    - @users.each do |user|
-      %tr
-        %td= user.id
-        %td= user.name
-        %td= user.email
-        %td= user.joining_date
-        %td= user.remaining_leaves
-        %td= user.remaining_wfhs
-        %td= link_to 'Show', admin_user_path(user)
-
-
+        = f.label :leaves_count, 'Leaves count'
+        = f.number_field :leaves_count, id:'leaves_count', class: 'form-control'
+      .form-group
+        = f.label :wfhs_count, 'wfhs count'
+        = f.number_field :wfhs_count, id:'wfhs_count', class: 'form-control'
+      - if @ooo_config.financial_year == OOOConfig.financial_year
+        = f.submit "Submit", class: "btn btn-primary"

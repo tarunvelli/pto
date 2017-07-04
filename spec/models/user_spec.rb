@@ -3,136 +3,161 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  let(:user) { User.create(name: 'test', email: 'test@beautifulcode.in') }
+  user_params = { name: 'test',
+                  email: 'test@beautifulcode.in',
+                  joining_date: '2017-02-16',
+                  oauth_token: 'test',
+                  token_expires_at: 123 }
+  let(:user) { User.create(user_params) }
   before:each do
-    config_params = { financial_year: OOOConfig.financial_year,
+    config_params = { financial_year: '2017-2018',
                       leaves_count: 16,
-                      wfhs_count: {
-                        "quarter1": 13,
-                        "quarter2": 13,
-                        "quarter3": 13,
-                        "quarter4": 13
-                      } }
+                      wfhs_count: 13 }
     @ooo_config = OOOConfig.create(config_params)
   end
 
-  describe 'validations' do
-    it 'should have valid name' do
-      user.update_attributes(name: nil)
-      expect(user.errors).to include(:name)
+  describe :validations do
+    %w[
+      name email oauth_token token_expires_at
+    ].each do |message|
+      it 'should respond to :#{message}' do
+        expect(User.new).to respond_to(message.to_sym)
+      end
     end
+  end
 
-    it 'should have valid email' do
-      user.update_attributes(email: nil)
+  describe :beautifulcode_mail do
+    it 'should add an error if email does not belong to beautifulcode domain' do
+      user.update_attributes(email: 'test@test.com')
       expect(user.errors).to include(:email)
+      expect(user.errors[:email]).to include('must be a beautifulcode.in email')
+    end
+
+    it 'should not add error if email belongs to beautifulcode domain' do
+      user.update_attributes(email: 'test@beautifulcode.in')
+      expect(user.errors).not_to include(:email)
     end
   end
 
-  describe :no_of_leaves_used do
-    it 'should return number of leaves used by user' do
-      user.update_attributes(total_leaves: 16, remaining_leaves: 11)
-      expect(user.no_of_leaves_used).to eq(5)
+  describe :leaves_used_count do
+    it 'should return number of leaves used by user for given financial year' do
+      allow(user).to receive(:total_leaves_count).and_return(10)
+      allow(user).to receive(:remaining_leaves_count).and_return(5)
+      expect(user.leaves_used_count('2016-2017')).to eq(5)
     end
   end
 
-  describe :no_of_wfhs_used do
-    it 'should return number of wfh used by user' do
-      user.update_attributes(total_wfhs: 16, remaining_wfhs: 11)
-      expect(user.no_of_wfhs_used).to eq(5)
+  describe :wfhs_used_count do
+    it 'should return number of wfh used by user in given quarter\
+    of financial year' do
+      allow(user).to receive(:total_wfhs_count).and_return(10)
+      allow(user).to receive(:remaining_wfhs_count).and_return(5)
+      expect(user.wfhs_used_count('2016-2017', 1)).to eq(5)
     end
   end
 
-  describe :current_date do
-    it 'should return todays date' do
-      expect(user.send(:current_date)).to eq(Date.current)
+  describe :remaining_leaves_count do
+    before do
+      @leave = user.leaves.create(start_date: '2017-06-29',
+                                  end_date: '2017-06-29')
+    end
+
+    context 'when it does not exclude any leave' do
+      it 'should return remaining leaves for given financial year' do
+        expect(user.remaining_leaves_count('2017-2018', 0)).to eq(15)
+      end
+
+      it 'should return remaining leaves for given financial year even \
+      if leave spans over two financial years' do
+        config_params = { financial_year: '2018-2019',
+                          leaves_count: 16,
+                          wfhs_count: 13 }
+        OOOConfig.create(config_params)
+        user.leaves.create(start_date: '2018-03-30', end_date: '2018-04-02')
+        expect(user.remaining_leaves_count('2017-2018', 0)).to eq(14)
+      end
+    end
+
+    context 'when it excludes one leave' do
+      it 'should return remaining leaves for given financial year by\
+      excluding given leave' do
+        expect(user.remaining_leaves_count('2017-2018', @leave.id)).to eq(16)
+      end
     end
   end
 
-  describe :start_year_of_indian_financial_year do
-    it 'should return 2017 when the current date is July 1st, 2017' do
-      allow(user).to receive(:current_date).and_return(Date.new(2017, 7, 1))
-      expect(user.send(:start_year_of_indian_financial_year)).to eq(2017)
+  describe :remaining_wfhs_count do
+    before do
+      @wfh = user.wfhs.create(start_date: '2017-06-29',
+                              end_date: '2017-06-29')
     end
 
-    it 'should return 2016 when the current date is March 1st, 2017' do
-      allow(user).to receive(:current_date).and_return(Date.new(2017, 3, 1))
-      expect(user.send(:start_year_of_indian_financial_year)).to eq(2016)
+    context 'does not exclude any wfh' do
+      it 'should return remaining wfhs for given financial year and \
+      given quarter' do
+        expect(user.remaining_wfhs_count('2017-2018', 1, 0)).to eq(11)
+      end
+
+      it 'should return remaining wfhs for given financial year\
+      and given quarter even if wfh spans over two quarters' do
+        user.wfhs.create(start_date: '2017-06-30', end_date: '2017-07-03')
+        expect(user.remaining_wfhs_count('2017-2018', 1, 0)).to eq(9)
+      end
+    end
+
+    context 'exclude one wfh' do
+      it 'should return remaining wfhs for given financial year and\
+      given quarter by excluding given wfh' do
+        expect(user.remaining_wfhs_count('2017-2018', 1, @wfh.id)).to eq(13)
+      end
     end
   end
 
-  describe :compute_number_of_leaves_for_a_new_user do
+  describe :total_leaves_count do
+    it 'should return 0 if user joined after given financial year' do
+      user.update_attributes(joining_date: '2018-10-01')
+      expect(user.total_leaves_count('2017-2018')).to eq(0)
+    end
+
     it 'should return the maximum number of leaves/year if the \
-    user has already joined before this financial year' do
-      allow(user).to receive(:start_year_of_indian_financial_year)
-        .and_return(2017)
-      user.update_attributes(joining_date: '2017-02-16')
-      expect(user.send(:compute_number_of_leaves_for_a_new_user)).to eq(16)
+    user has already joined before given financial year' do
+      expect(user.total_leaves_count('2017-2018')).to eq(16)
     end
 
     it 'should return the half of the maximum leaves if \
     the user joined exactly mid financial year' do
-      allow(user).to receive(:start_year_of_indian_financial_year)
-        .and_return(2017)
       user.update_attributes(joining_date: '2017-10-01')
-      expect(user.send(:compute_number_of_leaves_for_a_new_user)).to eq(8)
+      expect(user.total_leaves_count('2017-2018')).to eq(8)
     end
 
     it 'should return the quarter of the maximum leaves if the user \
     joined in the last quarter of the financial year' do
-      allow(user).to receive(:start_year_of_indian_financial_year)
-        .and_return(2017)
       user.update_attributes(joining_date: '2018-01-01')
-      expect(user.send(:compute_number_of_leaves_for_a_new_user)).to eq(4)
+      expect(user.total_leaves_count('2017-2018')).to eq(4)
     end
 
     it 'should return ceiling of the fractional value if the user \
     joined in the second month of the first quarter' do
-      allow(user).to receive(:start_year_of_indian_financial_year)
-        .and_return(2017)
       user.update_attributes(joining_date: '2018-02-01')
-      expect(user.send(:compute_number_of_leaves_for_a_new_user)).to eq(3)
+      expect(user.total_leaves_count('2017-2018')).to eq(3)
     end
   end
 
-  describe :compute_number_of_wfhs_for_a_new_user do
+  describe :total_wfhs_count do
+    it 'should return 0 if user joined after given fy and quarter' do
+      user.update_attributes(joining_date: '2018-10-01')
+      expect(user.total_wfhs_count('2017-2018', 1)).to eq(0)
+    end
+
     it 'should return the maximum number of wfhs/quarter if the \
-    user has already joined before this quarter' do
-      allow(user).to receive(:did_user_join_in_current_quarter)
-        .and_return(false)
-      user.update_attributes(joining_date: '2017-02-16')
-      expect(user.send(:compute_number_of_wfhs_for_a_new_user)).to eq(13)
+    user has already joined before given fy and quarter' do
+      expect(user.total_wfhs_count('2017-2018', 1)).to eq(13)
     end
 
     it 'should return the half of the maximum wfhs if \
     the user joined exactly mid quarter' do
-      allow(user).to receive(:did_user_join_in_current_quarter)
-        .and_return(true)
-      allow(user).to receive(:current_date).and_return(Date.new(2017, 5, 15))
       user.update_attributes(joining_date: '2017-05-15')
-      expect(user.send(:compute_number_of_wfhs_for_a_new_user)).to eq(7)
-    end
-  end
-
-  describe :initialize_leave_attributes_and_wfh_attributes do
-    it 'should set leaves attributes and wfh attributes for \
-    a newly created user' do
-      allow(user).to receive(
-        :compute_number_of_leaves_for_a_new_user
-      ).and_return(16)
-      user.update_attributes(joining_date: '2017-02-16')
-      user.send(:initialize_leave_attributes_and_wfh_attributes)
-      expect(user.total_leaves).to eq(16)
-      expect(user.remaining_leaves).to eq(16)
-      expect(user.total_wfhs).to eq(13)
-      expect(user.remaining_wfhs).to eq(13)
-    end
-
-    it 'should not set user attributes if there is no change \
-    in joining date' do
-      user.send(:initialize_leave_attributes_and_wfh_attributes)
-      user.reload
-      expect(user.remaining_leaves).to eq(nil)
-      expect(user.remaining_wfhs).to eq(nil)
+      expect(user.total_wfhs_count('2017-2018', 1)).to eq(7)
     end
   end
 
@@ -143,7 +168,7 @@ RSpec.describe User, type: :model do
         uid: '123',
         info: {
           name: 'test',
-          email: 'test@test.com'
+          email: 'test@beautifulcode.in'
         },
         credentials: {
           token: 'test',
@@ -155,41 +180,9 @@ RSpec.describe User, type: :model do
       expect(user.provider).to eq('google_oauth2')
       expect(user.uid).to eq('123')
       expect(user.name).to eq('test')
-      expect(user.email).to eq('test@test.com')
+      expect(user.email).to eq('test@beautifulcode.in')
       expect(user.oauth_token).to eq('test')
       expect(user.token_expires_at).to eq(123_456)
-    end
-  end
-
-  describe :check_remaining_leaves do
-    it 'should add to errors if remaining leaves are updating as negative' do
-      user.update_attributes(remaining_leaves: 12)
-      user.update_attributes(remaining_leaves: -1)
-      expect(user.errors[:generic])
-        .to include('remaining leaves cant be negative')
-    end
-
-    it 'should not add to errors if remaining leaves are updating\
-    as positive number' do
-      user.update_attributes(remaining_leaves: 12)
-      expect(user.errors[:generic])
-        .not_to include('remaining leaves cant be negative')
-    end
-  end
-
-  describe :check_remaining_wfhs do
-    it 'should add to errors if remaining leaves are updating as negative' do
-      user.update_attributes(remaining_wfhs: 12)
-      user.update_attributes(remaining_wfhs: -1)
-      expect(user.errors[:generic])
-        .to include('remaining wfhs cant be negative')
-    end
-
-    it 'should not add to errors if remaining wfhs are updating\
-    as positive' do
-      user.update_attributes(remaining_wfhs: 12)
-      expect(user.errors[:generic])
-        .not_to include('remaining wfhs cant be negative')
     end
   end
 end
