@@ -4,7 +4,11 @@ require File.expand_path(File.dirname(__FILE__) + '/../config/environment')
 
 set :environment, Rails.env
 
-every :weekday, at: '9am' do
+# Convert IST time to UTC
+# use http://crontab.guru
+
+# Run this task at IST 9 AM on every weekday
+every :weekday, at: '3:30am' do
   rake 'slack:send_slack_notification'
 end
 
