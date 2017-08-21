@@ -30,10 +30,12 @@ class Admin::OooconfigsController < ApplicationController
   end
 
   def ooo_config_params
-    params.require(:ooo_config).permit(:financial_year,
-                                       :leaves_count,
-                                       :wfhs_count,
-                                       :wfh_headsup_hours,
-                                       :wfh_penalty_coefficient)
+    params.require(:ooo_config).permit(
+      :financial_year,
+      :leaves_count,
+      :wfhs_count,
+      :wfh_headsup_hours,
+      :wfh_penalty_coefficient
+    )
   end
 end
