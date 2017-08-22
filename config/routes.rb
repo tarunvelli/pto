@@ -8,7 +8,9 @@ Rails.application.routes.draw do
   resources :sessions, only: [:create, :destroy]
   resource :home, only: [:show]
   resources :users, only: [:show, :edit, :update, :index]
-  resources :oooperiods, except: [:show]
+  resources :oooperiods, except: [:show] do
+    get 'bydate', on: :collection
+  end
 
   root to: 'home#show'
 
@@ -16,6 +18,8 @@ Rails.application.routes.draw do
     resources :users, only: [:show, :edit, :update, :index] do
       resources :oooperiods
     end
-    resource :oooconfigs
+    resources :oooconfigs do
+      resources :holidays
+    end
   end
 end

@@ -10,14 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170702182216) do
+ActiveRecord::Schema.define(version: 20170704111050) do
+
+  create_table "holidays", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.date     "date"
+    t.string   "occasion"
+    t.integer  "ooo_config_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+    t.index ["ooo_config_id"], name: "index_holidays_on_ooo_config_id", using: :btree
+  end
 
   create_table "ooo_configs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
     t.string   "financial_year"
     t.integer  "leaves_count"
     t.integer  "wfhs_count"
+    t.integer  "wfh_penalty_coefficient"
+    t.float    "wfh_headsup_hours",       limit: 24
     t.index ["financial_year"], name: "index_ooo_configs_on_financial_year", unique: true, using: :btree
   end
 
@@ -45,5 +56,6 @@ ActiveRecord::Schema.define(version: 20170702182216) do
     t.integer  "token_expires_at"
   end
 
+  add_foreign_key "holidays", "ooo_configs"
   add_foreign_key "ooo_periods", "users"
 end

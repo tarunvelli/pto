@@ -25,7 +25,6 @@ RSpec.describe UsersController, type: :controller do
       @user.reload
       expect(assigns(:user).persisted?).to eq(true)
       expect(@user.name).to eq('updated test')
-      expect(@user.email).to eq('email@beautifulcode.in')
     end
 
     it 'should redirect to user page' do
@@ -35,7 +34,7 @@ RSpec.describe UsersController, type: :controller do
     end
 
     it 'should redirect to edit page upon unsuccessful update' do
-      param = { user: { name: 'updated test', email: nil }, id: @user.id }
+      param = { user: { name: nil }, id: @user.id }
       patch :update, params: param
       expect(assigns(:user).errors.present?).to eq(true)
       expect(response).to render_template(:edit)

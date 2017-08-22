@@ -60,7 +60,7 @@ input[type="radio"] {
   width: 90%;
 }
 
-.financial_year {
+.financial-year, .select-user {
   text-align: right;
   margin-top: 32px;
   label {
@@ -83,6 +83,9 @@ background-color: green;
 }
 .legend-red{
 background-color: red;
+}
+.holiday {
+  margin-top: 26px;
 }
 /* Sticky footer styles
 -------------------------------------------------- */

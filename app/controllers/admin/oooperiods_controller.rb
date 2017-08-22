@@ -38,11 +38,7 @@ class Admin::OooperiodsController < ApplicationController
   end
 
   def set_ooo_period
-    @ooo_period = params[:id].present? ? ooo_period : OOOPeriod.new
-  end
-
-  def ooo_period
-    OOOPeriod.find(params[:id])
+    @ooo_period = params[:id].present? ? OOOPeriod.find(params[:id]) : OOOPeriod.new
   end
 
   def ooo_period_params

@@ -12,7 +12,9 @@ RSpec.describe User, type: :model do
   before:each do
     config_params = { financial_year: '2017-2018',
                       leaves_count: 16,
-                      wfhs_count: 13 }
+                      wfhs_count: 13,
+                      wfh_headsup_hours: 7.5,
+                      wfh_penalty_coefficient: 1 }
     @ooo_config = OOOConfig.create(config_params)
   end
 
@@ -71,7 +73,9 @@ RSpec.describe User, type: :model do
       if leave spans over two financial years' do
         config_params = { financial_year: '2018-2019',
                           leaves_count: 16,
-                          wfhs_count: 13 }
+                          wfhs_count: 13,
+                          wfh_headsup_hours: 7.5,
+                          wfh_penalty_coefficient: 1 }
         OOOConfig.create(config_params)
         user.leaves.create(start_date: '2018-03-30', end_date: '2018-04-02')
         expect(user.remaining_leaves_count('2017-2018', 0)).to eq(14)

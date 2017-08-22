@@ -2,7 +2,17 @@
 
 class Admin::OooconfigsController < ApplicationController
   before_action :admin_user
-  before_action :set_ooo_config
+  before_action :set_ooo_config, except: [:create]
+
+  def create
+    @ooo_config = OOOConfig.new(ooo_config_params)
+    if @ooo_config.save
+      flash[:success] = "Added Configs for #{@ooo_config.financial_year} financial year"
+      redirect_to admin_users_path
+    else
+      render 'new'
+    end
+  end
 
   def update
     if @ooo_config.update_attributes(ooo_config_params)
@@ -16,13 +26,16 @@ class Admin::OooconfigsController < ApplicationController
   private
 
   def set_ooo_config
-    financial_year = params[:financial_year] || OOOConfig.financial_year
-    @ooo_config = OOOConfig.where(
-      'financial_year = ?', financial_year
-    ).first
+    @ooo_config = params[:id].present? ? OOOConfig.find(params[:id]) : OOOConfig.new
   end
 
   def ooo_config_params
-    params.require(:ooo_config).permit(:leaves_count, :wfhs_count)
+    params.require(:ooo_config).permit(
+      :financial_year,
+      :leaves_count,
+      :wfhs_count,
+      :wfh_headsup_hours,
+      :wfh_penalty_coefficient
+    )
   end
 end

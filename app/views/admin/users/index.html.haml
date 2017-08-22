@@ -5,36 +5,59 @@
     .col-md-4.financial_year
       = form_tag(admin_users_path, method: :get) do |f|
         = label_tag 'financial_year'
-        = select_tag 'financial_year', options_for_select(@financial_years, params[:financial_year]), id: 'financial_year', :onchange => "this.form.submit();"
+        = select_tag 'financial_year', options_for_select(@financial_years, @financial_year), id: 'financial_year', :onchange => "this.form.submit();"
     %table#user_table.table.table-striped.table-bordered
       %thead
         %tr
-          %td Id
           %td Name
           %td Email
-          %td Joining Date
           %td Leaves taken
           %td WFHs taken (Q1, Q2, Q3, Q4)
           %td Actions
       %tbody
         - @users.each do |user|
           %tr
-            %td= user.id
             %td= user.name
             %td= user.email
-            %td= user.joining_date
             %td= user.leaves_used_count(@financial_year)
             %td= "#{user.wfhs_used_count(@financial_year, 1)}, #{user.wfhs_used_count(@financial_year, 2)}, #{user.wfhs_used_count(@financial_year, 3)}, #{user.wfhs_used_count(@financial_year, 4)}"
             %td= link_to 'Show', admin_user_path(user)
 
   .col-md-3
     %h1 OOO Settings
-    = form_for(@ooo_config, url: admin_oooconfigs_path, method: :patch) do |f|
+    = link_to 'Add New', new_admin_oooconfig_path, class: "btn btn-primary btn-raised ", title: 'Add settings for new financial year'
+    = form_for(@ooo_config, url: admin_oooconfig_path(@ooo_config), method: :patch) do |f|
       .form-group
-        = f.label :leaves_count, 'Leaves count'
+        = f.label :leaves_count
         = f.number_field :leaves_count, id:'leaves_count', class: 'form-control'
       .form-group
-        = f.label :wfhs_count, 'wfhs count'
+        = f.label :wfhs_count, 'WFHs count'
         = f.number_field :wfhs_count, id:'wfhs_count', class: 'form-control'
-      - if @ooo_config.financial_year == OOOConfig.financial_year
+      .form-group
+        = f.label :wfh_headsup_hours
+        = f.number_field :wfh_headsup_hours, :step => "0.5", class: 'form-control'
+      .form-group
+        = f.label :wfh_penalty_coefficient
+        = f.number_field :wfh_penalty_coefficient, class: 'form-control'
+      - if @ooo_config.financial_year >= OOOConfig.current_financial_year
         = f.submit "Submit", class: "btn btn-primary"
+
+  .col-md-12
+    .col-md-10
+      %h1 Holidays
+    .col-md-2{:align => "right"}
+      = link_to 'Add Holiday', new_admin_oooconfig_holiday_path(@ooo_config), class: "btn btn-primary btn-raised holiday"
+    %table#holiday_table.table.table-striped.table-bordered
+      %thead
+        %tr
+          %td Date
+          %td Occasion
+          %td Edit
+          %td Delete
+      %tbody
+        - @ooo_config.holidays.each do |holiday|
+          %tr
+            %td= holiday.date
+            %td= holiday.occasion
+            %td= link_to 'Edit', edit_admin_oooconfig_holiday_path(@ooo_config, holiday)
+            %td= link_to 'Delete', admin_oooconfig_holiday_path(@ooo_config, holiday), method: :delete, data: { confirm: 'Are you sure?' }

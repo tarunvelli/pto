@@ -3,6 +3,7 @@
 class UsersController < ApplicationController
   before_action :ensure_signed_in
   before_action :set_user
+  before_action :check_user
 
   def update
     if @user.update_attributes(user_params)
@@ -19,9 +20,11 @@ class UsersController < ApplicationController
     @user = User.find(params[:id])
   end
 
+  def check_user
+    redirect_to current_user if current_user != @user
+  end
+
   def user_params
-    params.require(:user).permit(
-      :name, :email, :joining_date
-    )
+    params.require(:user).permit(:name, :joining_date)
   end
 end

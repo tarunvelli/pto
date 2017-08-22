@@ -17,7 +17,9 @@ RSpec.describe OOOPeriod, type: :model do
   before do
     ooo_config_params = { financial_year: '2017-2018',
                           leaves_count: 16,
-                          wfhs_count: 13 }
+                          wfhs_count: 13,
+                          wfh_headsup_hours: 7.5,
+                          wfh_penalty_coefficient: 1 }
     @ooo_config = OOOConfig.create(ooo_config_params)
   end
 
@@ -33,21 +35,21 @@ RSpec.describe OOOPeriod, type: :model do
 
   describe :business_days_count_between do
     it 'should return 2 for a input of Fri to Mon' do
-      expect(leave.business_days_count_between(
+      expect(OOOPeriod.business_days_count_between(
                Date.new(2017, 5, 26),
                Date.new(2017, 5, 29)
       )).to eq(2)
     end
 
     it 'should return 4 for a input of Mon to Thurs' do
-      expect(leave.business_days_count_between(
+      expect(OOOPeriod.business_days_count_between(
                Date.new(2017, 5, 22),
                Date.new(2017, 5, 25)
       )).to eq(4)
     end
 
     it 'should return 1 if the start and end dates are the same' do
-      expect(leave.business_days_count_between(
+      expect(OOOPeriod.business_days_count_between(
                Date.new(2017, 5, 26),
                Date.new(2017, 5, 26)
       )).to eq(1)

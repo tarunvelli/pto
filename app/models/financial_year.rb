@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
 class FinancialYear
-  def get_financial_year(date)
+  def initialize(financial_year)
+    @financial_year = financial_year
+  end
+
+  def self.get_financial_year(date)
     if date.month > 3
       "#{date.year}-#{date.year + 1}"
     else
@@ -9,26 +13,29 @@ class FinancialYear
     end
   end
 
-  def start_date(financial_year)
-    years = financial_year.split('-')
+  def start_date
+    years = @financial_year.split('-')
     Date.new(years[0].to_i, 4, 1)
   end
 
-  def end_date(financial_year)
-    years = financial_year.split('-')
+  def end_date
+    years = @financial_year.split('-')
     Date.new(years[1].to_i, 3, -1)
   end
 
-  def get_configured_leaves_count(financial_year)
-    OOOConfig.find_by('financial_year = ?', financial_year).leaves_count
+  def configured_leaves_count
+    OOOConfig.find_by('financial_year = ?', @financial_year).leaves_count
   end
 
-  def get_configured_wfhs_count(financial_year)
-    OOOConfig.find_by('financial_year = ?', financial_year).wfhs_count
+  def did_user_join_in_between_the_given_fy(joining_date)
+    start_date <= joining_date && joining_date <= end_date
   end
 
-  def did_user_join_in_between_the_given_fy(financial_year, joining_date)
-    start_date(financial_year) < joining_date &&
-      joining_date < end_date(financial_year)
+  def date_in_previous_fy?(date)
+    date < start_date
+  end
+
+  def date_in_next_fy?(date)
+    date > end_date
   end
 end

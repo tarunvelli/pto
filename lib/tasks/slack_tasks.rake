@@ -3,9 +3,11 @@
 namespace :slack do
   desc 'send slack notification'
   task send_slack_notification: :environment do
-    ooo_periods = OOOPeriod.where(start_date: Time.zone.today).order('type')
-    ooo_periods.each do |ooo_period|
-      Slacked.post " #{ooo_period.user.name} will be on #{ooo_period.type} from #{ooo_period.start_date} to #{ooo_period.end_date} "
-    end
+    leaves = Leave.where('start_date <= ? && end_date >= ?', Date.today, Date.today)
+    leave_users = leaves.collect{ |leave| leave.user.name }.join(', ')
+    wfhs = Wfh.where('start_date <= ? && end_date >= ?', Date.today, Date.today)
+    wfh_users = wfhs.collect{ |wfh| wfh.user.name }.join(', ')
+    Slacked.post " #{leave_users} will be on leave today" if !leaves.blank?
+    Slacked.post " #{wfh_users} will be on WFH today" if !wfhs.blank?
   end
 end
