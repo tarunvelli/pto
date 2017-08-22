@@ -3,7 +3,7 @@
     .col-md-9
       .col-md-6
         %h1 Calendar
-      .col-md-6.select_user
+      .col-md-6.select-user
         = form_tag(admin_user_path(@user), method: :get) do |f|
           = label_tag 'select_user:'
           = select_tag 'select_user', options_for_select(@users.collect{ |u| [u.name, u.id] }, [@user.name, @user.id]), :onchange => "this.form.submit();"
