@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170704111050) do
+ActiveRecord::Schema.define(version: 20170905064433) do
 
   create_table "holidays", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.date     "date"
@@ -18,6 +18,7 @@ ActiveRecord::Schema.define(version: 20170704111050) do
     t.integer  "ooo_config_id"
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
+    t.datetime "deleted_at"
     t.index ["ooo_config_id"], name: "index_holidays_on_ooo_config_id", using: :btree
   end
 
@@ -29,6 +30,7 @@ ActiveRecord::Schema.define(version: 20170704111050) do
     t.integer  "wfhs_count"
     t.integer  "wfh_penalty_coefficient"
     t.float    "wfh_headsup_hours",       limit: 24
+    t.datetime "deleted_at"
     t.index ["financial_year"], name: "index_ooo_configs_on_financial_year", unique: true, using: :btree
   end
 
@@ -40,6 +42,7 @@ ActiveRecord::Schema.define(version: 20170704111050) do
     t.datetime "updated_at",      null: false
     t.string   "google_event_id"
     t.string   "type"
+    t.datetime "deleted_at"
     t.index ["user_id"], name: "index_ooo_periods_on_user_id", using: :btree
   end
 
@@ -54,6 +57,16 @@ ActiveRecord::Schema.define(version: 20170704111050) do
     t.boolean  "admin"
     t.date     "joining_date"
     t.integer  "token_expires_at"
+  end
+
+  create_table "versions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
+    t.string   "item_type",  limit: 191,        null: false
+    t.integer  "item_id",                       null: false
+    t.string   "event",                         null: false
+    t.string   "whodunnit"
+    t.text     "object",     limit: 4294967295
+    t.datetime "created_at"
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id", using: :btree
   end
 
   add_foreign_key "holidays", "ooo_configs"

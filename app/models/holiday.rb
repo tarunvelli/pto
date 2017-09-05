@@ -6,6 +6,9 @@ class Holiday < ApplicationRecord
   validates :date, uniqueness: true
   after_initialize :set_default_values, if: :new_record?
 
+  has_paper_trail
+  acts_as_paranoid
+
   def self.holiday?(date)
     Holiday.all.pluck('date').include?(date)
   end

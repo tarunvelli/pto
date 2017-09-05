@@ -2,7 +2,7 @@
   .col-md-9
     .col-md-8
       %h1 Users
-    .col-md-4.financial_year
+    .col-md-4.financial-year
       = form_tag(admin_users_path, method: :get) do |f|
         = label_tag 'financial_year'
         = select_tag 'financial_year', options_for_select(@financial_years, @financial_year), id: 'financial_year', :onchange => "this.form.submit();"
