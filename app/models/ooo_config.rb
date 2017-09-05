@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
-# TODO: In the web app, have the ability to create a config.
 class OOOConfig < ApplicationRecord
   has_many :holidays
   validates :leaves_count, :wfhs_count, :wfh_headsup_hours, :wfh_penalty_coefficient, presence: :true
   validates :financial_year, uniqueness: true
   validate :check_format_of_financial_year
+
+  has_paper_trail
+  acts_as_paranoid
 
   def self.current_financial_year
     check_date = Date.current < Date.new(Date.current.year, 3, 31)

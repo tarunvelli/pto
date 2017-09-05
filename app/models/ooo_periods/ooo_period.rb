@@ -6,6 +6,9 @@ class OOOPeriod < ApplicationRecord
 
   belongs_to :user
 
+  has_paper_trail
+  acts_as_paranoid
+
   after_initialize :set_default_values, if: :new_record?
 
   def self.business_days_count_between(start_date, end_date)
