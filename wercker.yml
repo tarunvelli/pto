@@ -94,7 +94,7 @@ deploy_staging:
         tag: $WERCKER_GIT_COMMIT
         ports: "8080"
         repository: itsprdp/pto
-        registry: https://registry.hub.docker.com
+        registry: https://registry.hub.docker.com/v2
         working-dir: /pipeline/source
 
     # create secrets
