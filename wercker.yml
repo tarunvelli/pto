@@ -34,7 +34,7 @@ build:
         rm .ruby-version
         gem install bundler
         gem install tzinfo-data
-        bundle install --without deployment test --retry=3 --no-cache --quiet
+        bundle install --retry=3 --no-cache
 
     - script:
       name: setup database
@@ -47,16 +47,7 @@ build:
     - script:
       name: run unit tests and code coverage
       code: |
-        bundle exec rspec > rspec_output.log
-        cat rspec_output.log
-        COVERAGE=$(cat rspec_output.log| grep 'Coverage report' | awk '{ print $12 }')
-
-        if [ $COVERAGE == "(96.84%)" ]; then
-          echo "Good job with the unit tests!"
-        else
-          echo "Not enough unit tests to let you get away with it. ($COVERAGE)"
-          exit 1
-        fi
+        bundle exec rspec
 
 deploy_staging:
   steps:

@@ -80,7 +80,7 @@ RSpec.describe OooperiodsController, type: :controller do
 
     context 'with invalid attributes' do
       let(:leave_params) do
-        { start_date: '20170414', type: 'Leave' }
+        { start_date: '20170414', end_date: '20170413', type: 'Leave' }
       end
 
       it 'does not create the new leave' do
