@@ -14,6 +14,9 @@
             %td Total Leaves
             %td= current_user.total_leaves_count(@financial_year)
           %tr
+            %td Converted Leaves
+            %td= current_user.converted_leaves_count(@financial_year)
+          %tr
             %td Remaining Leaves
             %td= current_user.remaining_leaves_count(@financial_year, nil)
           %tr

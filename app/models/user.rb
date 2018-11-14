@@ -6,6 +6,7 @@ class User < ApplicationRecord
   has_many :ooo_periods, class_name: 'OOOPeriod'
   has_many :leaves
   has_many :wfhs
+  has_many :wfh_conversions
   validates :name, :email, :oauth_token, :token_expires_at, presence: true
   validate :beautifulcode_mail
 

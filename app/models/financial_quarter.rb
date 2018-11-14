@@ -30,6 +30,11 @@ class FinancialQuarter
     quarters[(Date.today.month - 1) / 3]
   end
 
+  def self.previous_quarter
+    quarters = [3, 4, 1, 2]
+    quarters[(Date.today.month - 1) / 3]
+  end
+
   def start_date
     years = @financial_year.split('-')
     year = @quarter != 4 ? years[0] : years[1]

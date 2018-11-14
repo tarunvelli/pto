@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170905064433) do
+ActiveRecord::Schema.define(version: 20181114132058) do
 
   create_table "holidays", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.date     "date"
@@ -67,6 +67,14 @@ ActiveRecord::Schema.define(version: 20170905064433) do
     t.text     "object",     limit: 4294967295
     t.datetime "created_at"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id", using: :btree
+  end
+
+  create_table "wfh_conversions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "user_id"
+    t.string   "financial_year"
+    t.float    "count",          limit: 24, default: 0.0
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
   end
 
   add_foreign_key "holidays", "ooo_configs"

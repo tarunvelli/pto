@@ -15,11 +15,11 @@ module OooPeriodCounts
       end_date = fy.date_in_next_fy?(leave.end_date) ? fy.end_date : leave.end_date
       leaves_used += OOOPeriod.business_days_count_between(start_date, end_date)
     end
-    total_leaves_count(financial_year) - leaves_used
+    total_leaves_count(financial_year) + converted_leaves_count(financial_year).to_i - leaves_used
   end
 
   def leaves_used_count(financial_year)
-    total_leaves_count(financial_year) - remaining_leaves_count(financial_year, nil)
+    total_leaves_count(financial_year) + converted_leaves_count(financial_year).to_i - remaining_leaves_count(financial_year, nil)
   end
 
   def wfhs_used_count(financial_year, quarter)
@@ -67,5 +67,10 @@ module OooPeriodCounts
     else
       0
     end
+  end
+
+  def converted_leaves_count(financial_year)
+    wfh_conversions_in_fy = self.wfh_conversions.where('financial_year = ?', financial_year).last
+    wfh_conversions_in_fy ? wfh_conversions_in_fy.count : 0
   end
 end

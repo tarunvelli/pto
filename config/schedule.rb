@@ -15,3 +15,7 @@ end
 every :year, at: 'March 31st 11:59pm' do
   rake 'config:set_ooo_configs_every_year'
 end
+
+every 3.months do
+  rake 'wfh_conversion:convert_wfh_to_leaves'
+end
