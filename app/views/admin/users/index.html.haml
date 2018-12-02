@@ -19,7 +19,7 @@
           %tr
             %td= user.name
             %td= user.email
-            %td= user.leaves_used_count(@financial_year)
+            %td= user.leaves_used_count(@financial_year, @current_quarter)
             %td= "#{user.wfhs_used_count(@financial_year, 1)}, #{user.wfhs_used_count(@financial_year, 2)}, #{user.wfhs_used_count(@financial_year, 3)}, #{user.wfhs_used_count(@financial_year, 4)}"
             %td= link_to 'Show', admin_user_path(user)
 

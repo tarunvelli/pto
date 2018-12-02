@@ -45,7 +45,7 @@ RSpec.describe User, type: :model do
     it 'should return number of leaves used by user for given financial year' do
       allow(user).to receive(:total_leaves_count).and_return(10)
       allow(user).to receive(:remaining_leaves_count).and_return(5)
-      expect(user.leaves_used_count('2016-2017')).to eq(5)
+      expect(user.leaves_used_count('2016-2017', 1)).to eq(5)
     end
   end
 
@@ -66,7 +66,7 @@ RSpec.describe User, type: :model do
 
     context 'when it does not exclude any leave' do
       it 'should return remaining leaves for given financial year' do
-        expect(user.remaining_leaves_count('2017-2018', 0)).to eq(15)
+        expect(user.remaining_leaves_count('2017-2018', 1, 0)).to eq(15)
       end
 
       it 'should return remaining leaves for given financial year even \
@@ -78,14 +78,14 @@ RSpec.describe User, type: :model do
                           wfh_penalty_coefficient: 1 }
         OOOConfig.create(config_params)
         user.leaves.create(start_date: '2018-03-30', end_date: '2018-04-02')
-        expect(user.remaining_leaves_count('2017-2018', 0)).to eq(14)
+        expect(user.remaining_leaves_count('2017-2018', 1, 0)).to eq(14)
       end
     end
 
     context 'when it excludes one leave' do
       it 'should return remaining leaves for given financial year by\
       excluding given leave' do
-        expect(user.remaining_leaves_count('2017-2018', @leave.id)).to eq(16)
+        expect(user.remaining_leaves_count('2017-2018', 1, @leave.id)).to eq(16)
       end
     end
   end

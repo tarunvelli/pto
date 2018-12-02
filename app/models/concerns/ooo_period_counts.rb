@@ -3,7 +3,7 @@
 module OooPeriodCounts
   extend ActiveSupport::Concern
 
-  def remaining_leaves_count(financial_year, exclude_leave_id)
+  def remaining_leaves_count(financial_year, quarter, exclude_leave_id)
     fy = FinancialYear.new(financial_year)
     leaves = self.leaves.where('(start_date >= ? & start_date <= ?) || (end_date >= ? & end_date <= ?)',
                                fy.start_date, fy.end_date,
@@ -15,11 +15,20 @@ module OooPeriodCounts
       end_date = fy.date_in_next_fy?(leave.end_date) ? fy.end_date : leave.end_date
       leaves_used += OOOPeriod.business_days_count_between(start_date, end_date)
     end
-    total_leaves_count(financial_year) - leaves_used
+    convert_till_quarter = quarter
+    if financial_year == FinancialYear.get_financial_year(Date.current)
+      convert_till_quarter = FinancialQuarter.current_quarter
+    end
+    total_leaves_count(financial_year) + converted_leaves_count(financial_year, convert_till_quarter).to_i - leaves_used
   end
 
-  def leaves_used_count(financial_year)
-    total_leaves_count(financial_year) - remaining_leaves_count(financial_year, nil)
+  def leaves_used_count(financial_year, quarter)
+    convert_till_quarter = quarter
+    if financial_year == FinancialYear.get_financial_year(Date.current)
+      convert_till_quarter = FinancialQuarter.current_quarter
+    end
+    total_leaves_count(financial_year) + converted_leaves_count(financial_year, convert_till_quarter).to_i -
+      remaining_leaves_count(financial_year, quarter, nil)
   end
 
   def wfhs_used_count(financial_year, quarter)
@@ -67,5 +76,20 @@ module OooPeriodCounts
     else
       0
     end
+  end
+
+  def converted_leaves_count(financial_year, quarter)
+    cumulative_remaining_wfhs_count(financial_year, quarter).to_f / 4
+  end
+
+  # returns number of cumulative wfhs remaining until, but not including, the specified quarter
+  def cumulative_remaining_wfhs_count(financial_year, quarter)
+    cumulative_wfhs = 0
+    quarter -= 1
+    while quarter.positive?
+      cumulative_wfhs += remaining_wfhs_count(financial_year, quarter, nil)
+      quarter -= 1
+    end
+    cumulative_wfhs
   end
 end

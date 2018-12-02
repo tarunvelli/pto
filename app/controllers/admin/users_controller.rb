@@ -8,6 +8,7 @@ class Admin::UsersController < ApplicationController
     @ooo_config = OOOConfig.where('financial_year = ?', @financial_year).first
     @users = User.where('joining_date <= ?', FinancialYear.new(@financial_year).end_date)
     @financial_years = OOOConfig.all.order('financial_year DESC').pluck('financial_year')
+    @current_quarter = FinancialQuarter.current_quarter
   end
 
   def show

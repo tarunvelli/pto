@@ -32,7 +32,7 @@ RSpec.describe Leave, type: :model do
       end
       it 'should add to error if number of days for current leave\
       are more than remaining leaves' do
-        leave = user.leaves.create(start_date: '20180327', end_date: '20180407')
+        leave = user.leaves.create(start_date: '20180302', end_date: '20180407')
         expect(leave.errors[:generic]).to include(
           'you dont have enough Leaves to apply this Leave'
         )
@@ -51,6 +51,7 @@ RSpec.describe Leave, type: :model do
       it 'should add to error if number of days for current leave\
       are more than remaining leaves' do
         @ooo_config.update_attributes!(leaves_count: 3)
+        @ooo_config.update_attributes!(wfhs_count: 0)
         leave = user.leaves.create(start_date: '20170404', end_date: '20170407')
         expect(leave.errors[:generic]).to include(
           'you dont have enough Leaves to apply this Leave'
