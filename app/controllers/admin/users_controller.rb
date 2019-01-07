@@ -20,4 +20,21 @@ class Admin::UsersController < ApplicationController
     @current_quarter = FinancialQuarter.current_quarter
     @users = User.all
   end
+
+  def update
+    id = params[:select_user] || params[:id]
+    @user = User.find(id)
+    if @user.update_attributes(user_params)
+      flash[:success] = "#{@user.name} updated Successfully"
+      redirect_to admin_users_url
+    else
+      render 'index'
+    end
+  end
+
+  private
+
+  def user_params
+    params.require(:user).permit(:active)
+  end
 end

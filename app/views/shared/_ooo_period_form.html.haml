@@ -8,10 +8,10 @@
     = f.date_field :end_date, id:'end_date', class: 'form-control'
   .radio-inline
     .legend-red
-    = f.radio_button :type, 'Leave', checked: true
+    = f.radio_button :type, 'Leave'
     = f.label :type_leave, 'Leave'
   .radio-inline
     .legend-green
-    = f.radio_button :type, 'Wfh'
+    = f.radio_button :type, 'Wfh', checked: true
     = f.label :type_wfh, 'WFH'
   = f.submit "Submit", class: "btn btn-primary form-control"
