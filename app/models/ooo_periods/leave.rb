@@ -28,7 +28,9 @@ class Leave < OOOPeriod
   end
 
   def get_remaining_leaves_count(date, leave_id)
-    user.remaining_leaves_count(FinancialYear.get_financial_year(date), leave_id)
+    fy = FinancialYear.get_financial_year(date)
+    fq = FinancialQuarter.get_quarter(date)
+    user.remaining_leaves_count(fy, leave_id) + user.available_conversions_count(fy, fq, leave_id)
   end
 
   def dates_in_same_fy?

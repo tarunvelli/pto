@@ -8,6 +8,7 @@ class Admin::UsersController < ApplicationController
     @ooo_config = OOOConfig.where('financial_year = ?', @financial_year).first
     @users = User.where('joining_date <= ?', FinancialYear.new(@financial_year).end_date)
     @financial_years = OOOConfig.all.order('financial_year DESC').pluck('financial_year')
+    @current_quarter = FinancialQuarter.current_quarter
   end
 
   def show
@@ -19,5 +20,25 @@ class Admin::UsersController < ApplicationController
     @financial_year = OOOConfig.current_financial_year
     @current_quarter = FinancialQuarter.current_quarter
     @users = User.all
+  end
+
+  def update
+    id = params[:select_user] || params[:id]
+    @user = User.find(id)
+    if @user.update_attributes(user_params)
+      # TODO: check auth to make sure admin can edit user events
+      # status = @user.active? ? 'confirmed' : 'cancelled'
+      # @user.ooo_periods.each { |ooo| ooo.update_event_status(status) }
+      flash[:success] = "#{@user.name} updated Successfully"
+      redirect_to admin_users_url
+    else
+      render 'index'
+    end
+  end
+
+  private
+
+  def user_params
+    params.require(:user).permit(:active)
   end
 end

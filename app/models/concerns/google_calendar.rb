@@ -73,6 +73,17 @@ module GoogleCalendar
     end
   end
 
+  def update_event_status(status)
+    client = google_client
+    begin
+      event = client.get_event(calendar_id, google_event_id)
+      event.status = status
+      client.update_event(calendar_id, event.id, event)
+    rescue
+      logger.info 'Authorisation failure,event cannot be fetched from google calendar'
+    end
+  end
+
   def calendar_id
     leave? ? OOO_CALENDAR_ID : WFH_CALENDAR_ID
   end

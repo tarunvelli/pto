@@ -1,8 +1,6 @@
 .row
   .row
     .col-md-9
-      .col-md-6
-        %h1 Calendar
       .col-md-6.select-user
         = form_tag(admin_user_path(@user), method: :get) do |f|
           = label_tag 'select_user:'
@@ -25,6 +23,9 @@
             %tr
               %td Leaves used
               %td= @user.leaves_used_count(@financial_year)
+            %tr
+              %td Conversions used
+              %td= @user.conversions_used_in_year(@financial_year, @current_quarter, nil)
       .row
         %table#user_wfhs.table.table-striped.table-bordered
           %h3 WFH Stats (Q#{@current_quarter})
@@ -38,7 +39,11 @@
             %tr
               %td WFH used
               %td= @user.wfhs_used_count(@financial_year, @current_quarter)
-
+            %tr
+              %td WFHs eligible for conversion
+              - available_conversions = @user.available_conversions_count(@financial_year, @current_quarter, nil)
+              %td= "#{(available_conversions * 4).to_i} (#{available_conversions} leaves)"
+        %h6 1 Converted Leave = 4 Wfh
 
   .row
     .col-md-10.col-md-offset-1
@@ -130,7 +135,6 @@
         data.push(obj)
       }
     }
-
     $('#calendar').calendar({
       dataSource: data,
       customDayRenderer: function(element, date) {
@@ -143,4 +147,3 @@
     });
 
   } );
-

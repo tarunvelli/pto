@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170905064433) do
+ActiveRecord::Schema.define(version: 20190107152111) do
 
   create_table "holidays", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.date     "date"
@@ -57,6 +57,7 @@ ActiveRecord::Schema.define(version: 20170905064433) do
     t.boolean  "admin"
     t.date     "joining_date"
     t.integer  "token_expires_at"
+    t.boolean  "active",           default: true
   end
 
   create_table "versions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
