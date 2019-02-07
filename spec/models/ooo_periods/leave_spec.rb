@@ -14,7 +14,7 @@ RSpec.describe Leave, type: :model do
   before do
     ooo_config_params = { financial_year: '2017-2018',
                           leaves_count: 16,
-                          wfhs_count: 13,
+                          wfhs_count: 0,
                           wfh_headsup_hours: 7.5,
                           wfh_penalty_coefficient: 1 }
     @ooo_config = OOOConfig.create(ooo_config_params)
@@ -26,7 +26,7 @@ RSpec.describe Leave, type: :model do
         @ooo_config.update_attributes!(leaves_count: 3)
         OOOConfig.create(financial_year: '2018-2019',
                          leaves_count: 10,
-                         wfhs_count: 5,
+                         wfhs_count: 0,
                          wfh_headsup_hours: 7.5,
                          wfh_penalty_coefficient: 1)
       end

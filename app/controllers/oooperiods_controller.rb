@@ -20,6 +20,8 @@ class OooperiodsController < ApplicationController
       flash[:success] = "#{@ooo_period.type} applied!"
       redirect_to oooperiods_url
     else
+      @financial_year = OOOConfig.current_financial_year
+      @current_quarter = FinancialQuarter.current_quarter
       render 'new'
     end
   end

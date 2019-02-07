@@ -7,11 +7,61 @@
     = f.label :end_date, "End Date (included)"
     = f.date_field :end_date, id:'end_date', class: 'form-control'
   .radio-inline
-    .legend-red
-    = f.radio_button :type, 'Leave', checked: true
-    = f.label :type_leave, 'Leave'
-  .radio-inline
     .legend-green
-    = f.radio_button :type, 'Wfh'
-    = f.label :type_wfh, 'WFH'
+    = f.radio_button :type, 'Wfh', checked: true
+    = f.label :type_wfh, 'WFH (apply before 04:30 PM)'
+  %br
+  .radio-inline
+    .legend-red
+    = f.radio_button :type, 'Leave'
+    = f.label :type_leave, 'Leave'
   = f.submit "Submit", class: "btn btn-primary form-control"
+
+- fy = FinancialYear.new(@financial_year)
+- financial_year_dates = { start_date: fy.start_date, end_date: fy.end_date  }
+- user = @user.present? ? @user : current_user
+- remaining_leaves = user.remaining_leaves_count(@financial_year, nil)
+- available_conversions = user.available_conversions_count(@financial_year, @current_quarter, nil)
+= javascript_tag do
+  var remainingLeaves = #{remaining_leaves.to_json.html_safe}
+  var availableConversions = #{available_conversions.to_json.html_safe}
+  var financialYearDates = #{financial_year_dates.to_json.html_safe}
+
+:javascript
+  $('#new_ooo_period').on('submit', function() {
+    var type = $("[name='ooo_period[type]']:checked").val()
+    var startDate = $('#start_date').val()
+    var endDate = $('#end_date').val()
+    var daysCount = getBusinessDays(startDate, endDate)
+
+    if (type === 'Leave' && remainingLeaves < daysCount && daysCount - remainingLeaves < availableConversions) {
+      return confirm('Not enough leaves, convert wfhs?')
+    } else {
+      return true
+    }
+  })
+
+  function getBusinessDays(startDate, endDate) {
+    startDate = moment(startDate, 'YYYY-MM-DD')
+    endDate = moment(endDate, 'YYYY-MM-DD')
+
+    var sortedStartDate = startDate < endDate ? startDate : endDate
+    var sortedEndDate = endDate > startDate ? endDate : startDate
+
+    var fyStartDate = moment(financialYearDates.start_date, 'YYYY-MM-DD')
+    var fyEndDate = moment(financialYearDates.end_date, 'YYYY-MM-DD')
+
+    var start = sortedStartDate > fyStartDate ? sortedStartDate : fyStartDate
+    var end = sortedEndDate < fyEndDate ? sortedEndDate : fyEndDate
+    var daysBetween = 0;
+
+    while (start <= end) {
+      weekDay = start.isoWeekday()
+      if (weekDay !== 6 && weekDay !== 7) {
+        daysBetween++;
+      }
+      start.add(1, 'd');
+    }
+
+    return daysBetween;
+  };

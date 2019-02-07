@@ -42,4 +42,27 @@ RSpec.describe Admin::UsersController, type: :controller do
       expect(response).to render_template(:show)
     end
   end
+
+  describe 'PATCH #update' do
+    context 'with valid attributes' do
+      let(:user_params) do
+        { active: false }
+      end
+
+      it 'updates a user' do
+        params = { user: user_params, id: @user.id }
+        expect { patch :update, params: params }
+          .not_to change(User, :count)
+        @user.reload
+        expect(assigns(:user).persisted?).to eq(true)
+        expect(@user.active).to eq(false)
+      end
+
+      it 'redirects to the admin#users#index page' do
+        params = { user: user_params, id: @user.id }
+        patch :update, params: params
+        expect(response).to redirect_to admin_users_url
+      end
+    end
+  end
 end
