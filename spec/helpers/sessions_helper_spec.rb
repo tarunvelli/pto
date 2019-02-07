@@ -25,4 +25,10 @@ RSpec.describe SessionsHelper, type: :helper do
       expect(signed_in?).to eq(false)
     end
   end
+
+  describe :admin_user do
+    it 'should not redirect and return nill for admin user' do
+      expect(admin_user).to eq(nil)
+    end
+  end
 end
