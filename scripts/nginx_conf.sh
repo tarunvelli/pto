@@ -12,6 +12,9 @@ cat > /etc/nginx/nginx.conf <<EOF
   pid /run/nginx.pid;
   daemon off;
 
+  # Load passenger
+  load_module /usr/lib/nginx/modules/ngx_http_passenger_module.so;
+
   # Logging to STDOUT
   error_log /dev/stdout info;
 
