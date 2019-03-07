@@ -24,6 +24,7 @@ class Wfh < OOOPeriod
   def validate_user_wfhs_count(start_date, end_date, wfh_id)
     user_remaining_wfhs_count = get_remaining_wfhs_count(start_date, wfh_id)
     return unless user_remaining_wfhs_count < Wfh.days_count_between(start_date, end_date, DateTime.current)
+
     add_error
   end
 

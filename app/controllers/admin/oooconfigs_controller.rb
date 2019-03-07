@@ -15,7 +15,7 @@ class Admin::OooconfigsController < ApplicationController
   end
 
   def update
-    if @ooo_config.update_attributes(ooo_config_params)
+    if @ooo_config.update(ooo_config_params)
       flash[:success] = 'configs are updated'
       redirect_to admin_users_path
     else

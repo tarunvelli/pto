@@ -25,7 +25,7 @@ class Admin::UsersController < ApplicationController
   def update
     id = params[:select_user] || params[:id]
     @user = User.find(id)
-    if @user.update_attributes(user_params)
+    if @user.update(user_params)
       # TODO: cancel events from google calendar on user deactivation
       flash[:success] = "#{@user.name} updated Successfully"
       redirect_to admin_users_url

@@ -16,7 +16,7 @@ class Admin::HolidaysController < ApplicationController
   end
 
   def update
-    if @holiday.update_attributes(holiday_params)
+    if @holiday.update(holiday_params)
       flash[:success] = 'Holiday updated'
       redirect_to controller: 'admin/users', action: 'index', financial_year: @ooo_config.financial_year
     else
@@ -26,6 +26,7 @@ class Admin::HolidaysController < ApplicationController
 
   def destroy
     return unless @holiday.destroy
+
     flash[:success] = 'Holiday deleted.'
     redirect_to controller: 'admin/users', action: 'index', financial_year: @ooo_config.financial_year
   end

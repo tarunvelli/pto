@@ -33,7 +33,7 @@ class OooperiodsController < ApplicationController
   end
 
   def update
-    if @ooo_period.update_attributes(ooo_period_params)
+    if @ooo_period.update(ooo_period_params)
       flash[:success] = "#{@ooo_period.type} updated Successfully"
       redirect_to oooperiods_url
     else
@@ -43,6 +43,7 @@ class OooperiodsController < ApplicationController
 
   def destroy
     return unless @ooo_period.destroy
+
     flash[:success] = "#{@ooo_period.type} Cancelled"
     redirect_to oooperiods_url
   end
@@ -59,6 +60,7 @@ class OooperiodsController < ApplicationController
 
   def choose_ooo_period_class
     return unless @ooo_period.type != ooo_period_params[:type]
+
     @ooo_period = @ooo_period.becomes(ooo_period_params[:type].constantize)
   end
 end

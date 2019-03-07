@@ -6,7 +6,7 @@ class UsersController < ApplicationController
   before_action :check_user
 
   def update
-    if @user.update_attributes(user_params)
+    if @user.update(user_params)
       flash[:success] = 'Profile updated'
       redirect_to @user
     else

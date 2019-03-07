@@ -9,6 +9,7 @@ class Leave < OOOPeriod
   def validate_user_leaves_count(leave_id)
     user_remaining_leaves_count = get_remaining_leaves_count(start_date, leave_id)
     return unless user_remaining_leaves_count < OOOPeriod.business_days_count_between(start_date, end_date)
+
     add_error
   end
 

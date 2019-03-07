@@ -24,6 +24,7 @@ class User < ApplicationRecord
 
   def beautifulcode_mail
     return unless email
+
     email.split('@')[1] == 'beautifulcode.in' ? nil : errors.add(:email, 'must be a beautifulcode.in email')
   end
 end

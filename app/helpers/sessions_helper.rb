@@ -10,6 +10,7 @@ module SessionsHelper
 
   def current_user
     return unless session[:user_id]
+
     @current_user ||= User.where(id: session[:user_id]).first
   end
 
@@ -19,6 +20,7 @@ module SessionsHelper
 
   def ensure_signed_in
     return if signed_in?
+
     session[:redirect_to] = request.fullpath
     redirect_to(root_path)
   end

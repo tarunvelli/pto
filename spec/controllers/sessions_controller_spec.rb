@@ -15,7 +15,7 @@ RSpec.describe SessionsController, type: :controller do
       ).and_return(@user)
     end
     it 'should create new user session' do
-      @user.update_attributes(joining_date: nil)
+      @user.update(joining_date: nil)
       post :create
       expect(session[:user_id]).to eq(@user.id)
       expect(response).to redirect_to edit_user_url(@user.id)

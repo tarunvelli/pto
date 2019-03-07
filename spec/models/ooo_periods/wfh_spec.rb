@@ -37,7 +37,7 @@ RSpec.describe OOOPeriod, type: :model do
 
   describe :check_user_wfhs_count do
     before do
-      @ooo_config.update_attributes!(wfhs_count: 3)
+      @ooo_config.update!(wfhs_count: 3)
     end
     context 'wfh spans over two quarters' do
       it 'should add to error if number of days for current wfh\
