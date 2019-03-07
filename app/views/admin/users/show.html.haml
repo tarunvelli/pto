@@ -90,7 +90,7 @@
 
 :javascript
   $(document).ready(function() {
-    var leaves = #{@leaves.to_json}
+    var leaves = #{@leaves.to_json.html_safe}
     var data = [];
     for (var i=0;i<leaves.length;i++){
       var start_date = moment(leaves[i].start_date);
@@ -113,7 +113,7 @@
         data.push(obj)
       }
     }
-    var wfhs = #{@wfhs.to_json}
+    var wfhs = #{@wfhs.to_json.html_safe}
     for (var i=0;i<wfhs.length;i++){
       var start_date = moment(wfhs[i].start_date);
       var end_date = moment(wfhs[i].end_date);
