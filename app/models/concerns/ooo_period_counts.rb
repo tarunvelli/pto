@@ -14,6 +14,7 @@ module OooPeriodCounts
     leaves_used = 0
     leaves.each do |leave|
       next if leave.id == exclude_leave_id
+
       start_date = fy.date_in_previous_fy?(leave.start_date) ? fy.start_date : leave.start_date
       end_date = fy.date_in_next_fy?(leave.end_date) ? fy.end_date : leave.end_date
       leaves_used += OOOPeriod.business_days_count_between(start_date, end_date)
@@ -38,6 +39,7 @@ module OooPeriodCounts
     wfhs_used = 0
     wfhs.each do |wfh|
       next if wfh.id == exclude_wfh_id
+
       start_date = financial_quarter.date_in_previous_fq(wfh.start_date) ? financial_quarter.start_date : wfh.start_date
 
       end_date = financial_quarter.date_in_next_fq?(wfh.end_date) ? financial_quarter.end_date : wfh.end_date
@@ -96,6 +98,7 @@ module OooPeriodCounts
     leaves_used = 0
     leaves.each do |leave|
       next if leave.id == exclude_leave_id
+
       start_date = fy.date_in_previous_fy?(leave.start_date) ? fy.start_date : leave.start_date
       end_date = financial_quarter.date_in_next_fq?(leave.end_date) ? financial_quarter.end_date : leave.end_date
 

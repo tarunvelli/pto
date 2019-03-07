@@ -9,7 +9,7 @@ RSpec.describe User, type: :model do
                   oauth_token: 'test',
                   token_expires_at: 123 }
   let(:user) { User.create(user_params) }
-  before:each do
+  before :each do
     config_params = { financial_year: '2017-2018',
                       leaves_count: 16,
                       wfhs_count: 13,
@@ -30,13 +30,13 @@ RSpec.describe User, type: :model do
 
   describe :beautifulcode_mail do
     it 'should add an error if email does not belong to beautifulcode domain' do
-      user.update_attributes(email: 'test@test.com')
+      user.update(email: 'test@test.com')
       expect(user.errors).to include(:email)
       expect(user.errors[:email]).to include('must be a beautifulcode.in email')
     end
 
     it 'should not add error if email belongs to beautifulcode domain' do
-      user.update_attributes(email: 'test@beautifulcode.in')
+      user.update(email: 'test@beautifulcode.in')
       expect(user.errors).not_to include(:email)
     end
   end
@@ -119,7 +119,7 @@ RSpec.describe User, type: :model do
 
   describe :total_leaves_count do
     it 'should return 0 if user joined after given financial year' do
-      user.update_attributes(joining_date: '2018-10-01')
+      user.update(joining_date: '2018-10-01')
       expect(user.total_leaves_count('2017-2018')).to eq(0)
     end
 
@@ -130,26 +130,26 @@ RSpec.describe User, type: :model do
 
     it 'should return the half of the maximum leaves if \
     the user joined exactly mid financial year' do
-      user.update_attributes(joining_date: '2017-10-01')
+      user.update(joining_date: '2017-10-01')
       expect(user.total_leaves_count('2017-2018')).to eq(8)
     end
 
     it 'should return the quarter of the maximum leaves if the user \
     joined in the last quarter of the financial year' do
-      user.update_attributes(joining_date: '2018-01-01')
+      user.update(joining_date: '2018-01-01')
       expect(user.total_leaves_count('2017-2018')).to eq(4)
     end
 
     it 'should return ceiling of the fractional value if the user \
     joined in the second month of the first quarter' do
-      user.update_attributes(joining_date: '2018-02-01')
+      user.update(joining_date: '2018-02-01')
       expect(user.total_leaves_count('2017-2018')).to eq(3)
     end
   end
 
   describe :total_wfhs_count do
     it 'should return 0 if user joined after given fy and quarter' do
-      user.update_attributes(joining_date: '2018-10-01')
+      user.update(joining_date: '2018-10-01')
       expect(user.total_wfhs_count('2017-2018', 1)).to eq(0)
     end
 
@@ -160,7 +160,7 @@ RSpec.describe User, type: :model do
 
     it 'should return the half of the maximum wfhs if \
     the user joined exactly mid quarter' do
-      user.update_attributes(joining_date: '2017-05-15')
+      user.update(joining_date: '2017-05-15')
       expect(user.total_wfhs_count('2017-2018', 1)).to eq(7)
     end
   end

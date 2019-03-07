@@ -23,7 +23,7 @@ RSpec.describe Leave, type: :model do
   describe :check_user_leaves do
     context 'leave spans over two financial years' do
       before do
-        @ooo_config.update_attributes!(leaves_count: 3)
+        @ooo_config.update!(leaves_count: 3)
         OOOConfig.create(financial_year: '2018-2019',
                          leaves_count: 10,
                          wfhs_count: 0,
@@ -50,7 +50,7 @@ RSpec.describe Leave, type: :model do
     context 'leave is in one financial year' do
       it 'should add to error if number of days for current leave\
       are more than remaining leaves' do
-        @ooo_config.update_attributes!(leaves_count: 3)
+        @ooo_config.update!(leaves_count: 3)
         leave = user.leaves.create(start_date: '20170404', end_date: '20170407')
         expect(leave.errors[:generic]).to include(
           'you dont have enough Leaves to apply this Leave'

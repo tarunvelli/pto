@@ -38,27 +38,27 @@ RSpec.describe OOOPeriod, type: :model do
       expect(OOOPeriod.business_days_count_between(
                Date.new(2017, 5, 26),
                Date.new(2017, 5, 29)
-      )).to eq(2)
+             )).to eq(2)
     end
 
     it 'should return 4 for a input of Mon to Thurs' do
       expect(OOOPeriod.business_days_count_between(
                Date.new(2017, 5, 22),
                Date.new(2017, 5, 25)
-      )).to eq(4)
+             )).to eq(4)
     end
 
     it 'should return 1 if the start and end dates are the same' do
       expect(OOOPeriod.business_days_count_between(
                Date.new(2017, 5, 26),
                Date.new(2017, 5, 26)
-      )).to eq(1)
+             )).to eq(1)
     end
   end
 
   describe :verify_dates do
     it 'should not add to errors if start date is before end date' do
-      leave.update_attributes(
+      leave.update(
         start_date: '20170412',
         end_date: '20170413'
       )
@@ -66,14 +66,14 @@ RSpec.describe OOOPeriod, type: :model do
     end
 
     it 'should add to errors if start date is before end date' do
-      leave.update_attributes(start_date: '20170414')
+      leave.update(start_date: '20170414')
       expect(leave.errors).to include(:start_date)
       expect(leave.errors[:start_date])
         .to include('must be before end date')
     end
 
     it 'should not add to errors if end_date is empty' do
-      leave.update_attributes(end_date: nil)
+      leave.update(end_date: nil)
       expect(leave.errors[:start_date])
         .not_to include('must be before end date')
     end

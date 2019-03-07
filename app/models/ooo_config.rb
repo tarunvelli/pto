@@ -2,7 +2,7 @@
 
 class OOOConfig < ApplicationRecord
   has_many :holidays
-  validates :leaves_count, :wfhs_count, :wfh_headsup_hours, :wfh_penalty_coefficient, presence: :true
+  validates :leaves_count, :wfhs_count, :wfh_headsup_hours, :wfh_penalty_coefficient, presence: true
   validates :financial_year, uniqueness: true
   validate :check_format_of_financial_year
 
@@ -17,6 +17,7 @@ class OOOConfig < ApplicationRecord
 
   def check_format_of_financial_year
     return unless financial_year && financial_year.split('-').size != 2
+
     errors.add(:financial_year, 'please enter valid financial year, financial year should be in format of yyyy-yyyy')
   end
 end

@@ -21,7 +21,7 @@ RSpec.describe SessionsHelper, type: :helper do
     end
 
     it 'should return false for invalid user' do
-      @user.update_attributes(token_expires_at: Time.now.to_i + 200)
+      @user.update(token_expires_at: Time.now.to_i + 200)
       expect(signed_in?).to eq(false)
     end
   end

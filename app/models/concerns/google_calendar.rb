@@ -19,7 +19,7 @@ module GoogleCalendar
       begin
         google_client.delete_event(type_change_calendar_id, google_event_id)
         insert_calendar
-      rescue
+      rescue StandardError
         logger.info "the event(#{google_event_id}) you are trying to delete has already been deleted"
       end
     else
@@ -31,7 +31,7 @@ module GoogleCalendar
     client = google_client
     begin
       client.delete_event(calendar_id, google_event_id)
-    rescue
+    rescue StandardError
       logger.info "the event(#{google_event_id}) you are trying to delete has already been deleted"
     end
   end
@@ -55,7 +55,7 @@ module GoogleCalendar
     begin
       response = client.insert_event(calendar_id, event)
       self.google_event_id = response.id
-    rescue
+    rescue StandardError
       logger.info 'Authorisation failure,event cannot be\
       created in google calendar'
     end
@@ -68,7 +68,7 @@ module GoogleCalendar
       event.start.date = start_date.strftime('%Y-%m-%d')
       event.end.date = (end_date + 1).strftime('%Y-%m-%d')
       client.update_event(calendar_id, event.id, event)
-    rescue
+    rescue StandardError
       logger.info 'Authorisation failure,event cannot be fetched from google calendar'
     end
   end
