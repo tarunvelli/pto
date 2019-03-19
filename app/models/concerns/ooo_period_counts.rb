@@ -81,7 +81,7 @@ module OooPeriodCounts
   end
 
   def conversions_used_in_quarter(financial_year, quarter)
-    conversions_available = (accumulated_unused_whs_count(financial_year, quarter - 1) / 4).to_i
+    conversions_available = (accumulated_unused_whs_count(financial_year, quarter - 1).to_f / 4)
     conversions_used = conversions_used_in_year(financial_year, quarter, nil)
 
     conversions_used > conversions_available ? conversions_used - conversions_available : 0
