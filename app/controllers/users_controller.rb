@@ -25,8 +25,7 @@ class UsersController < ApplicationController
     csv_headers = ['Name', 'Email', 'Employee ID', 'Blood Group', 'Emergency contact',
                    'DOB', "Father's Name", 'Adhaar Number', 'PAN Number'].join(', ')
     csv_body = []
-    @users = User.where('joining_date <= ?', FinancialYear.new(OOOConfig.current_financial_year).end_date)
-    @users.each do |user|
+    User.where(active: true).each do |user|
       csv_body << [user.name, user.email, user.employee_id, user.blood_group,
                    user.emergency_contact_number, user.DOB, user.fathers_name,
                    user.adhaar_number.to_s, user.PAN_number.to_s].join(', ')
