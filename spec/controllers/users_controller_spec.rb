@@ -40,4 +40,43 @@ RSpec.describe UsersController, type: :controller do
       expect(response).to render_template(:edit)
     end
   end
+
+  describe 'GET #index' do
+    before :each do
+      get :index
+    end
+
+    it 'responds successfully with an HTTP 200 status code' do
+      expect(response).to be_success
+      expect(response).to have_http_status(200)
+    end
+
+    it 'renders the #index view' do
+      expect(response).to render_template(:index)
+    end
+  end
+
+  describe 'GET #download_users_details' do
+    context 'when user is admin' do
+      before :each do
+        @user.admin = true
+        get :download_users_details
+      end
+      it 'responds successfully with an HTTP 200 status code' do
+        expect(response).to have_http_status(200)
+        expect(response).to be_success
+      end
+    end
+
+    context 'when user is not admin' do
+      before :each do
+        @user.admin = false
+        get :download_users_details
+      end
+      it 'should redirect to user page' do
+        expect(response).to have_http_status(302)
+        expect(response).to redirect_to @user
+      end
+    end
+  end
 end

@@ -8,6 +8,7 @@ class User < ApplicationRecord
   has_many :wfhs
   validates :name, :email, :oauth_token, :token_expires_at, presence: true
   validate :beautifulcode_mail
+  validate :check_leaving_date
 
   def self.from_omniauth(auth)
     user = where(provider: auth.provider, uid: auth.uid).first_or_initialize
@@ -26,5 +27,12 @@ class User < ApplicationRecord
     return unless email
 
     email.split('@')[1] == 'beautifulcode.in' ? nil : errors.add(:email, 'must be a beautifulcode.in email')
+  end
+
+  def check_leaving_date
+    return unless leaving_date
+
+    active? ? errors.add(:leaving_date, 'can not be added to active user') : nil
+    joining_date > leaving_date ? errors.add(:leaving_date, 'can not be before joining date') : nil
   end
 end

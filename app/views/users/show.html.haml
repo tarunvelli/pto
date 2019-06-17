@@ -10,4 +10,29 @@
       .form-group
         = f.label :joining_date
         = f.date_field :joining_date, class: 'form-control', :readonly => true
+      .form-group
+        = f.label 'Employee Id'
+        = f.text_field :employee_id, class: 'form-control', :readonly => true
+      .form-group
+        = f.label :DOB
+        = f.date_field :DOB, class: 'form-control', :readonly => true
+      .form-group
+        = f.label :fathers_name
+        = f.text_field :fathers_name, class: 'form-control', :readonly => true
+      .form-group
+        = f.label :adhaar_number
+        = f.text_field :adhaar_number, class: 'form-control', :readonly => true
+      .form-group
+        = f.label :PAN_number
+        = f.text_field :PAN_number, class: 'form-control', :readonly => true
+      .form-group
+        = f.label :blood_group
+        = f.text_field :blood_group, class: 'form-control', :readonly => true
+      .form-group
+        = f.label :emergency_contact_number
+        = f.text_field :emergency_contact_number, class: 'form-control', :readonly => true
+      - if current_user.admin?
+        .form-group
+          = f.label :leaving_date
+          = f.date_field :leaving_date, class: 'form-control', :readonly => true
 
