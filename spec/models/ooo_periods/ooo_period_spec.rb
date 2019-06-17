@@ -34,25 +34,53 @@ RSpec.describe OOOPeriod, type: :model do
   end
 
   describe :business_days_count_between do
-    it 'should return 2 for a input of Fri to Mon' do
-      expect(OOOPeriod.business_days_count_between(
-               Date.new(2017, 5, 26),
-               Date.new(2017, 5, 29)
-             )).to eq(2)
+    context 'without holidays passed in params' do
+      it 'should return 2 for a input of Fri to Mon' do
+        expect(OOOPeriod.business_days_count_between(
+                 Date.new(2017, 5, 26),
+                 Date.new(2017, 5, 29)
+               )).to eq(2)
+      end
+
+      it 'should return 4 for a input of Mon to Thurs' do
+        expect(OOOPeriod.business_days_count_between(
+                 Date.new(2017, 5, 22),
+                 Date.new(2017, 5, 25)
+               )).to eq(4)
+      end
+
+      it 'should return 1 if the start and end dates are the same' do
+        expect(OOOPeriod.business_days_count_between(
+                 Date.new(2017, 5, 26),
+                 Date.new(2017, 5, 26)
+               )).to eq(1)
+      end
     end
 
-    it 'should return 4 for a input of Mon to Thurs' do
-      expect(OOOPeriod.business_days_count_between(
-               Date.new(2017, 5, 22),
-               Date.new(2017, 5, 25)
-             )).to eq(4)
-    end
+    context 'with holidays passed in params' do
+      it 'should return 2 for a input of Fri to Mon' do
+        expect(OOOPeriod.business_days_count_between(
+                 Date.new(2017, 5, 26),
+                 Date.new(2017, 5, 29),
+                 holidays: []
+               )).to eq(2)
+      end
 
-    it 'should return 1 if the start and end dates are the same' do
-      expect(OOOPeriod.business_days_count_between(
-               Date.new(2017, 5, 26),
-               Date.new(2017, 5, 26)
-             )).to eq(1)
+      it 'should return 4 for a input of Mon to Thurs' do
+        expect(OOOPeriod.business_days_count_between(
+                 Date.new(2017, 5, 22),
+                 Date.new(2017, 5, 25),
+                 holidays: []
+               )).to eq(4)
+      end
+
+      it 'should return 1 if the start and end dates are the same' do
+        expect(OOOPeriod.business_days_count_between(
+                 Date.new(2017, 5, 26),
+                 Date.new(2017, 5, 26),
+                 holidays: []
+               )).to eq(1)
+      end
     end
   end
 
@@ -62,7 +90,7 @@ RSpec.describe OOOPeriod, type: :model do
         start_date: '20170412',
         end_date: '20170413'
       )
-      expect(leave.errors).not_to include(:generic)
+      expect(leave.errors).not_to include(:base)
     end
 
     it 'should add to errors if start date is before end date' do
@@ -87,8 +115,8 @@ RSpec.describe OOOPeriod, type: :model do
         end_date: '20170414'
       )
       conflict_leave.send(:check_date_conflicts)
-      expect(conflict_leave.errors[:generic]).to include(
-        'dates are overlapping with previous OOO Period dates. Please correct.'
+      expect(conflict_leave.errors[:base]).to include(
+        'Dates are overlapping with previous OOO Period dates. Please correct.'
       )
     end
 
@@ -99,7 +127,7 @@ RSpec.describe OOOPeriod, type: :model do
         end_date: '20170415'
       )
       normal_leave.send(:check_date_conflicts)
-      expect(normal_leave.errors[:generic])
+      expect(normal_leave.errors[:base])
         .not_to include('dates are overlapping with previous OOO Period dates.
                          Please correct.')
     end

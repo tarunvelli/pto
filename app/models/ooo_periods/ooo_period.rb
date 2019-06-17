@@ -11,8 +11,12 @@ class OOOPeriod < ApplicationRecord
 
   after_initialize :set_default_values, if: :new_record?
 
-  def self.business_days_count_between(start_date, end_date)
-    (start_date..end_date).select { |d| (1..5).cover?(d.wday) && !Holiday.holiday?(d) }.size
+  def self.business_days_count_between(start_date, end_date, holidays: nil)
+    if holidays.nil?
+      (start_date..end_date).select { |d| (1..5).cover?(d.wday) && !Holiday.holiday?(d) }.size
+    else
+      (start_date..end_date).select { |d| (1..5).cover?(d.wday) && !holidays.pluck(:date).include?(d) }.size
+    end
   end
 
   def set_default_values
@@ -21,7 +25,7 @@ class OOOPeriod < ApplicationRecord
   end
 
   def add_error
-    errors.add(:generic, "you dont have enough #{type}s to apply this #{type}")
+    errors[:base] << "You dont have enough #{type}s to apply for this #{type}"
   end
 
   def leave?

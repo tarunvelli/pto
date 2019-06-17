@@ -64,5 +64,22 @@ RSpec.describe Admin::UsersController, type: :controller do
         expect(response).to redirect_to admin_users_url
       end
     end
+
+    context 'with invalid attributes' do
+      before do
+        allow_any_instance_of(User)
+          .to receive(:update).and_return(false)
+      end
+
+      let(:user_params) do
+        { active: false }
+      end
+
+      it 'redirects to the admin#users#index page' do
+        params = { user: user_params, id: @user.id }
+        patch :update, params: params
+        expect(response).to render_template(:index)
+      end
+    end
   end
 end

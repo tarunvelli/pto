@@ -41,6 +41,19 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe :check_leaving_date do
+    it 'should add an error if leaving date is before joining date' do
+      user.update(leaving_date: '2017-01-16')
+      expect(user.errors).to include(:leaving_date)
+      expect(user.errors[:leaving_date]).to include('can not be before joining date')
+    end
+
+    it 'should not add error if leaving date is after joining date' do
+      user.update(leaving_date: '2017-03-16')
+      expect(user.errors).not_to include(:email)
+    end
+  end
+
   describe :leaves_used_count do
     it 'should return number of leaves used by user for given financial year' do
       allow(user).to receive(:total_leaves_count).and_return(10)

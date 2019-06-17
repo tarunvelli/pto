@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 class FinancialYear
-  def initialize(financial_year)
+  def initialize(financial_year, leaves_count: nil)
     @financial_year = financial_year
+    @leaves_count = leaves_count
   end
 
   def self.get_financial_year(date)
@@ -24,7 +25,7 @@ class FinancialYear
   end
 
   def configured_leaves_count
-    OOOConfig.find_by('financial_year = ?', @financial_year).leaves_count
+    @leaves_count.presence || OOOConfig.find_by('financial_year = ?', @financial_year).leaves_count
   end
 
   def did_user_join_in_between_the_given_fy(joining_date)

@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 class Wfh < OOOPeriod
-  def self.days_count_between(start_date, end_date, time_to_compare)
-    number_of_days = OOOPeriod.business_days_count_between(start_date, end_date)
-    ooo_config = OOOConfig.find_by('financial_year = ?', FinancialYear.get_financial_year(start_date))
+  def self.days_count_between(start_date, end_date, time_to_compare, ooo_config: nil)
+    financial_year = FinancialYear.get_financial_year(start_date)
+    number_of_days = OOOPeriod.business_days_count_between(start_date, end_date, holidays: ooo_config&.holidays)
+    ooo_config = ooo_config.presence || OOOConfig.find_by('financial_year = ?', financial_year)
     penalty = start_date - (ooo_config.wfh_headsup_hours * 60).minutes < time_to_compare
     penalty ? number_of_days + ooo_config.wfh_penalty_coefficient : number_of_days
   end
