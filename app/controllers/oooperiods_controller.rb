@@ -32,6 +32,11 @@ class OooperiodsController < ApplicationController
     @wfhs = Wfh.where('start_date <= ? && end_date >= ?', @date, @date)
   end
 
+  def edit
+    @financial_year = OOOConfig.current_financial_year
+    @current_quarter = FinancialQuarter.current_quarter
+  end
+
   def update
     if @ooo_period.update(ooo_period_params)
       flash[:success] = "#{@ooo_period.type} updated Successfully"

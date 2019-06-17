@@ -12,6 +12,9 @@ Rails.application.routes.draw do
     get 'bydate', on: :collection
   end
 
+  post 'users/download_users_details', to: 'users#download_users_details',
+                                       as: 'download_users_details'
+
   root to: 'home#show'
 
   namespace :admin do
