@@ -22,16 +22,21 @@ class UsersController < ApplicationController
   end
 
   def download_users_details
-    csv_headers = ['Name', 'Email', 'Employee ID', 'Blood Group', 'Emergency contact',
-                   'DOB', "Father's Name", 'Adhaar Number', 'PAN Number'].join(', ')
-    csv_body = []
+    rows = []
+    rows << [
+      'Name', 'Email', 'Joining Date', 'Employee Id', 'DOB', 'Contact Number', 'Personal Email',
+      'Blood Group', 'Emergency Contact Number', 'Mailing Address', 'Fathers Name',
+      'Aadhar Number', 'PAN Number', 'Passport Number'
+    ]
     User.where(active: true).each do |user|
-      csv_body << [user.name, user.email, user.employee_id, user.blood_group,
-                   user.emergency_contact_number, user.DOB, user.fathers_name,
-                   user.adhaar_number.to_s, user.PAN_number.to_s].join(', ')
+      rows << user.details_array
     end
-    csv_body = csv_body.join("\n")
-    csv_string = [csv_headers, csv_body].join("\n")
+    csv_string = CSV.generate do |csv|
+      rows.each do |row|
+        csv << row
+      end
+    end
+
     file_name = "Employees_data_#{Time.current.strftime('%m-%d-%y_%H-%M-%S')}.csv"
     send_data(csv_string,
               disposition: 'attachment', filename: file_name,
@@ -54,6 +59,7 @@ class UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(:name, :joining_date, :employee_id, :DOB, :leaving_date, :fathers_name, :adhaar_number,
-                                 :PAN_number, :blood_group, :emergency_contact_number)
+                                 :PAN_number, :blood_group, :emergency_contact_number, :mailing_address,
+                                 :personal_email, :contact_number, :passport_number)
   end
 end
