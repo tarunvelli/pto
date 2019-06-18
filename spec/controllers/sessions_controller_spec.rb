@@ -9,7 +9,17 @@ RSpec.describe SessionsController, type: :controller do
                           email: 'test@beautifulcode.in',
                           joining_date: '2017-02-16',
                           oauth_token: 'test',
-                          token_expires_at: 123)
+                          token_expires_at: 123,
+                          DOB: '01-01-1010',
+                          contact_number: '999',
+                          personal_email: 'xx@xx.xx',
+                          blood_group: 'B positive',
+                          emergency_contact_number: '888',
+                          mailing_address: 'xxx',
+                          fathers_name: 'xxx',
+                          adhaar_number: 'xxx',
+                          PAN_number: 'xxx',
+                          passport_number: 'xxx')
       allow(User).to receive(
         :from_omniauth
       ).and_return(@user)

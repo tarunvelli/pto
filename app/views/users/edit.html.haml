@@ -7,7 +7,7 @@
     = form_for(@user) do |f|
       = render 'shared/error_messages', object: f.object
       .form-group
-        = f.label :name
+        = f.label :name, 'Name as per Aadhar'
         = f.text_field :name, class: 'form-control'
       .form-group
         = f.label :email
@@ -16,27 +16,39 @@
         = f.label :joining_date
         = f.date_field :joining_date, class: 'form-control', required:'required', :readonly => joining_date_is_readonly
       .form-group
-        = f.label 'Employee Id'
-        = f.text_field :employee_id, class: 'form-control'
+        = f.label :personal_email
+        = f.email_field :personal_email, class: 'form-control'
       .form-group
-        = f.label :DOB
+        = f.label :contact_number
+        = f.text_field :contact_number, class: 'form-control'
+      .form-group
+        = f.label :DOB, 'DOB'
         = f.date_field :DOB, class: 'form-control'
-      .form-group
-        = f.label :fathers_name
-        = f.text_field :fathers_name, class: 'form-control'
       .form-group
         = f.label :adhaar_number
         = f.text_field :adhaar_number, class: 'form-control'
       .form-group
-        = f.label :PAN_number
+        = f.label :PAN_number, 'PAN Number'
         = f.text_field :PAN_number, class: 'form-control'
       .form-group
-        = f.label :blood_group
+        = f.label :passport_number
+        = f.text_field :passport_number, class: 'form-control'
+      .form-group
+        = f.label :mailing_address
+        = f.text_area :mailing_address, class: 'form-control'
+      .form-group
+        = f.label :blood_group, 'Blood Group (Eg: O Positive. DO NOT USE O+)'
         = f.text_field :blood_group, class: 'form-control'
       .form-group
         = f.label :emergency_contact_number
         = f.text_field :emergency_contact_number, class: 'form-control'
+      .form-group
+        = f.label :fathers_name, "Father's name as per Aadhar"
+        = f.text_field :fathers_name, class: 'form-control'
       - if current_user.admin?
+        .form-group
+          = f.label :employee_id, 'Employee Id'
+          = f.text_field :employee_id, class: 'form-control'
         .form-group
           = f.label :leaving_date
           = f.date_field :leaving_date, class: 'form-control'

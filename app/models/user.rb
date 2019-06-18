@@ -2,6 +2,9 @@
 
 class User < ApplicationRecord
   include OooPeriodCounts
+  include UserConcerns
+
+  has_paper_trail
 
   has_many :ooo_periods, class_name: 'OOOPeriod'
   has_many :leaves
@@ -32,7 +35,6 @@ class User < ApplicationRecord
   def check_leaving_date
     return unless leaving_date
 
-    active? ? errors.add(:leaving_date, 'can not be added to active user') : nil
     joining_date > leaving_date ? errors.add(:leaving_date, 'can not be before joining date') : nil
   end
 end

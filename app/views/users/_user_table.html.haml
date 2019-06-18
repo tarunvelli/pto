@@ -1,28 +1,29 @@
-%table#user_table.table.table-striped.table-bordered
+%table#user_table.table.table-striped.table-bordered.table-responsive
   %thead
     %tr
       %td Name
       %td Email
       %td Employee ID
+      %td Contact Number
       %td Blood Group
       %td Emergency contact
       - if current_user.admin?
-        %td DOB
-        %td Father's Name
-        %td Adhaar Number
-        %td PAN Number
         %td{ colspan: "2" } Actions
   %tbody
     - passed_users.each do |user|
       %tr
-        %td= user.name
+        %td
+          = user.name
+          - if current_user.admin?
+            - if user.all_details?
+              %span.glyphicon.glyphicon-ok.green
+            - else
+              %span.glyphicon.glyphicon-remove.red
         %td= user.email
         %td= user.employee_id
+        %td= user.contact_number
         %td= user.blood_group
         %td= user.emergency_contact_number
         -if current_user.admin?
-          %td= user.DOB
-          %td= user.fathers_name
-          %td= user.adhaar_number
-          %td= user.PAN_number
+          %td= link_to 'View', user
           %td= link_to 'Edit', edit_user_path(user)

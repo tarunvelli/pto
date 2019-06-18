@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190107152111) do
+ActiveRecord::Schema.define(version: 20190618183311) do
 
   create_table "holidays", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.date     "date"
@@ -22,7 +22,7 @@ ActiveRecord::Schema.define(version: 20190107152111) do
     t.index ["ooo_config_id"], name: "index_holidays_on_ooo_config_id", using: :btree
   end
 
-  create_table "ooo_configs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "ooo_configs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.datetime "created_at",                         null: false
     t.datetime "updated_at",                         null: false
     t.string   "financial_year"
@@ -34,7 +34,7 @@ ActiveRecord::Schema.define(version: 20190107152111) do
     t.index ["financial_year"], name: "index_ooo_configs_on_financial_year", unique: true, using: :btree
   end
 
-  create_table "ooo_periods", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "ooo_periods", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.date     "start_date"
     t.date     "end_date"
     t.integer  "user_id"
@@ -46,18 +46,30 @@ ActiveRecord::Schema.define(version: 20190107152111) do
     t.index ["user_id"], name: "index_ooo_periods_on_user_id", using: :btree
   end
 
-  create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.string   "provider"
     t.string   "uid"
     t.string   "name"
     t.string   "oauth_token"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
     t.string   "email"
     t.boolean  "admin"
     t.date     "joining_date"
     t.integer  "token_expires_at"
-    t.boolean  "active",           default: true
+    t.boolean  "active",                   default: true
+    t.string   "employee_id"
+    t.date     "DOB"
+    t.date     "leaving_date"
+    t.string   "fathers_name"
+    t.string   "adhaar_number"
+    t.string   "PAN_number"
+    t.string   "blood_group"
+    t.string   "emergency_contact_number"
+    t.string   "mailing_address"
+    t.string   "personal_email"
+    t.string   "contact_number"
+    t.string   "passport_number"
   end
 
   create_table "versions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
