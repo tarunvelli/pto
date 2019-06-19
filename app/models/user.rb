@@ -28,8 +28,9 @@ class User < ApplicationRecord
 
   def beautifulcode_mail
     return unless email
+    return if ['beautifulcode.in', 'beautifulcode.co'].include?(email.split('@')[1])
 
-    email.split('@')[1] == 'beautifulcode.in' ? nil : errors.add(:email, 'must be a beautifulcode.in email')
+    errors.add(:email, 'must be a beautifulcode email')
   end
 
   def check_leaving_date

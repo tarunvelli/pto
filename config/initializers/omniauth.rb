@@ -12,5 +12,5 @@ Rails.application.config.middleware.use OmniAuth::Builder do
              }
            },
            scope: 'email, profile, https://www.googleapis.com/auth/calendar',
-           hd: 'beautifulcode.in'
+           hd: %w[beautifulcode.co beautifulcode.in]
 end

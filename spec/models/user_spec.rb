@@ -32,7 +32,7 @@ RSpec.describe User, type: :model do
     it 'should add an error if email does not belong to beautifulcode domain' do
       user.update(email: 'test@test.com')
       expect(user.errors).to include(:email)
-      expect(user.errors[:email]).to include('must be a beautifulcode.in email')
+      expect(user.errors[:email]).to include('must be a beautifulcode email')
     end
 
     it 'should not add error if email belongs to beautifulcode domain' do
