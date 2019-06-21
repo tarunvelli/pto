@@ -1,8 +1,12 @@
 %body
-  %header.navbar.navbar-fixed-top.navbar-inverse
+  %header.navbar.navbar-fixed-top.navbar-inverse.navbar-collapse
     .container
-      = link_to "PTO", root_path, id: "logo"
-      %nav
+      = link_to "PTO", root_path, id: "logo", class: 'navbar-brand'
+      %button.navbar-toggle{"data-toggle" => "collapse", "data-target" => "#mynavbar" }
+        %span.icon-bar
+        %span.icon-bar
+        %span.icon-bar
+      %div.collapse.navbar-collapse#mynavbar
         %ul.nav.navbar-nav.navbar-right
           - if signed_in?
             %li= link_to "View By Date", bydate_oooperiods_path

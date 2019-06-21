@@ -3,9 +3,9 @@
     .col-md-11
       %h1 Current Employees
     - if current_user.admin?
-      .col-md-1
+      .col-md-1.padding-zero
         = form_tag(download_users_details_path) do
-          %button Download
-    = render 'user_table', passed_users: @users.select{ |user| user[:active] }
-    %h1 Ex Employees
-    = render 'user_table', passed_users: @users.select{ |user| !user[:active] }
+          %button.btn.btn-primary Download
+= render 'user_table', passed_users: @users.select{ |user| user[:active] }
+%h1 Ex Employees
+= render 'user_table', passed_users: @users.select{ |user| !user[:active] }
