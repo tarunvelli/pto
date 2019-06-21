@@ -6,43 +6,45 @@
       = form_tag(admin_users_path, method: :get) do |f|
         = label_tag 'financial_year'
         = select_tag 'financial_year', options_for_select(@financial_years, @financial_year), id: 'financial_year', :onchange => "this.form.submit();"
-    %table#user_table.table.table-striped.table-bordered
-      %thead
-        %tr
-          %td Name
-          %td Email
-          %td Leaves taken
-          %td WFHs taken (Q1, Q2, Q3, Q4)
-          %td{ colspan: "2" } Actions
-      %tbody
-        - @users.select{ |user| user[:active] }.each do |user|
+    %div.table.table-responsive
+      %table#user_table.table.table-striped.table-bordered
+        %thead
           %tr
-            %td= user.name
-            %td= user.email
-            %td= user.leaves_used_count(@financial_year)
-            %td= "#{user.wfhs_used_count(@financial_year, 1)}, #{user.wfhs_used_count(@financial_year, 2)}, #{user.wfhs_used_count(@financial_year, 3)}, #{user.wfhs_used_count(@financial_year, 4)}"
-            %td= link_to 'Show', admin_user_path(user)
-            %td
-              = form_for(user, url: admin_user_path(user), method: :patch) do |f|
-                = f.hidden_field :active, value: false
-                = f.submit "Disable"
+            %td Name
+            %td Email
+            %td Leaves taken
+            %td WFHs taken (Q1, Q2, Q3, Q4)
+            %td{ colspan: "2" } Actions
+        %tbody
+          - @users.select{ |user| user[:active] }.each do |user|
+            %tr
+              %td= user.name
+              %td= user.email
+              %td= user.leaves_used_count(@financial_year, ooo_config: @ooo_config)
+              %td= [1, 2, 3, 4].map { |quarter| user.wfhs_used_count(@financial_year, quarter, ooo_config: @ooo_config) }.join(', ')
+              %td= link_to 'Show', admin_user_path(user)
+              %td
+                = form_for(user, url: admin_user_path(user), method: :patch) do |f|
+                  = f.hidden_field :active, value: false
+                  = f.submit "Disable"
     .col-md-8
       %h1 Inactive Users
-    %table#user_table.table.table-striped.table-bordered
-      %thead
-        %tr
-          %td Name
-          %td Email
-          %td Actions
-      %tbody
-        - @users.select{ |user| !user[:active] }.each do |user|
+    %div.table.table-responsive
+      %table#user_table.table.table-striped.table-bordered
+        %thead
           %tr
-            %td= user.name
-            %td= user.email
-            %td
-              = form_for(user, url: admin_user_path(user), method: :patch) do |f|
-                = f.hidden_field :active, value: true
-                = f.submit "Enable"
+            %td Name
+            %td Email
+            %td Actions
+        %tbody
+          - @users.select{ |user| !user[:active] }.each do |user|
+            %tr
+              %td= user.name
+              %td= user.email
+              %td
+                = form_for(user, url: admin_user_path(user), method: :patch) do |f|
+                  = f.hidden_field :active, value: true
+                  = f.submit "Enable"
 
   .col-md-3
     %h1 OOO Settings

@@ -97,6 +97,36 @@ RSpec.describe OooperiodsController, type: :controller do
     end
   end
 
+  describe 'GET #edit' do
+    before :each do
+      get :edit, params: { id: @leave.id }
+    end
+
+    it 'responds successfully with an HTTP 200 status code' do
+      expect(response).to be_success
+      expect(response).to have_http_status(200)
+    end
+
+    it 'renders the #edit view' do
+      expect(response).to render_template(:edit)
+    end
+  end
+
+  describe 'GET #bydate' do
+    before :each do
+      get :bydate
+    end
+
+    it 'responds successfully with an HTTP 200 status code' do
+      expect(response).to be_success
+      expect(response).to have_http_status(200)
+    end
+
+    it 'renders the #bydate view' do
+      expect(response).to render_template(:bydate)
+    end
+  end
+
   describe 'PATCH #update' do
     context 'with valid attributes' do
       let(:leave_params) do

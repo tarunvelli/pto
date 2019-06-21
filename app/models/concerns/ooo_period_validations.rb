@@ -26,7 +26,7 @@ module OooPeriodValidations
       next if ooo_period.id == id
       next unless start_date <= ooo_period.end_date && ooo_period.start_date <= end_date
 
-      errors.add(:generic, 'dates are overlapping with previous OOO Period dates. Please correct.')
+      errors[:base] << 'Dates are overlapping with previous OOO Period dates. Please correct.'
       break
     end
   end

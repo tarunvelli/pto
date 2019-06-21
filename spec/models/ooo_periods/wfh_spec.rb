@@ -43,16 +43,16 @@ RSpec.describe OOOPeriod, type: :model do
       it 'should add to error if number of days for current wfh\
       are more than remaining wfhs' do
         wfh = user.wfhs.create(start_date: '20170627', end_date: '20170707')
-        expect(wfh.errors[:generic]).to include(
-          'you dont have enough Wfhs to apply this Wfh'
+        expect(wfh.errors[:base]).to include(
+          'You dont have enough Wfhs to apply for this Wfh'
         )
       end
 
       it 'should not add to errors if number of days for current leave\
       are less than remaining leaves' do
         wfh = user.wfhs.create(start_date: '20170630', end_date: '20170702')
-        expect(wfh.errors[:generic]).not_to include(
-          'you dont have enough Wfhs to apply this Wfh'
+        expect(wfh.errors[:base]).not_to include(
+          'You dont have enough Wfhs to apply for this Wfh'
         )
       end
     end
@@ -61,15 +61,15 @@ RSpec.describe OOOPeriod, type: :model do
       it 'should add to error if number of days for current wfh\
       are more than remaining wfhs' do
         wfh = user.wfhs.create(start_date: '20170627', end_date: '20170630')
-        expect(wfh.errors[:generic]).to include(
-          'you dont have enough Wfhs to apply this Wfh'
+        expect(wfh.errors[:base]).to include(
+          'You dont have enough Wfhs to apply for this Wfh'
         )
       end
 
       it 'should not add to errors if number of days for current wfh\
       are less than remaining Wfhs' do
-        expect(wfh.errors[:generic]).not_to include(
-          'you dont have enough Wfhs to apply this Wfh'
+        expect(wfh.errors[:base]).not_to include(
+          'You dont have enough Wfhs to apply for this Wfh'
         )
       end
     end

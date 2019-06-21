@@ -5,8 +5,8 @@ class Admin::UsersController < ApplicationController
 
   def index
     @financial_year = params[:financial_year] || OOOConfig.current_financial_year
-    @ooo_config = OOOConfig.where('financial_year = ?', @financial_year).first
-    @users = User.where('joining_date <= ?', FinancialYear.new(@financial_year).end_date)
+    @ooo_config = OOOConfig.includes(:holidays).where('financial_year = ?', @financial_year).first
+    @users = User.includes(:leaves, :wfhs).where('joining_date <= ?', FinancialYear.new(@financial_year).end_date)
     @financial_years = OOOConfig.all.order('financial_year DESC').pluck('financial_year')
     @current_quarter = FinancialQuarter.current_quarter
   end

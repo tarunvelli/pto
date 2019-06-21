@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 class FinancialQuarter
-  def initialize(financial_year, quarter)
+  def initialize(financial_year, quarter, wfhs_count: nil)
     @financial_year = financial_year
     @quarter = quarter
+    @wfhs_count = wfhs_count
   end
 
   def self.year_and_quarter(date)
@@ -60,6 +61,6 @@ class FinancialQuarter
   end
 
   def configured_wfhs_count
-    OOOConfig.find_by('financial_year = ?', @financial_year).wfhs_count
+    @wfhs_count.presence || OOOConfig.find_by('financial_year = ?', @financial_year).wfhs_count
   end
 end

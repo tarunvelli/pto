@@ -18,7 +18,9 @@
   = f.submit "Submit", class: "btn btn-primary form-control"
 
 - fy = FinancialYear.new(@financial_year)
+- fq = FinancialQuarter.new(@financial_year, @current_quarter)
 - financial_year_dates = { start_date: fy.start_date, end_date: fy.end_date  }
+- financial_quarter_dates = { start_date: fq.start_date, end_date: fq.end_date }
 - user = @user.present? ? @user : current_user
 - remaining_leaves = user.remaining_leaves_count(@financial_year, nil)
 - available_conversions = user.available_conversions_count(@financial_year, @current_quarter, nil)
@@ -26,6 +28,7 @@
   var remainingLeaves = #{remaining_leaves.to_json.html_safe}
   var availableConversions = #{available_conversions.to_json.html_safe}
   var financialYearDates = #{financial_year_dates.to_json.html_safe}
+  var financialQuarterDates = #{financial_quarter_dates.to_json.html_safe}
 
 :javascript
   $('#new_ooo_period').on('submit', function() {
@@ -33,6 +36,7 @@
     var startDate = $('#start_date').val()
     var endDate = $('#end_date').val()
     var daysCount = getBusinessDays(startDate, endDate)
+    availableConversions = moment(endDate) > moment(fq.end_date) ? 0 : availableConversions
 
     if (type === 'Leave' && remainingLeaves < daysCount && daysCount - remainingLeaves < availableConversions) {
       return confirm('Not enough leaves, convert wfhs?')
