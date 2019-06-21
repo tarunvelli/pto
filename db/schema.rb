@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190618183311) do
+ActiveRecord::Schema.define(version: 20190827105623) do
 
   create_table "holidays", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.date     "date"
@@ -38,11 +38,12 @@ ActiveRecord::Schema.define(version: 20190618183311) do
     t.date     "start_date"
     t.date     "end_date"
     t.integer  "user_id"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
     t.string   "google_event_id"
     t.string   "type"
     t.datetime "deleted_at"
+    t.boolean  "skip_penalty",    default: false
     t.index ["user_id"], name: "index_ooo_periods_on_user_id", using: :btree
   end
 

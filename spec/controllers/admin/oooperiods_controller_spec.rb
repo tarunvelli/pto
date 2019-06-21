@@ -131,4 +131,11 @@ RSpec.describe Admin::OooperiodsController, type: :controller do
       expect(response).to redirect_to admin_user_url(@user)
     end
   end
+
+  describe 'GET #edit' do
+    it 'renders edit template' do
+      get :edit, params: { id: @leave.id, user_id: @user.id }
+      expect(response).to render_template(:edit)
+    end
+  end
 end

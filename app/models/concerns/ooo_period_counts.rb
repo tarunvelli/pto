@@ -44,7 +44,9 @@ module OooPeriodCounts
 
       updated_at = financial_quarter.date_in_previous_fq(wfh.start_date) ? start_date - 1.day : wfh.updated_at
 
-      wfhs_used += Wfh.days_count_between(start_date, end_date, updated_at, ooo_config: ooo_config)
+      wfhs_used += Wfh.days_count_between(
+        start_date, end_date, updated_at, ooo_config: ooo_config, skip_penalty: wfh.skip_penalty
+      )
     end
 
     converted_wfhs = conversions_used_in_quarter(financial_year, quarter, ooo_config: ooo_config) * 4
@@ -117,7 +119,9 @@ module OooPeriodCounts
       end_date = fy.date_in_next_fy?(wfh.end_date) ? fy.end_date : wfh.end_date
       updated_at = fy.date_in_previous_fy?(wfh.start_date) ? start_date - 1.day : wfh.updated_at
 
-      wfhs_used += Wfh.days_count_between(start_date, end_date, updated_at, ooo_config: ooo_config)
+      wfhs_used += Wfh.days_count_between(
+        start_date, end_date, updated_at, ooo_config: ooo_config, skip_penalty: wfh.skip_penalty
+      )
     end
 
     total_wfhs = 0

@@ -33,6 +33,12 @@ RSpec.describe OOOPeriod, type: :model do
       expect(Wfh.days_count_between(wfh.start_date, wfh.end_date, '20170414'))
         .to eq(3)
     end
+
+    it 'should return number of days if he has not applied wfh before 7hr 30 min\
+    of start date but skip_penalty is true' do
+      expect(Wfh.days_count_between(wfh.start_date, wfh.end_date, '20170414', skip_penalty: true))
+        .to eq(2)
+    end
   end
 
   describe :check_user_wfhs_count do

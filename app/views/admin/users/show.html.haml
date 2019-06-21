@@ -9,7 +9,7 @@
         #calendar
     .col-md-3
       %h1 Apply OOO
-      = render 'shared/ooo_period_form', url: admin_user_oooperiods_path(@user), method: :post
+      = render 'shared/ooo_period_form', url: admin_user_oooperiods_path(@user), method: :post, show_skip_penalty_box: false
       .row
         %table#user_leaves.table.table-striped.table-bordered
           %h3 Leave Stats (#{@financial_year})
@@ -46,8 +46,13 @@
         %h6 1 Converted Leave = 4 Wfh
 
   .row
-    .col-md-10.col-md-offset-1
+    .col-md-8.col-md-offset-1
       %h1 Leave History
+    .col-md-3.financial-year
+      = form_tag(admin_user_path(@user), method: :get) do |f|
+        = label_tag 'financial_year'
+        = select_tag 'financial_year', options_for_select(@financial_years, @financial_year), id: 'financial_year', :onchange => "this.form.submit();"
+
   %table#leave_history.table.table-striped.table-bordered
     %thead
       %tr
@@ -65,9 +70,8 @@
           %td= link_to 'Edit', edit_admin_user_oooperiod_path(leave.user, leave)
           %td
             = link_to 'Delete', admin_user_oooperiod_path(leave.user, leave), method: :delete, data: { confirm: 'Are you sure?' }
-
   .row
-    .col-md-10.col-md-offset-1
+    .col-md-8.col-md-offset-1
       %h1 WFH History
   %table#wfh_history.table.table-striped.table-bordered
     %thead
@@ -82,11 +86,10 @@
         %tr
           %td= wfh.start_date
           %td= wfh.end_date
-          %td= Wfh.days_count_between(wfh.start_date, wfh.end_date, wfh.updated_at)
+          %td= Wfh.days_count_between(wfh.start_date, wfh.end_date, wfh.updated_at, skip_penalty: wfh.skip_penalty)
           %td= link_to 'Edit', edit_admin_user_oooperiod_path(wfh.user, wfh)
           %td
             = link_to 'Delete',admin_user_oooperiod_path(wfh.user, wfh), method: :delete, data: { confirm: 'Are you sure?' }
-
 
 :javascript
   $(document).ready(function() {
