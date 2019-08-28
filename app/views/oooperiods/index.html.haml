@@ -5,7 +5,7 @@
   .col-md-3
     .row
       %h1 Apply OOO
-      = render 'shared/ooo_period_form', url: oooperiods_path, method: :post
+      = render 'shared/ooo_period_form', url: oooperiods_path, method: :post, show_skip_penalty_box: false
     .row
       %table#user_leaves.table.table-striped.table-bordered
         %h3 Leave Stats (#{@financial_year})
@@ -76,7 +76,7 @@
       %tr
         %td= wfh.start_date
         %td= wfh.end_date
-        %td= Wfh.days_count_between(wfh.start_date, wfh.end_date, wfh.updated_at)
+        %td= Wfh.days_count_between(wfh.start_date, wfh.end_date, wfh.updated_at, skip_penalty: wfh.skip_penalty)
         %td= link_to 'Edit', edit_oooperiod_path(wfh)
         %td
           = link_to 'Delete',oooperiod_path(wfh), method: :delete, data: { confirm: 'Are you sure?' }
@@ -128,6 +128,14 @@
         data.push(obj)
       }
     }
+    var holidays = #{@holidays.to_json.html_safe}
+    holidays.forEach(holiday => {
+      data.push({
+        startDate: moment(holiday.date),
+        endDate: moment(holiday.date),
+        color: 'blueviolet'
+      })
+    })
     $('#calendar').calendar({
       dataSource: data,
       customDayRenderer: function(element, date) {

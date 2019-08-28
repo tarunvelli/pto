@@ -32,6 +32,7 @@ RSpec.describe OooperiodsController, type: :controller do
 
   describe 'GET #index' do
     before :each do
+      allow(OOOConfig).to receive(:current_financial_year).and_return '2017-2018'
       get :index
     end
 

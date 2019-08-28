@@ -6,6 +6,10 @@
   .form-group
     = f.label :end_date, "End Date (included)"
     = f.date_field :end_date, id:'end_date', class: 'form-control'
+  - if show_skip_penalty_box
+    .form-group
+      = f.label :skip_penalty, "Skip penalty?"
+      = f.check_box :skip_penalty, {}, 'true', 'false'
   .radio-inline
     .legend-green
     = f.radio_button :type, 'Wfh', checked: true
@@ -15,6 +19,10 @@
     .legend-red
     = f.radio_button :type, 'Leave'
     = f.label :type_leave, 'Leave'
+  %br
+  .radio-inline
+    .legend-blueviolet
+    %label Holiday
   = f.submit "Submit", class: "btn btn-primary form-control"
 
 - fy = FinancialYear.new(@financial_year)

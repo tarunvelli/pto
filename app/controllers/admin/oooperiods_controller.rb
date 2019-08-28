@@ -25,6 +25,11 @@ class Admin::OooperiodsController < ApplicationController
     end
   end
 
+  def edit
+    @financial_year = OOOConfig.current_financial_year
+    @current_quarter = FinancialQuarter.current_quarter
+  end
+
   def destroy
     return unless @ooo_period.destroy
 
@@ -43,7 +48,7 @@ class Admin::OooperiodsController < ApplicationController
   end
 
   def ooo_period_params
-    params.require(:ooo_period).permit(:start_date, :end_date, :type)
+    params.require(:ooo_period).permit(:start_date, :end_date, :type, :skip_penalty)
   end
 
   def choose_ooo_period_class

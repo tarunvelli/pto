@@ -72,7 +72,7 @@ input[type="radio"] {
   padding-right: 24px;
 }
 
-.legend-green, .legend-red{
+.legend-green, .legend-red, .legend-blueviolet {
   display: inline-block;
   height: 14px;
   width: 20px;
@@ -86,6 +86,10 @@ input[type="radio"] {
 
 .legend-red{
   background-color: red;
+}
+
+.legend-blueviolet{
+  background-color: blueviolet;
 }
 
 .holiday {

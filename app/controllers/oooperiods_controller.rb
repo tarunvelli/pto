@@ -12,6 +12,7 @@ class OooperiodsController < ApplicationController
     @editable_wfhs = current_user.wfhs.where('end_date >= ?', Date.current)
     @financial_year = OOOConfig.current_financial_year
     @current_quarter = FinancialQuarter.current_quarter
+    @holidays = OOOConfig.find_by(financial_year: @financial_year).holidays
   end
 
   def create
