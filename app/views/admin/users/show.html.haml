@@ -25,7 +25,7 @@
               %td= @user.leaves_used_count(@financial_year)
             %tr
               %td Conversions used
-              %td= @user.conversions_used_in_year(@financial_year, @current_quarter, nil)
+              %td= @user.conversions_used_in_year(@financial_year, 4, nil)
       .row
         %table#user_wfhs.table.table-striped.table-bordered
           %h3 WFH Stats (Q#{@current_quarter})
