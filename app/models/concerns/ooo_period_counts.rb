@@ -81,7 +81,7 @@ module OooPeriodCounts
 
   def available_conversions_count(financial_year, quarter, exclude_leave_id)
     accumulated_unused_whs_count(financial_year, quarter).to_f / 4 -
-      conversions_used_in_year(financial_year, quarter, exclude_leave_id)
+      conversions_used_in_year(financial_year, 4, exclude_leave_id)
   end
 
   def conversions_used_in_quarter(financial_year, quarter, ooo_config: nil)

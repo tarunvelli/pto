@@ -44,7 +44,7 @@
     var startDate = $('#start_date').val()
     var endDate = $('#end_date').val()
     var daysCount = getBusinessDays(startDate, endDate)
-    availableConversions = moment(endDate) > moment(fq.end_date) ? 0 : availableConversions
+    availableConversions = moment(endDate) > moment(financialQuarterDates.end_date) ? 0 : availableConversions
 
     if (type === 'Leave' && remainingLeaves < daysCount && daysCount - remainingLeaves < availableConversions) {
       return confirm('Not enough leaves, convert wfhs?')
