@@ -29,8 +29,8 @@ class OooperiodsController < ApplicationController
 
   def bydate
     @date = params[:sect_date].present? ? params[:sect_date].values.join('/').to_date : Date.today
-    @leaves = Leave.where('start_date <= ? && end_date >= ?', @date, @date)
-    @wfhs = Wfh.where('start_date <= ? && end_date >= ?', @date, @date)
+    @leaves = Leave.where('start_date <= ? AND end_date >= ?', @date, @date)
+    @wfhs = Wfh.where('start_date <= ? AND end_date >= ?', @date, @date)
   end
 
   def edit

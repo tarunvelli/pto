@@ -5,9 +5,9 @@ module UserConcerns
 
   def details_array
     [
-      name, email, joining_date, employee_id, self.DOB, contact_number, personal_email,
+      name, email, joining_date, employee_id, self.dob, contact_number, personal_email,
       blood_group, emergency_contact_number, mailing_address, fathers_name,
-      adhaar_number, self.PAN_number, passport_number
+      adhaar_number, self.pan_number, passport_number
     ]
   end
 

@@ -7,6 +7,8 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
+ruby '2.5.7'
+
 gem 'actionview', '>= 5.0.7.2'
 gem 'bootstrap-sass', '3.3.6'
 gem 'coffee-rails', '~> 4.2'
@@ -18,10 +20,10 @@ gem 'haml'
 gem 'jbuilder', '~> 2.5'
 gem 'jquery-rails'
 gem 'momentjs-rails'
-gem 'mysql2'
 gem 'omniauth-google-oauth2', '0.7.0'
 gem 'paper_trail'
 gem 'paranoia', '~> 2.2'
+gem 'pg'
 gem 'puma', '~> 3.12'
 gem 'rails', '~> 5.0.2'
 gem 'sass-rails', '~> 5.0'
