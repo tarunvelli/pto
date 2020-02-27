@@ -58,8 +58,10 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:name, :joining_date, :employee_id, :DOB, :leaving_date, :fathers_name, :adhaar_number,
-                                 :PAN_number, :blood_group, :emergency_contact_number, :mailing_address,
-                                 :personal_email, :contact_number, :passport_number)
+    params.require(:user).permit(
+      :name, :joining_date, :employee_id, :dob, :leaving_date, :fathers_name,
+      :adhaar_number, :pan_number, :blood_group, :emergency_contact_number,
+      :mailing_address, :personal_email, :contact_number, :passport_number
+    )
   end
 end

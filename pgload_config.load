@@ -1,0 +1,10 @@
+/* pgloader config file */
+
+LOAD DATABASE
+     FROM      mysql://root@localhost/pto_stagingdb
+     INTO      pgsql://postgres@localhost/pto_production
+
+ WITH include drop, create tables
+
+ALTER SCHEMA 'pto_stagingdb' RENAME TO 'public'
+;

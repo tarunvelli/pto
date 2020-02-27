@@ -12,7 +12,10 @@
 
 ActiveRecord::Schema.define(version: 20190827105623) do
 
-  create_table "holidays", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
+  create_table "holidays", force: :cascade do |t|
     t.date     "date"
     t.string   "occasion"
     t.integer  "ooo_config_id"
@@ -22,19 +25,19 @@ ActiveRecord::Schema.define(version: 20190827105623) do
     t.index ["ooo_config_id"], name: "index_holidays_on_ooo_config_id", using: :btree
   end
 
-  create_table "ooo_configs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
+  create_table "ooo_configs", force: :cascade do |t|
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
     t.string   "financial_year"
     t.integer  "leaves_count"
     t.integer  "wfhs_count"
     t.integer  "wfh_penalty_coefficient"
-    t.float    "wfh_headsup_hours",       limit: 24
+    t.float    "wfh_headsup_hours"
     t.datetime "deleted_at"
     t.index ["financial_year"], name: "index_ooo_configs_on_financial_year", unique: true, using: :btree
   end
 
-  create_table "ooo_periods", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "ooo_periods", force: :cascade do |t|
     t.date     "start_date"
     t.date     "end_date"
     t.integer  "user_id"
@@ -47,7 +50,7 @@ ActiveRecord::Schema.define(version: 20190827105623) do
     t.index ["user_id"], name: "index_ooo_periods_on_user_id", using: :btree
   end
 
-  create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "users", force: :cascade do |t|
     t.string   "provider"
     t.string   "uid"
     t.string   "name"
@@ -60,11 +63,11 @@ ActiveRecord::Schema.define(version: 20190827105623) do
     t.integer  "token_expires_at"
     t.boolean  "active",                   default: true
     t.string   "employee_id"
-    t.date     "DOB"
+    t.date     "dob"
     t.date     "leaving_date"
     t.string   "fathers_name"
     t.string   "adhaar_number"
-    t.string   "PAN_number"
+    t.string   "pan_number"
     t.string   "blood_group"
     t.string   "emergency_contact_number"
     t.string   "mailing_address"
@@ -73,12 +76,12 @@ ActiveRecord::Schema.define(version: 20190827105623) do
     t.string   "passport_number"
   end
 
-  create_table "versions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
-    t.string   "item_type",  limit: 191,        null: false
-    t.integer  "item_id",                       null: false
-    t.string   "event",                         null: false
+  create_table "versions", force: :cascade do |t|
+    t.string   "item_type",  limit: 191, null: false
+    t.integer  "item_id",                null: false
+    t.string   "event",                  null: false
     t.string   "whodunnit"
-    t.text     "object",     limit: 4294967295
+    t.text     "object"
     t.datetime "created_at"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id", using: :btree
   end
