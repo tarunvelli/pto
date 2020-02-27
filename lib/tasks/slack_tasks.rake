@@ -3,6 +3,8 @@
 namespace :slack do
   desc 'send slack notification'
   task send_slack_notification: :environment do
+    exit 0 unless Time.now.on_weekday?
+
     leaves = Leave.where('start_date <= ? and end_date >= ?', Date.today, Date.today)
     leave_users = leaves.select{ |leave| leave.user.active }.collect{ |leave| leave.user.name }.join(', ')
     wfhs = Wfh.where('start_date <= ? and end_date >= ?', Date.today, Date.today)
