@@ -19,9 +19,6 @@
           %tr
             %td Leaves used
             %td= current_user.leaves_used_count(@financial_year)
-          %tr
-            %td Conversions used
-            %td= current_user.conversions_used_in_year(@financial_year, 4, nil)
     .row
       %table#user_wfhs.table.table-striped.table-bordered
         %h3 WFH Stats (Q#{@current_quarter})
@@ -35,11 +32,6 @@
           %tr
             %td WFHs used
             %td= current_user.wfhs_used_count(@financial_year, @current_quarter)
-          %tr
-            %td WFHs eligible for conversion
-            - available_conversions = current_user.available_conversions_count(@financial_year, @current_quarter, nil)
-            %td= "#{(available_conversions * 4).to_i} (#{available_conversions} leaves)"
-      %h6 1 Converted Leave = 4 Wfh
 
 .row
   %h1 Up coming Leaves
