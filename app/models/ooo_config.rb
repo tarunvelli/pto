@@ -10,7 +10,7 @@ class OOOConfig < ApplicationRecord
   acts_as_paranoid
 
   def self.current_financial_year
-    check_date = Date.current < Date.new(Date.current.year, 3, 31)
+    check_date = Date.current <= Date.new(Date.current.year, 3, 31)
     start_year_of_fy = check_date ? Date.current.year - 1 : Date.current.year
     "#{start_year_of_fy}-#{start_year_of_fy + 1}"
   end
