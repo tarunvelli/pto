@@ -3,9 +3,9 @@
 module OooPeriodCounts
   extend ActiveSupport::Concern
 
-  def remaining_leaves_count(financial_year, exclude_leave_id, ooo_config: nil)
-    fy = FinancialYear.new(financial_year)
-    total_leaves_count = total_leaves_count(financial_year, ooo_config: ooo_config)
+  def remaining_leaves_count(ooo_config, exclude_leave_id)
+    fy = ooo_config
+    total_leaves_count = total_leaves_count(ooo_config)
     leaves = get_in_range(self.leaves, fy.start_date, fy.end_date)
     leaves_used = 0
     leaves.each do |leave|
@@ -19,19 +19,18 @@ module OooPeriodCounts
     total_leaves_count - leaves_used
   end
 
-  def leaves_used_count(financial_year, ooo_config: nil)
-    (total_leaves_count(financial_year, ooo_config: ooo_config) -
-      remaining_leaves_count(financial_year, nil, ooo_config: ooo_config)).to_i
+  def leaves_used_count(ooo_config)
+    (total_leaves_count(ooo_config) - remaining_leaves_count(ooo_config, nil)).to_i
   end
 
-  def wfhs_used_count(financial_year, quarter, ooo_config: nil)
-    (total_wfhs_count(financial_year, quarter, ooo_config: ooo_config) -
-      remaining_wfhs_count(financial_year, quarter, nil, ooo_config: ooo_config)).to_i
+  def wfhs_used_count(ooo_config, quarter)
+    (total_wfhs_count(ooo_config, quarter) -
+      remaining_wfhs_count(ooo_config, quarter, nil)).to_i
   end
 
-  def remaining_wfhs_count(financial_year, quarter, exclude_wfh_id, ooo_config: nil)
-    financial_quarter = FinancialQuarter.new(financial_year, quarter)
-    total_wfhs_count = total_wfhs_count(financial_year, quarter, ooo_config: ooo_config)
+  def remaining_wfhs_count(ooo_config, quarter, exclude_wfh_id)
+    financial_quarter = FinancialQuarter.new(ooo_config, quarter)
+    total_wfhs_count = total_wfhs_count(ooo_config, quarter)
     wfhs = get_in_range(self.wfhs, financial_quarter.start_date, financial_quarter.end_date)
     wfhs_used = 0
     wfhs.each do |wfh|
@@ -51,20 +50,20 @@ module OooPeriodCounts
     total_wfhs_count - wfhs_used
   end
 
-  def total_leaves_count(financial_year, ooo_config: nil)
-    fy = FinancialYear.new(financial_year, leaves_count: ooo_config&.leaves_count)
+  def total_leaves_count(ooo_config)
+    fy = ooo_config
     case
     when fy.date_in_previous_fy?(joining_date)
-      fy.configured_leaves_count
+      fy.leaves_count
     when fy.did_user_join_in_between_the_given_fy(joining_date)
-      ((fy.end_date - joining_date) * fy.configured_leaves_count / 365).ceil
+      ((fy.end_date - joining_date) * fy.leaves_count / 365).ceil
     else
       0
     end
   end
 
-  def total_wfhs_count(financial_year, quarter, ooo_config: nil)
-    financial_quarter = FinancialQuarter.new(financial_year, quarter, wfhs_count: ooo_config&.wfhs_count)
+  def total_wfhs_count(ooo_config, quarter)
+    financial_quarter = FinancialQuarter.new(ooo_config, quarter)
     case
     when financial_quarter.date_in_previous_fq(joining_date)
       financial_quarter.configured_wfhs_count

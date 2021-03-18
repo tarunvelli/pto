@@ -10,11 +10,12 @@ RSpec.describe User, type: :model do
                   token_expires_at: 123 }
   let(:user) { User.create(user_params) }
   before :each do
-    config_params = { financial_year: '2017-2018',
-                      leaves_count: 16,
+    config_params = { leaves_count: 16,
                       wfhs_count: 13,
                       wfh_headsup_hours: 7.5,
-                      wfh_penalty_coefficient: 1 }
+                      wfh_penalty_coefficient: 1,
+                      start_date: '2017-04-01',
+                      end_date: '2018-03-31' }
     @ooo_config = OOOConfig.create(config_params)
   end
 
@@ -22,7 +23,7 @@ RSpec.describe User, type: :model do
     %w[
       name email oauth_token token_expires_at
     ].each do |message|
-      it 'should respond to :#{message}' do
+      it "should respond to :#{message}" do
         expect(User.new).to respond_to(message.to_sym)
       end
     end
@@ -79,26 +80,27 @@ RSpec.describe User, type: :model do
 
     context 'when it does not exclude any leave' do
       it 'should return remaining leaves for given financial year' do
-        expect(user.remaining_leaves_count('2017-2018', 0)).to eq(15)
+        expect(user.remaining_leaves_count(@ooo_config, 0)).to eq(15)
       end
 
       it 'should return remaining leaves for given financial year even \
       if leave spans over two financial years' do
-        config_params = { financial_year: '2018-2019',
-                          leaves_count: 16,
+        config_params = { leaves_count: 16,
                           wfhs_count: 13,
                           wfh_headsup_hours: 7.5,
-                          wfh_penalty_coefficient: 1 }
+                          wfh_penalty_coefficient: 1,
+                          start_date: '2018-04-01',
+                          end_date: '2019-03-01' }
         OOOConfig.create(config_params)
         user.leaves.create(start_date: '2018-03-30', end_date: '2018-04-02')
-        expect(user.remaining_leaves_count('2017-2018', 0)).to eq(14)
+        expect(user.remaining_leaves_count(@ooo_config, 0)).to eq(14)
       end
     end
 
     context 'when it excludes one leave' do
       it 'should return remaining leaves for given financial year by\
       excluding given leave' do
-        expect(user.remaining_leaves_count('2017-2018', @leave.id)).to eq(16)
+        expect(user.remaining_leaves_count(@ooo_config, @leave.id)).to eq(16)
       end
     end
   end
@@ -112,20 +114,20 @@ RSpec.describe User, type: :model do
     context 'does not exclude any wfh' do
       it 'should return remaining wfhs for given financial year and \
       given quarter' do
-        expect(user.remaining_wfhs_count('2017-2018', 1, 0)).to eq(11)
+        expect(user.remaining_wfhs_count(@ooo_config, 1, 0)).to eq(11)
       end
 
       it 'should return remaining wfhs for given financial year\
       and given quarter even if wfh spans over two quarters' do
         user.wfhs.create(start_date: '2017-06-30', end_date: '2017-07-03')
-        expect(user.remaining_wfhs_count('2017-2018', 1, 0)).to eq(9)
+        expect(user.remaining_wfhs_count(@ooo_config, 1, 0)).to eq(9)
       end
     end
 
     context 'exclude one wfh' do
       it 'should return remaining wfhs for given financial year and\
       given quarter by excluding given wfh' do
-        expect(user.remaining_wfhs_count('2017-2018', 1, @wfh.id)).to eq(13)
+        expect(user.remaining_wfhs_count(@ooo_config, 1, @wfh.id)).to eq(13)
       end
     end
   end
@@ -133,48 +135,48 @@ RSpec.describe User, type: :model do
   describe :total_leaves_count do
     it 'should return 0 if user joined after given financial year' do
       user.update(joining_date: '2018-10-01')
-      expect(user.total_leaves_count('2017-2018')).to eq(0)
+      expect(user.total_leaves_count(@ooo_config)).to eq(0)
     end
 
     it 'should return the maximum number of leaves/year if the \
     user has already joined before given financial year' do
-      expect(user.total_leaves_count('2017-2018')).to eq(16)
+      expect(user.total_leaves_count(@ooo_config)).to eq(16)
     end
 
     it 'should return the half of the maximum leaves if \
     the user joined exactly mid financial year' do
       user.update(joining_date: '2017-10-01')
-      expect(user.total_leaves_count('2017-2018')).to eq(8)
+      expect(user.total_leaves_count(@ooo_config)).to eq(8)
     end
 
     it 'should return the quarter of the maximum leaves if the user \
     joined in the last quarter of the financial year' do
       user.update(joining_date: '2018-01-01')
-      expect(user.total_leaves_count('2017-2018')).to eq(4)
+      expect(user.total_leaves_count(@ooo_config)).to eq(4)
     end
 
     it 'should return ceiling of the fractional value if the user \
     joined in the second month of the first quarter' do
       user.update(joining_date: '2018-02-01')
-      expect(user.total_leaves_count('2017-2018')).to eq(3)
+      expect(user.total_leaves_count(@ooo_config)).to eq(3)
     end
   end
 
   describe :total_wfhs_count do
     it 'should return 0 if user joined after given fy and quarter' do
       user.update(joining_date: '2018-10-01')
-      expect(user.total_wfhs_count('2017-2018', 1)).to eq(0)
+      expect(user.total_wfhs_count(@ooo_config, 1)).to eq(0)
     end
 
     it 'should return the maximum number of wfhs/quarter if the \
     user has already joined before given fy and quarter' do
-      expect(user.total_wfhs_count('2017-2018', 1)).to eq(13)
+      expect(user.total_wfhs_count(@ooo_config, 1)).to eq(13)
     end
 
     it 'should return the half of the maximum wfhs if \
     the user joined exactly mid quarter' do
       user.update(joining_date: '2017-05-15')
-      expect(user.total_wfhs_count('2017-2018', 1)).to eq(7)
+      expect(user.total_wfhs_count(@ooo_config, 1)).to eq(7)
     end
   end
 

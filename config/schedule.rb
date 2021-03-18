@@ -12,6 +12,6 @@ every :weekday, at: '3:30am' do
   rake 'slack:send_slack_notification'
 end
 
-every :year, at: 'March 31st 11:59pm' do
+every :year, at: 'December 31st 01:00am' do
   rake 'config:set_ooo_configs_every_year'
 end

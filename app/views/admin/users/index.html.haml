@@ -20,8 +20,8 @@
             %tr
               %td= user.name
               %td= user.email
-              %td= user.leaves_used_count(@financial_year, ooo_config: @ooo_config)
-              %td= [1, 2, 3, 4].map { |quarter| user.wfhs_used_count(@financial_year, quarter, ooo_config: @ooo_config) }.join(', ')
+              %td= user.leaves_used_count(@ooo_config)
+              %td= [1, 2, 3, 4].map { |quarter| user.wfhs_used_count(@ooo_config, quarter) }.join(', ')
               %td= link_to 'Show', admin_user_path(user)
               %td
                 = form_for(user, url: admin_user_path(user), method: :patch) do |f|
@@ -62,7 +62,7 @@
       .form-group
         = f.label :wfh_penalty_coefficient
         = f.number_field :wfh_penalty_coefficient, class: 'form-control'
-      - if @ooo_config.financial_year >= OOOConfig.current_financial_year
+      - if @ooo_config.financial_year >=  OOOConfig.get_config_from_date(date: Date.current).financial_year
         = f.submit "Submit", class: "btn btn-primary"
 
   .col-md-12

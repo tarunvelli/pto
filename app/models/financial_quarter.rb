@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
 class FinancialQuarter
-  def initialize(financial_year, quarter, wfhs_count: nil)
-    @financial_year = financial_year
+  # TODO: remove if wfhs can be removed or rename to ConfigQuarter
+
+  def initialize(ooo_config, quarter)
+    @financial_year = ooo_config.financial_year
     @quarter = quarter
-    @wfhs_count = wfhs_count
+    @wfhs_count = ooo_config.wfhs_count
   end
 
   def self.year_and_quarter(date)
-    [FinancialYear.get_financial_year(date), FinancialQuarter.get_quarter(date)]
+    [OOOConfig.get_financial_year_from_date(date), FinancialQuarter.get_quarter(date)]
   end
 
   def self.end_month_of_quarter(date)

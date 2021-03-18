@@ -12,14 +12,20 @@ RSpec.describe Admin::OooperiodsController, type: :controller do
                         joining_date: '2017-02-16',
                         oauth_token: 'test',
                         token_expires_at: 123)
-    OOOConfig.create(financial_year: '2017-2018',
-                     leaves_count: 16,
-                     wfhs_count: 13,
-                     wfh_headsup_hours: 7.5,
-                     wfh_penalty_coefficient: 1)
+
+    @current_ooo_config = OOOConfig.create(
+      leaves_count: 16,
+      wfhs_count: 13,
+      wfh_headsup_hours: 7.5,
+      wfh_penalty_coefficient: 1,
+      start_date: '2017-04-01',
+      end_date: '2018-03-31'
+    )
 
     allow_any_instance_of(Admin::OooperiodsController)
       .to receive(:admin_user).and_return(true)
+
+    allow(OOOConfig).to receive(:get_config_from_date).and_return(@current_ooo_config)
 
     @leave = @user.ooo_periods.create(
       start_date: '20170412',

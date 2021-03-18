@@ -10,9 +10,10 @@ class OooperiodsController < ApplicationController
     @editable_leaves = current_user.leaves.where('end_date >= ?', Date.current)
     @total_wfhs = current_user.wfhs.order('end_date DESC')
     @editable_wfhs = current_user.wfhs.where('end_date >= ?', Date.current)
-    @financial_year = OOOConfig.current_financial_year
+    @current_ooo_config = OOOConfig.get_config_from_date(date: Date.current)
+    @financial_year = @current_ooo_config.financial_year
     @current_quarter = FinancialQuarter.current_quarter
-    @holidays = OOOConfig.find_by(financial_year: @financial_year).holidays
+    @holidays = @current_ooo_config.holidays
   end
 
   def create
@@ -21,7 +22,8 @@ class OooperiodsController < ApplicationController
       flash[:success] = "#{@ooo_period.type} applied!"
       redirect_to oooperiods_url
     else
-      @financial_year = OOOConfig.current_financial_year
+      @current_ooo_config = OOOConfig.get_config_from_date(date: Date.current)
+      @financial_year = @current_ooo_config.financial_year
       @current_quarter = FinancialQuarter.current_quarter
       render 'new'
     end
@@ -34,7 +36,8 @@ class OooperiodsController < ApplicationController
   end
 
   def edit
-    @financial_year = OOOConfig.current_financial_year
+    @current_ooo_config = OOOConfig.get_config_from_date(date: Date.current)
+    @financial_year = @current_ooo_config.financial_year
     @current_quarter = FinancialQuarter.current_quarter
   end
 

@@ -4,11 +4,12 @@ require 'rails_helper'
 
 RSpec.describe Admin::OooconfigsController, type: :controller do
   before :each do
-    @config_params = { financial_year: OOOConfig.current_financial_year,
-                       leaves_count: 20,
+    @config_params = { leaves_count: 20,
                        wfhs_count: 15,
                        wfh_headsup_hours: 7.5,
-                       wfh_penalty_coefficient: 1 }
+                       wfh_penalty_coefficient: 1,
+                       start_date: '2021-04-01',
+                       end_date: '2021-12-31' }
 
     allow_any_instance_of(Admin::OooconfigsController).to receive(
       :admin_user

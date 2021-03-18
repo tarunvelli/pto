@@ -16,9 +16,10 @@ class UsersController < ApplicationController
   end
 
   def index
-    @financial_year = params[:financial_year] || OOOConfig.current_financial_year
+    @ooo_config = OOOConfig.get_config_from_financial_year(financial_year: params[:financial_year])
+    @financial_year = @ooo_config.financial_year
     @financial_years = OOOConfig.all.order('financial_year DESC').pluck('financial_year')
-    @users = User.where('joining_date <= ?', FinancialYear.new(@financial_year).end_date)
+    @users = User.where('joining_date <= ?', @ooo_config.end_date)
   end
 
   def download_users_details

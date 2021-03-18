@@ -12,26 +12,26 @@
         %tbody
           %tr
             %td Total Leaves
-            %td= current_user.total_leaves_count(@financial_year)
+            %td= current_user.total_leaves_count(@current_ooo_config)
           %tr
             %td Remaining Leaves
-            %td= current_user.remaining_leaves_count(@financial_year, nil)
+            %td= current_user.remaining_leaves_count(@current_ooo_config, nil)
           %tr
             %td Leaves used
-            %td= current_user.leaves_used_count(@financial_year)
+            %td= current_user.leaves_used_count(@current_ooo_config)
     .row
       %table#user_wfhs.table.table-striped.table-bordered
         %h3 WFH Stats (Q#{@current_quarter})
         %tbody
           %tr
             %td Total WFHs
-            %td= current_user.total_wfhs_count(@financial_year, @current_quarter)
+            %td= current_user.total_wfhs_count(@current_ooo_config, @current_quarter)
           %tr
             %td Remaining WFHs
-            %td= current_user.remaining_wfhs_count(@financial_year, @current_quarter, nil)
+            %td= current_user.remaining_wfhs_count(@current_ooo_config, @current_quarter, nil)
           %tr
             %td WFHs used
-            %td= current_user.wfhs_used_count(@financial_year, @current_quarter)
+            %td= current_user.wfhs_used_count(@current_ooo_config, @current_quarter)
 
 .row
   %h1 Up coming Leaves

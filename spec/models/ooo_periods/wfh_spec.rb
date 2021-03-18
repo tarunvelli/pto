@@ -13,11 +13,12 @@ RSpec.describe OOOPeriod, type: :model do
   let(:wfh) { user.ooo_periods.create(wfh_params) }
 
   before do
-    ooo_config_params = { financial_year: '2017-2018',
-                          leaves_count: 16,
+    ooo_config_params = { leaves_count: 16,
                           wfhs_count: 13,
                           wfh_headsup_hours: 7.5,
-                          wfh_penalty_coefficient: 1 }
+                          wfh_penalty_coefficient: 1,
+                          start_date: '2017-04-01',
+                          end_date: '2018-03-31' }
 
     @ooo_config = OOOConfig.create(ooo_config_params)
   end

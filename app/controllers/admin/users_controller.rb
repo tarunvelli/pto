@@ -4,21 +4,21 @@ class Admin::UsersController < ApplicationController
   before_action :admin_user
 
   def index
-    @financial_year = params[:financial_year] || OOOConfig.current_financial_year
-    @ooo_config = OOOConfig.includes(:holidays).where('financial_year = ?', @financial_year).first
-    @users = User.includes(:leaves, :wfhs).where('joining_date <= ?', FinancialYear.new(@financial_year).end_date)
+    @ooo_config = OOOConfig.get_config_from_financial_year(financial_year: params[:financial_year])
+    @financial_year = @ooo_config.financial_year
+    @users = User.includes(:leaves, :wfhs).where('joining_date <= ?', @ooo_config.end_date)
     @financial_years = OOOConfig.all.order('financial_year DESC').pluck('financial_year')
     @current_quarter = FinancialQuarter.current_quarter
   end
 
   def show
     id = params[:select_user] || params[:id]
-    @financial_year = params[:financial_year] || OOOConfig.current_financial_year
+    @ooo_config = OOOConfig.get_config_from_financial_year(financial_year: params[:financial_year])
+    @financial_year = @ooo_config.financial_year
     @user = User.find(id)
-    @fy = FinancialYear.new(@financial_year)
-    @leaves = @user.leaves.where('end_date >= ? and start_date <= ?', @fy.start_date, @fy.end_date)
+    @leaves = @user.leaves.where('end_date >= ? and start_date <= ?', @ooo_config.start_date, @ooo_config.end_date)
                    .order('end_date DESC')
-    @wfhs = @user.wfhs.where('end_date >= ? and start_date <= ?', @fy.start_date, @fy.end_date)
+    @wfhs = @user.wfhs.where('end_date >= ? and start_date <= ?', @ooo_config.start_date, @ooo_config.end_date)
                  .order('end_date DESC')
     @ooo_period = OOOPeriod.new
     @current_quarter = FinancialQuarter.current_quarter

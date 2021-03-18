@@ -7,11 +7,12 @@ RSpec.describe Admin::HolidaysController, type: :controller do
     allow_any_instance_of(Admin::HolidaysController).to receive(
       :admin_user
     ).and_return(true)
-    @ooo_config = OOOConfig.create(financial_year: '2017-2018',
-                                   leaves_count: 16,
+    @ooo_config = OOOConfig.create(leaves_count: 16,
                                    wfhs_count: 13,
                                    wfh_headsup_hours: 7.5,
-                                   wfh_penalty_coefficient: 1)
+                                   wfh_penalty_coefficient: 1,
+                                   start_date: '2017-04-01',
+                                   end_date: '2018-03-31')
   end
 
   describe 'POST #create' do

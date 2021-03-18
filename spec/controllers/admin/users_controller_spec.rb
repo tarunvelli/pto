@@ -11,6 +11,13 @@ RSpec.describe Admin::UsersController, type: :controller do
                         joining_date: '2017-02-16',
                         oauth_token: 'test',
                         token_expires_at: 123)
+    current_ooo_config = OOOConfig.create(leaves_count: 16,
+                                          wfhs_count: 13,
+                                          wfh_headsup_hours: 7.5,
+                                          wfh_penalty_coefficient: 1,
+                                          start_date: '2017-04-01',
+                                          end_date: '2018-03-31')
+    allow(OOOConfig).to receive(:get_config_from_date).and_return(current_ooo_config)
   end
 
   describe 'GET #index' do

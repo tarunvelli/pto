@@ -29,11 +29,11 @@ class Leave < OOOPeriod
   end
 
   def get_remaining_leaves_count(date, leave_id)
-    fy = FinancialYear.get_financial_year(date)
-    user.remaining_leaves_count(fy, leave_id)
+    ooo_config = OOOConfig.get_config_from_date(date: date)
+    user.remaining_leaves_count(ooo_config, leave_id)
   end
 
   def dates_in_same_fy?
-    FinancialYear.get_financial_year(start_date) == FinancialYear.get_financial_year(end_date)
+    OOOConfig.get_financial_year_from_date(start_date) == OOOConfig.get_financial_year_from_date(end_date)
   end
 end

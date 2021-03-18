@@ -31,7 +31,8 @@ class Admin::OooconfigsController < ApplicationController
 
   def ooo_config_params
     params.require(:ooo_config).permit(
-      :financial_year,
+      :start_date,
+      :end_date,
       :leaves_count,
       :wfhs_count,
       :wfh_headsup_hours,

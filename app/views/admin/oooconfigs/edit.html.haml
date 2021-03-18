@@ -9,5 +9,11 @@
       .form-group
         = f.label :wfhs_count
         = f.number_field :wfhs_count, class: 'form-control'
+      .form-group
+        = f.label :wfh_headsup_hours
+        = f.number_field :wfh_headsup_hours, :step => "0.5", class: 'form-control'
+      .form-group
+        = f.label :wfh_penalty_coefficient
+        = f.number_field :wfh_penalty_coefficient, class: 'form-control'
       = f.submit "Submit", class: "btn btn-primary"
 

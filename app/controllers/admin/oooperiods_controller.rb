@@ -26,7 +26,8 @@ class Admin::OooperiodsController < ApplicationController
   end
 
   def edit
-    @financial_year = OOOConfig.current_financial_year
+    @current_ooo_config = OOOConfig.get_config_from_date(date: Date.current)
+    @financial_year = @current_ooo_config.financial_year
     @current_quarter = FinancialQuarter.current_quarter
   end
 
